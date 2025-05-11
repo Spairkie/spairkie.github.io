@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hans Sai - Personal Webpage</title>
+    <style>
+        /* Basic styling for the webpage */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        /* Styling for the header section */
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 2em 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        header p {
+            font-size: 1.2em;
+            margin-top: 0.5em;
+        }
+        /* Styling for the navigation menu */
+        nav {
+            background-color: #34495e;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        nav ul li {
+            display: inline-block;
+        }
+        nav ul li a {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            padding: 1em;
+            cursor: pointer; /* Ensuring the cursor is a pointer for better UX */
+        }
+        nav ul li a:hover {
+            background-color: #2c3e50;
+        }
+        /* Styling for the container holding main content */
+        .container {
+            position: relative;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        /* Styling for individual sections */
+        .section {
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #2c3e50;
+            color: white;
+            margin-top: 40px;
+        }
+        /* Styling for contact information */
+        .contact-info {
+            list-style: none;
+            padding: 0;
+        }
+        .contact-info li {
+            margin-bottom: 10px;
+        }
+        /* Styling for links */
+        a {
+            color: #3498db;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        /* Styling for portfolio items */
+        .portfolio-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .portfolio-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        /* Styling for dates and locations */
+        .date-location {
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        /* Styling for the Scroll to Top button */
+        #scrollTopBtn {
+            display: none; /* Hidden by default */
+            position: fixed; /* Fixed/sticky position */
+            bottom: 20px; /* Place the button at the bottom of the page */
+            right: 30px; /* Place the button 30px from the right */
+            z-index: 99; /* Make sure it does not overlap */
+            border: none; /* Remove borders */
+            outline: none; /* Remove outline */
+            background: linear-gradient(135deg, #3498db, #2ecc71); /* Gradient background */
+            color: white; /* Text color */
+            cursor: pointer; /* Add a mouse pointer on hover */
+            padding: 15px; /* Some padding */
+            border-radius: 50%; /* Rounded button */
+            font-size: 24px; /* Increase font size for the icon */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+            transition: all 0.3s ease; /* Smooth transition for effects */
+        }
+
+        #scrollTopBtn:hover {
+            background: linear-gradient(135deg, #2ecc71, #3498db); /* Change gradient on hover */
+            transform: scale(1.1); /* Slightly enlarge the button on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Increase shadow on hover */
+        }
+
+        /* Add icon styling */
+        #scrollTopBtn::before {
+            content: '▲'; /* Unicode arrow up character */
+            font-size: 18px; /* Icon size */
+            display: block;
+            text-align: center; /* Center the icon */
+        }
+
+
+        /* Styling for the metaballs canvas */
+        canvas#metaballs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Ensure the canvas is behind other content */
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Hans Sai</h1>
+    <p>Air Force Reservist & Aspiring Cybersecurity Professional</p>
+</header>
+
+<nav>
+    <ul>
+        <li><a onclick="scrollToSection('about')">About Me</a></li>
+        <li><a onclick="scrollToSection('portfolio')">Portfolio</a></li>
+        <li><a onclick="scrollToSection('work-history')">Work History</a></li>
+        <li><a onclick="scrollToSection('skills')">Skills</a></li>
+        <li><a onclick="scrollToSection('education')">Education</a></li>
+        <li><a onclick="scrollToSection('contact')">Contact Information</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+    <!-- About Me Section -->
+    <div id="about" class="section">
+        <h2>About Me</h2>
+        <p>Hello! I'm Hans Sai, currently serving in the Military Airforce Reserve while pursuing my studies in Computer Science and Cyber Security. My journey blends the discipline and strategic thinking from my military experience with a deep passion for technology and security. I thrive in environments where I can solve complex problems and protect systems from cyber threats.</p>
+        <p>I am tech-savvy and eager to broaden my skills and contribute to team success through hard work, attention to detail, and excellent organizational skills. My experience ranges from health services management in the Air Force to managerial roles in the fast food industry, showcasing my versatility and dedication.</p>
+        <p>When I'm not studying or on duty, you can find me exploring the latest tech trends, coding, or enjoying outdoor activities.</p>
+    </div>
+
+    <!-- Portfolio Section -->
+    <div id="portfolio" class="section">
+        <h2>Portfolio</h2>
+        <div class="portfolio-item">
+            <h3>Project 1: Web Development</h3>
+            <p>Developed a responsive website using HTML, CSS, and JavaScript. Implemented interactive features and ensured cross-browser compatibility.</p>
+        </div>
+        <div class="portfolio-item">
+            <h3>Project 2: Cyber Security Simulation</h3>
+            <p>Created a cyber security simulation in Python to demonstrate common vulnerabilities and mitigation strategies. Focused on practical applications of security principles.</p>
+        </div>
+        <div class="portfolio-item">
+            <h3>Project 3: Automation Script</h3>
+            <p>Designed and developed an automation script using Python to streamline data entry tasks, significantly reducing manual effort and error rates.</p>
+        </div>
+    </div>
+
+    <!-- Work History Section -->
+    <div id="work-history" class="section">
+        <h2>Work History</h2>
+        <h3>United States Air Force, USAF - Health Services Management (4A0)</h3>
+        <p class="date-location">Youngstown, OH | 01/2021 - Current</p>
+        <ul>
+            <li>Provide administrative support to the entire hospital staff</li>
+            <li>File and maintain inpatient and outpatient medical records</li>
+            <li>Perform and manage financial statements, budget estimates, and financial plans</li>
+            <li>Use medical computer systems for patient scheduling, budgeting, and staffing</li>
+            <li>Interview patients for admission and discharge purposes</li>
+            <li>Monitor information technology security programs</li>
+            <li>Analyze and advise on the completeness and accuracy of healthcare data</li>
+        </ul>
+        <h3>McDonald's Fast Food Restaurant - Manager</h3>
+        <p class="date-location">Fredericksburg, VA | 09/2019 - 03/2021</p>
+        <ul>
+            <li>Supervised food preparation stations to observe hygiene and taste quality of food served to customers</li>
+            <li>Created and implemented policies to achieve customer satisfaction and maintain food service standards</li>
+            <li>Maintained safe working and guest environment to reduce risk of injury and accidents</li>
+            <li>Controlled costs and optimized spending via restructuring of budgets for labor, capital assets, inventory purchasing, and technology upgrades</li>
+            <li>Coached crew members in product specifications, sales incentives, and selling techniques, significantly increasing customer satisfaction ratings</li>        
+            <li>Purchased adequate quantities of necessary restaurant items, including food, beverages, equipment, and supplies</li>
+            <li>Reduced shortages by holding staff accountable for excessive food waste and conducting shift inventories</li>
+            <li>Effectively managed payroll and timekeeping, and paperwork for new hires and terminations</li>
+        </ul>
+    </div>
+
+    <!-- Skills Section -->
+    <div id="skills" class="section">
+        <h2>Skills</h2>
+        <ul>
+            <li>Effective Listener with a People First Attitude</li>
+            <li>Good phone etiquette and communication</li>
+            <li>Time Management and Professionalism</li>
+            <li>Problem solver / Power user</li>
+            <li>Computer Programming and Software development with Lua, Python, C++, Java, Kotlin</li>
+            <li>Web development with HTML, CSS, JavaScript</li>
+        </ul>
+    </div>
+
+    <!-- Education Section -->
+    <div id="education" class="section">
+        <h2>Education</h2>
+        <h3>USAF Technical School</h3>
+        <p class="date-location">San Antonio, TX | 08/2021</p>
+        <p>CCAF: Health Services Management</p>
+        <h3>Courtland High School</h3>
+        <p class="date-location">Spotsylvania, VA | 04/2020</p>
+        <p>High School Diploma</p>
+    </div>
+
+    <!-- Contact Information Section -->
+    <div id="contact" class="section">
+        <h2>Contact Information</h2>
+        <ul class="contact-info">
+            <li>Email: <a href="mailto:Saihanswissle@gmail.com" aria-label="Email Hans Sai">Saihanswissle@gmail.com</a></li>
+            <li>LinkedIn: <a href="https://www.linkedin.com/in/hanssai" target="_blank" aria-label="LinkedIn Profile of Hans Sai">linkedin.com/in/hanssai</a></li>
+            <li>GitHub: <a href="https://github.com/hanssai" target="_blank" aria-label="GitHub Profile of Hans Sai">github.com/hanssai</a></li>
+            <li>Phone: <a href="tel:+15406840965" aria-label="Call Hans Sai">(540) 684-0965</a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- Scroll to Top Button -->
+<button onclick="topFunction()" id="scrollTopBtn" title="Go to top"></button>
+
+<footer>
+    <p>&copy; 2024 Hans Sai. All rights reserved.</p>
+</footer>
+
+<!-- Metaballs Canvas -->
+<canvas id="metaballs"></canvas>
+
+<script>
+    // JavaScript for metaballs
+
+    const canvas = document.getElementById('metaballs');
+    const ctx = canvas.getContext('2d');
+
+    // Update canvas size based on window size
+    function updateCanvasSize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    updateCanvasSize(); // Initial call to set canvas size
+
+    // Metaball configuration
+    const numBalls = 50;
+    const balls = [];
+    const radius = 40;
+
+    // Generate random color
+    function randomColor() {
+        return '#' + Math.floor(Math.random() * 16777215).toString(16);
+    }
+
+    // Ball class
+    class Ball {
+        constructor(x, y, dx, dy, color) {
+            this.x = x;
+            this.y = y;
+            this.dx = dx;
+            this.dy = dy;
+            this.color = color;
+        }
+        
+        // Update ball position
+        update() {
+            this.x += this.dx;
+            this.y += this.dy;
+
+            if (this.x + radius > canvas.width || this.x - radius < 0) {
+                this.dx = -this.dx;
+            }
+
+            if (this.y + radius > canvas.height || this.y - radius < 0) {
+                this.dy = -this.dy;
+            }
+        }
+
+        // Draw ball
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = 0.2; // Adjust opacity
+            ctx.fill();
+            ctx.globalAlpha = 1; // Reset opacity
+        }
+    }
+
+    // Initialize balls
+    for (let i = 0; i < numBalls; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const dx = (Math.random() - 0.5) * 4;
+        const dy = (Math.random() - 0.5) * 4;
+        const color = randomColor();
+
+        balls.push(new Ball(x, y, dx, dy, color));
+    }
+
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (const ball of balls) {
+            ball.update();
+            ball.draw();
+        }
+    }
+
+    animate();
+
+    // Event listener for window resize
+    window.addEventListener('resize', updateCanvasSize);
+
+    // Get the button
+    let mybutton = document.getElementById("scrollTopBtn");
+
+    // When the user scrolls down 20px from the top of the document, show the button
+    window.onscroll = function() {scrollFunction()};
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+        }
+    }
+
+    // Smooth scroll to top function
+    function topFunction() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // Smooth scroll to section function
+    function scrollToSection(sectionId) {
+        document.getElementById(sectionId).scrollIntoView({
+            behavior: 'smooth'
+        });
+    }
+</script>
+
+</body>
+</html>
