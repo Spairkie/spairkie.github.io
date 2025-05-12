@@ -1,0 +1,13 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Sai;Hans;;;
+FN:Hans Sai
+TITLE:IT Support Specialist
+ORG:United States Air Force Reservist
+EMAIL;TYPE=INTERNET:saihanswissle@gmail.com
+TEL;TYPE=CELL:+1-540-684-0965
+URL:https://github.com/spairkie
+URL:https://linkedin.com/in/8pairkie
+ADR;TYPE=WORK:;;JBMDL McGuire;NJ;;USA
+NOTE:Cybersecurity student with CompTIA Security+, AD/ITSM experience, and a teachable spirit.
+END:VCARD
