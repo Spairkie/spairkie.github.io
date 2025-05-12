@@ -15,6 +15,15 @@ function toggleNav() {
   overlay.classList.toggle('show');
   hamburger.classList.toggle('open');
 }
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 10) {
+    nav.classList.add('scrolled');
+  } else {
+    nav.classList.remove('scrolled');
+  }
+});
+
 
 document.querySelectorAll('.nav-links a').forEach(link => {
   link.addEventListener('click', () => {
@@ -244,25 +253,65 @@ const timelineEntries = document.querySelectorAll('.timeline-entry');
   window.addEventListener('scroll', animateOnScroll);
   window.addEventListener('load', animateOnScroll);
 
-  // Resume Modal Functions
-function openResumeModal() {
-  document.getElementById("resumeModal").style.display = "block";
+window.addEventListener("scroll", () => {
+  const sections = document.querySelectorAll("section");
+  const navLinks = document.querySelectorAll(".nav-links a");
+  let currentSectionId = "";
+
+  sections.forEach((section) => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom >= 120) {
+      currentSectionId = section.id;
+    }
+  });
+
+  navLinks.forEach((link) => {
+    link.classList.remove("active");
+    if (link.getAttribute("href") === `#${currentSectionId}`) {
+      link.classList.add("active");
+    }
+  });
+});
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
+  });
+});
+
+function openModal(id) {
+  document.getElementById(id).style.display = "block";
 }
 
-function closeResumeModal() {
-  document.getElementById("resumeModal").style.display = "none";
+function closeModal(id) {
+  document.getElementById(id).style.display = "none";
 }
 
-window.addEventListener("click", function(event) {
-  const modal = document.getElementById("resumeModal");
-  if (event.target === modal) {
-    closeResumeModal();
+window.onclick = function(event) {
+  document.querySelectorAll('.modal').forEach(modal => {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+};
+
+function openContactModal() {
+  openModal('contactModal');
+}
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal').forEach(modal => {
+      if (modal.style.display === 'block') {
+        modal.style.display = 'none';
+      }
+    });
   }
 });
 
-// Close modal on ESC key
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape') {
-    closeResumeModal();
-  }
-});

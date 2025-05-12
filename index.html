@@ -16,16 +16,20 @@
         <a href="#">
           <img src="favicon.ico" alt="Logo" class="nav-logo" onclick="this.blur();">
         </a>
-        <span class="nav-name">Hans Sai</span>
+        <a href="#about" class="nav-name">Hans Sai</a>
+
       </div>
-      <div class="hamburger" onclick="toggleNav()">&#9776;</div>
+      <div class="hamburger" onclick="toggleNav()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
       <div class="nav-links">
-        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
         <a href="#work">Work History</a>
         <a href="#skills">Skills</a>
         <a href="#education">Education</a>
         <a href="#certs">Certifications</a>
-        <a href="#resume">Resume</a>
         <a href="#contact">Contact</a>
       </div>
     </nav>
@@ -37,12 +41,19 @@
           </div>
           <div class="hero-text slide-in-right">
             <h1>Hi, I'm Hans.</h1>
-            <p>IT Support Specialist <br>Air Force Reservist <br>Cybersecurity Student <br>Welcome to my site. </p>
+            <p>
+              IT Support Specialist <br>
+              Air Force Reservist <br>
+              Cybersecurity Student <br>
+              <span class="fade-in delay">Scroll and explore my work.</span>
+            </p>
+
           </div>
         </div>
       </div>
     </header>
     <main class="container">
+      
       <section id="about" class="section">
         <h2>About Me</h2>
         <p>Hi, I'm Hans Sai — an experienced IT Support Specialist and Air Force Reservist currently pursuing a degree in Computer Science with a concentration in Cybersecurity. My career bridges both military and civilian environments, where I've led system administration, digital transformation, and technical support initiatives. From configuring Active Directory in secure, mission-critical settings to deploying SmartDeploy images and troubleshooting print servers, I bring hands-on expertise backed by certifications like CompTIA Security+ and an active Secret Clearance. I’m known for being detail-oriented, adaptable, and team-driven, with a teachable spirit and a passion for solving problems through technology. Outside of work, you’ll find me exploring the latest tech trends, coding, or enjoying the outdoors.</p>
@@ -288,41 +299,100 @@
             <li>Volunteered with Special Olympics, Red Cross, food pantries, and Arctic mission outreach</li>
           </ul>
         </div>
+        <div class="resume-cta">
+          <h3>Want to see more?</h3>
+          <p>You can view my full resume for additional experience, project highlights, and professional details.</p>
+          <button onclick="openModal('resumeModal')" class="view-resume-btn">View Resume</button>
+        </div>
+
+
       </section>
       <section id="skills" class="section">
         <h2>Skills</h2>
-        <h3>Technical Skills</h3>
-        <ul>
-          <li>Operating Systems: Windows OS, Windows Server</li>
-          <li>System Administration: Active Directory, Group Policy, RSAT</li>
-          <li>Deployment & Imaging: SmartDeploy, PXE Boot, SCCM/MECM</li>
-          <li>Security & Compliance: Endpoint protection, HIPAA, ITSM, ITOM, HRSD platforms</li>
-          <li>Networking: VLANs, basic switch and firewall troubleshooting</li>
-          <li>Support Tools: ServiceNow, Remedy, Bomgar, MHS Genesis, Power BI</li>
-          <li>Hardware: Laptops, desktops, printers, scanners, mobile devices</li>
-          <li>Programming & Scripting: Python, Java, JavaScript, C++, SQL, Bash, PowerShell, Lua</li>
-        </ul>
-        <h3>Soft Skills</h3>
-        <ul>
-          <li>Effective listener with a people-first attitude</li>
-          <li>Strong written and verbal communication</li>
-          <li>Good phone etiquette and interpersonal skills</li>
-          <li>Time management and task prioritization</li>
-          <li>Problem solving under pressure</li>
-          <li>Team leadership and collaboration</li>
-          <li>Adaptability and willingness to learn</li>
-          <li>Professionalism and attention to detail</li>
-        </ul>
+
+        <div class="skills-section">
+          <h3>Technical Skills</h3>
+          <div class="skills-grid">
+            <!-- System Administration -->
+            <span class="skill-tag">Active Directory</span>
+            <span class="skill-tag">Group Policy</span>
+            <span class="skill-tag">RSAT</span>
+            <span class="skill-tag">Windows Server</span>
+
+            <!-- Imaging & Deployment -->
+            <span class="skill-tag">SmartDeploy</span>
+            <span class="skill-tag">PXE Boot</span>
+            <span class="skill-tag">SCCM / MECM</span>
+
+            <!-- Security & Compliance -->
+            <span class="skill-tag">CompTIA Security+</span>
+            <span class="skill-tag">NIST</span>
+            <span class="skill-tag">HIPAA</span>
+            <span class="skill-tag">ITSM / ITOM / HRSD</span>
+
+            <!-- Networking -->
+            <span class="skill-tag">VLANs</span>
+            <span class="skill-tag">Switch & Firewall Troubleshooting</span>
+
+            <!-- Tools & Platforms -->
+            <span class="skill-tag">ServiceNow</span>
+            <span class="skill-tag">Remedy</span>
+            <span class="skill-tag">Bomgar</span>
+            <span class="skill-tag">MHS Genesis</span>
+            <span class="skill-tag">Power BI</span>
+
+            <!-- Scripting & Languages -->
+            <span class="skill-tag">PowerShell</span>
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Java</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">C++</span>
+            <span class="skill-tag">Bash</span>
+            <span class="skill-tag">SQL</span>
+            <span class="skill-tag">Lua</span>
+
+            <!-- Hardware & Support -->
+            <span class="skill-tag">Laptops & Desktops</span>
+            <span class="skill-tag">Printers & Scanners</span>
+            <span class="skill-tag">Mobile Devices</span>
+          </div>
+          <h3>Soft Skills</h3>
+          <div class="skills-grid">
+            <span class="skill-tag">Problem Solving</span>
+            <span class="skill-tag">Adaptability</span>
+            <span class="skill-tag">Team Collaboration</span>
+            <span class="skill-tag">Communication</span>
+            <span class="skill-tag">Time Management</span>
+            <span class="skill-tag">Customer Support</span>
+            <span class="skill-tag">Teachable Spirit</span>
+            <span class="skill-tag">Attention to Detail</span>
+            <span class="skill-tag">Professionalism</span>
+            <span class="skill-tag">Listening</span>
+          </div>
+        </div>
       </section>
+
+
       <section id="education" class="section">
         <h2>Education</h2>
-        <p>
-          <strong>Liberty University</strong> – B.S. Computer Science: Cybersecurity (In Progress)
-        </p>
-        <p>
-          <strong>CCAF (USAF Technical School)</strong> – Health Info Technology & Services Management
-        </p>
+
+        <div class="education-entry">
+          <h3>Liberty University</h3>
+          <p class="degree">B.S. in Computer Science – Cybersecurity</p>
+          <p class="edu-meta">Expected Graduation: 2026</p>
+          <p class="edu-meta">Relevant Coursework: Operating Systems, Network Security, Python Programming</p>
+        </div>
+
+        <div class="education-entry">
+          <h3>Community College of the Air Force</h3>
+          <p class="degree">CCAF A.A.S. in Health Information Technology & Services Management</p>
+          <p class="edu-meta">Earned through USAF Technical School | Completed 2021</p>
+        </div>
       </section>
+
+
+
+
       <section id="certs" class="section">
         <h2>Certifications</h2>
         <div class="cert-carousel-wrapper">
@@ -356,30 +426,69 @@
         </div>
         <div class="cert-dots" id="certDots"></div>
       </section>
-      <section id="resume" class="section">
-        <h2>Resume</h2>
-        <p>Click the button below to preview my resume without downloading it.</p>
-        <button class="download-button" onclick="openResumeModal()">View Resume</button>
-      </section>
-      <!-- Resume Modal -->
-      <div id="resumeModal" class="modal">
-        <div class="modal-content">
-          <span class="close" onclick="closeResumeModal()">&times;</span>
-          <iframe src="resume/Hans%20Sai%20-%20System%20Admin%20Resume.pdf" frameborder="0"></iframe>
-        </div>
+
+    <section id="contact" class="section">
+      <h2>Let's Connect</h2>
+      <p>Email: <a href="mailto:saihanswissle@gmail.com">saihanswissle@gmail.com</a></p>
+      <p>GitHub: <a href="https://github.com/spairkie" target="_blank">github.com/spairkie</a></p>
+      <p>LinkedIn: <a href="https://linkedin.com/in/8pairkie" target="_blank">linkedin.com/in/8pairkie</a></p>
+      <p>Phone: <a href="tel:+15406840965">(540) 684-0965</a></p>
+
+      <div class="contact-actions">
+        <button class="contact-btn" onclick="openContactModal()">Message Me</button>
+        <a href="files/Hans_Sai_Business_Card.vcf" download class="download-fab" title="Download Contact Card">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="8 12 12 16 16 12"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+          </svg>
+          <span class="download-label">Download vCard</span>
+        </a>
+
+
+
+
       </div>
-      <section id="contact" class="section">
-        <h2>Contact</h2>
-        <p>Email: <a href="mailto:saihanswissle@gmail.com">saihanswissle@gmail.com</a>
-        </p>
-        <p>GitHub: <a href="https://github.com/spairkie" target="_blank">github.com/spairkie</a>
-        </p>
-        <p>LinkedIn: <a href="https://linkedin.com/in/8pairkie" target="_blank">linkedin.com/in/8pairkie</a>
-        </p>
-        <p>Phone: <a href="tel:+15406840965">(540) 684-0965</a>
-        </p>
-      </section>
+    </section>
+
+
+
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('contactModal')">&times;</span>
+        <h3>Contact Me</h3>
+        <form action="https://formspree.io/f/xwporonk" method="POST" class="modern-form">
+          <div class="form-group">
+            <input type="text" name="name" required>
+            <label>Your Name</label>
+          </div>
+          <div class="form-group">
+            <input type="email" name="_replyto" required>
+            <label>Your Email</label>
+          </div>
+          <div class="form-group">
+            <textarea name="message" rows="5" required></textarea>
+            <label>Your Message</label>
+          </div>
+          <button type="submit">Send Message</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Resume Modal -->
+    <div id="resumeModal" class="modal">
+      <div class="modal-content resume">
+        <span class="close" onclick="closeModal('resumeModal')">&times;</span>
+        <h3>My Resume</h3>
+        <iframe src="resume/HansSai_SystemAdminResume.pdf" width="100%" height="600px" frameborder="0"></iframe>
+      </div>
+    </div>
+
     </main>
+
+
     <button id="scrollTopBtn" title="Back to Top">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up">
         <line x1="12" y1="19" x2="12" y2="5"></line>
