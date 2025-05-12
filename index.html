@@ -1,396 +1,396 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hans Sai - Personal Webpage</title>
-    <style>
-        /* Basic styling for the webpage */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        /* Styling for the header section */
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 2em 0;
-            text-align: center;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-        header p {
-            font-size: 1.2em;
-            margin-top: 0.5em;
-        }
-        /* Styling for the navigation menu */
-        nav {
-            background-color: #34495e;
-        }
-        nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
-        nav ul li {
-            display: inline-block;
-        }
-        nav ul li a {
-            display: inline-block;
-            color: white;
-            text-decoration: none;
-            padding: 1em;
-            cursor: pointer; /* Ensuring the cursor is a pointer for better UX */
-        }
-        nav ul li a:hover {
-            background-color: #2c3e50;
-        }
-        /* Styling for the container holding main content */
-        .container {
-            position: relative;
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        /* Styling for individual sections */
-        .section {
-            margin-bottom: 40px;
-        }
-        h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #2c3e50;
-            padding-bottom: 10px;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #2c3e50;
-            color: white;
-            margin-top: 40px;
-        }
-        /* Styling for contact information */
-        .contact-info {
-            list-style: none;
-            padding: 0;
-        }
-        .contact-info li {
-            margin-bottom: 10px;
-        }
-        /* Styling for links */
-        a {
-            color: #3498db;
-            transition: color 0.3s ease;
-        }
-        a:hover {
-            color: #2980b9;
-            text-decoration: underline;
-        }
-
-        /* Styling for portfolio items */
-        .portfolio-item {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .portfolio-item:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        /* Styling for dates and locations */
-        .date-location {
-            font-style: italic;
-            color: #7f8c8d;
-        }
-        /* Styling for the Scroll to Top button */
-        #scrollTopBtn {
-            display: none; /* Hidden by default */
-            position: fixed; /* Fixed/sticky position */
-            bottom: 20px; /* Place the button at the bottom of the page */
-            right: 30px; /* Place the button 30px from the right */
-            z-index: 99; /* Make sure it does not overlap */
-            border: none; /* Remove borders */
-            outline: none; /* Remove outline */
-            background: linear-gradient(135deg, #3498db, #2ecc71); /* Gradient background */
-            color: white; /* Text color */
-            cursor: pointer; /* Add a mouse pointer on hover */
-            padding: 15px; /* Some padding */
-            border-radius: 50%; /* Rounded button */
-            font-size: 24px; /* Increase font size for the icon */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
-            transition: all 0.3s ease; /* Smooth transition for effects */
-        }
-
-        #scrollTopBtn:hover {
-            background: linear-gradient(135deg, #2ecc71, #3498db); /* Change gradient on hover */
-            transform: scale(1.1); /* Slightly enlarge the button on hover */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Increase shadow on hover */
-        }
-
-        /* Add icon styling */
-        #scrollTopBtn::before {
-            content: '▲'; /* Unicode arrow up character */
-            font-size: 18px; /* Icon size */
-            display: block;
-            text-align: center; /* Center the icon */
-        }
-
-
-        /* Styling for the metaballs canvas */
-        canvas#metaballs {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1; /* Ensure the canvas is behind other content */
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>Hans Sai</h1>
-    <p>Air Force Reservist & Aspiring Cybersecurity Professional</p>
-</header>
-
-<nav>
-    <ul>
-        <li><a onclick="scrollToSection('about')">About Me</a></li>
-        <li><a onclick="scrollToSection('portfolio')">Portfolio</a></li>
-        <li><a onclick="scrollToSection('work-history')">Work History</a></li>
-        <li><a onclick="scrollToSection('skills')">Skills</a></li>
-        <li><a onclick="scrollToSection('education')">Education</a></li>
-        <li><a onclick="scrollToSection('contact')">Contact Information</a></li>
-    </ul>
-</nav>
-
-<div class="container">
-    <!-- About Me Section -->
-    <div id="about" class="section">
+    <title>Hans Sai | IT Specialist & Cybersecurity Student</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+  </head>
+  <body>
+    <div class="nav-overlay" onclick="toggleNav()"></div>
+    <nav>
+      <div class="nav-brand">
+        <a href="#">
+          <img src="favicon.ico" alt="Logo" class="nav-logo" onclick="this.blur();">
+        </a>
+        <span class="nav-name">Hans Sai</span>
+      </div>
+      <div class="hamburger" onclick="toggleNav()">&#9776;</div>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#work">Work History</a>
+        <a href="#skills">Skills</a>
+        <a href="#education">Education</a>
+        <a href="#certs">Certifications</a>
+        <a href="#resume">Resume</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
+    <header>
+      <div class="hero-container">
+        <div class="hero fade-in">
+          <div class="hero-image slide-in-left">
+            <img src="headshot.jpeg" alt="Hans Sai professional headshot">
+          </div>
+          <div class="hero-text slide-in-right">
+            <h1>Hi, I'm Hans.</h1>
+            <p>IT Support Specialist <br>Air Force Reservist <br>Cybersecurity Student <br>Welcome to my site. </p>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="container">
+      <section id="about" class="section">
         <h2>About Me</h2>
-        <p>Hello! I'm Hans Sai, currently serving in the Military Airforce Reserve while pursuing my studies in Computer Science and Cyber Security. My journey blends the discipline and strategic thinking from my military experience with a deep passion for technology and security. I thrive in environments where I can solve complex problems and protect systems from cyber threats.</p>
-        <p>I am tech-savvy and eager to broaden my skills and contribute to team success through hard work, attention to detail, and excellent organizational skills. My experience ranges from health services management in the Air Force to managerial roles in the fast food industry, showcasing my versatility and dedication.</p>
-        <p>When I'm not studying or on duty, you can find me exploring the latest tech trends, coding, or enjoying outdoor activities.</p>
-    </div>
-
-    <!-- Portfolio Section -->
-    <div id="portfolio" class="section">
-        <h2>Portfolio</h2>
-        <div class="portfolio-item">
-            <h3>Project 1: Web Development</h3>
-            <p>Developed a responsive website using HTML, CSS, and JavaScript. Implemented interactive features and ensured cross-browser compatibility.</p>
+        <p>Hi, I'm Hans Sai — an experienced IT Support Specialist and Air Force Reservist currently pursuing a degree in Computer Science with a concentration in Cybersecurity. My career bridges both military and civilian environments, where I've led system administration, digital transformation, and technical support initiatives. From configuring Active Directory in secure, mission-critical settings to deploying SmartDeploy images and troubleshooting print servers, I bring hands-on expertise backed by certifications like CompTIA Security+ and an active Secret Clearance. I’m known for being detail-oriented, adaptable, and team-driven, with a teachable spirit and a passion for solving problems through technology. Outside of work, you’ll find me exploring the latest tech trends, coding, or enjoying the outdoors.</p>
+      </section>
+      <section id="projects" class="section">
+        <h2>Project Portfolio</h2>
+        <p>Still working on uploading all my past projects and school works to GitHub. Here are a few highlights:</p>
+        <div class="carousel-wrapper">
+          <button class="carousel-btn left" onclick="scrollCarousel(-1)">&#10094;</button>
+          <div class="project-carousel" id="projectCarousel">
+            <div class="carousel-item">
+              <img src="images/homelab.png" alt="Home Lab Setup Thumbnail" class="project-thumb">
+              <h3>Home Lab Setup</h3>
+              <p>Network config</p>
+              <div class="badges">
+                <span>Networking</span>
+                <span>Hardware</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/helpdesk.png" alt="Simple Ticketing Thumbnail" class="project-thumb">
+              <h3>Simple Ticketing</h3>
+              <p>CRUD Helpdesk</p>
+              <div class="badges">
+                <span>HTML</span>
+                <span>PHP</span>
+                <span>SQL</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/expense.png" alt="Expense Tracker Thumbnail" class="project-thumb">
+              <h3>Expense Tracker</h3>
+              <p>Track personal expenses</p>
+              <div class="badges">
+                <span>C++</span>
+                <span>File I/O</span>
+                <span>OOP</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/taskscheduler.png" alt="Task Scheduler Thumbnail" class="project-thumb">
+              <h3>Task Scheduler</h3>
+              <p>With Notifications</p>
+              <div class="badges">
+                <span>Java</span>
+                <span>JavaFX</span>
+                <span>Threads</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/automation.png" alt="Automated Tasks Thumbnail" class="project-thumb">
+              <h3>Automated Tasks</h3>
+              <p>Inspired by Al Sweigart</p>
+              <div class="badges">
+                <span>Python</span>
+                <span>Automation</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/chatapp.png" alt="React Chat App Thumbnail" class="project-thumb">
+              <h3>React Chat App</h3>
+              <p>Built with Chatkit</p>
+              <div class="badges">
+                <span>React</span>
+                <span>JavaScript</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/bashmonitor.png" alt="Resource Monitor Thumbnail" class="project-thumb">
+              <h3>Resource Monitor</h3>
+              <p>Bash Script</p>
+              <div class="badges">
+                <span>Bash</span>
+                <span>Linux</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/todo.png" alt="CRUD TODO List Thumbnail" class="project-thumb">
+              <h3>CRUD TODO List</h3>
+              <p>Simple Task Tracker</p>
+              <div class="badges">
+                <span>JavaScript</span>
+                <span>LocalStorage</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/keylogger.png" alt="C++ Keylogger Thumbnail" class="project-thumb">
+              <h3>C++ Keylogger</h3>
+              <p>Educational Use</p>
+              <div class="badges">
+                <span>C++</span>
+                <span>Security</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/16puzzle.png" alt="16 Puzzle Thumbnail" class="project-thumb">
+              <h3>16 Puzzle</h3>
+              <p>Implemented in C++</p>
+              <div class="badges">
+                <span>C++</span>
+                <span>Algorithm</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/pythonvisuals.png" alt="Creative Sketches Thumbnail" class="project-thumb">
+              <h3>Creative Sketches</h3>
+              <p>Visuals with Python</p>
+              <div class="badges">
+                <span>Python</span>
+                <span>Graphics</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/typing.png" alt="Typing Game Thumbnail" class="project-thumb">
+              <h3>Typing Game</h3>
+              <p>Love2D & Lua</p>
+              <div class="badges">
+                <span>Lua</span>
+                <span>Love2D</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/rain.png" alt="Rain Sketch Thumbnail" class="project-thumb">
+              <h3>Rain Sketch</h3>
+              <p>Love2D Animation</p>
+              <div class="badges">
+                <span>Lua</span>
+                <span>Animation</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/salamander.png" alt="Salamander Animation Thumbnail" class="project-thumb">
+              <h3>Salamander Animation</h3>
+              <p>Love2D + Lua</p>
+              <div class="badges">
+                <span>Lua</span>
+                <span>GameDev</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/2048.png" alt="2048 Clone Thumbnail" class="project-thumb">
+              <h3>2048 Clone</h3>
+              <p>Love2D Game</p>
+              <div class="badges">
+                <span>Lua</span>
+                <span>GameDev</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/platformer.png" alt="Unity Platformer Thumbnail" class="project-thumb">
+              <h3>Unity Platformer</h3>
+              <p>Unity + C#</p>
+              <div class="badges">
+                <span>Unity</span>
+                <span>C#</span>
+              </div>
+              <a href="#" target="_blank">View Project</a>
+            </div>
+            <div class="carousel-item">
+              <img src="images/oscilloscope.png" alt="Oscilloscope Game Thumbnail" class="project-thumb">
+              <h3>Oscilloscope Game</h3>
+              <p>Love Jam 2020 </p>
+              <div class="badges">
+                <span>Love2D</span>
+                <span>Jam</span>
+              </div>
+              <a href="https://itch.io" target="_blank">View Project</a>
+            </div>
+          </div>
+          <button class="carousel-btn right" onclick="scrollCarousel(1)">&#10095;</button>
         </div>
-        <div class="portfolio-item">
-            <h3>Project 2: Cyber Security Simulation</h3>
-            <p>Created a cyber security simulation in Python to demonstrate common vulnerabilities and mitigation strategies. Focused on practical applications of security principles.</p>
+        <div class="carousel-dots" id="carouselDots"></div>
+        <p>...and many more.</p>
+      </section>
+      <section id="work" class="section timeline">
+        <h2 style="color: #2c3e50;">Work History</h2>
+        <div class="timeline-entry job-entry">
+          <div class="job-header">
+            <h3 style="color: #2c3e50;">IT Systems Administrator <span class="divider">|</span> Health Services Administrator </h3>
+            <p class="job-meta" style="color: #555;">U.S. Air Force – 87MDG / 514 AMDS – JBMDL McGuire, NJ</p>
+            <span class="job-date" style="color: #888;">Jan 2021 – Present</span>
+          </div>
+          <ul class="job-details">
+            <li>Provided IT and administrative support for medical staff, including digital record systems and compliance processes</li>
+            <li>Resolved over 1,000 annual Level 2 support tickets across AD, networking, printing, and endpoint management</li>
+            <li>Deployed, reimaged, and maintained 150+ endpoints using SmartDeploy and PXE Boot</li>
+            <li>Managed AD user provisioning, enforced GPOs, applied security patches, and ensured NIST compliance</li>
+            <li>Improved patient data security with HIPAA-compliant tracking tools and dashboards</li>
+            <li>Led training for 80+ personnel on contingency communications and cyber readiness tools</li>
+            <li>Supported ITBM workflows and managed base-wide hardware/software inventory databases</li>
+          </ul>
         </div>
-        <div class="portfolio-item">
-            <h3>Project 3: Automation Script</h3>
-            <p>Designed and developed an automation script using Python to streamline data entry tasks, significantly reducing manual effort and error rates.</p>
+        <div class="timeline-entry job-entry">
+          <div class="job-header">
+            <h3 style="color: #2c3e50;">Organization Technology Person 3 <span class="divider">|</span> Department Manager </h3>
+            <p class="job-meta" style="color: #555;">McDonald’s – Clark LLC / Holman LLC</p>
+            <span class="job-date" style="color: #888;">Sep 2019 – Present</span>
+          </div>
+          <ul class="job-details">
+            <li>Provided IT support for POS terminals, kiosks, and wireless systems at high-volume store locations</li>
+            <li>Lowered average downtime by 25% through proactive hardware replacements and network tuning</li>
+            <li>Trained 30+ team members on basic tech and software use to reduce support escalations</li>
+            <li>Managed scheduling, payroll, and inventory using back-office software aligned to corporate standards</li>
+            <li>Improved labor accuracy by 30% with forecast-based schedule planning</li>
+            <li>Coordinated with regional IT on system upgrades, patch cycles, and ITSM standardization</li>
+          </ul>
         </div>
-    </div>
-
-    <!-- Work History Section -->
-    <div id="work-history" class="section">
-        <h2>Work History</h2>
-        <h3>United States Air Force, USAF - Health Services Management (4A0)</h3>
-        <p class="date-location">Youngstown, OH | 01/2021 - Current</p>
-        <ul>
-            <li>Provide administrative support to the entire hospital staff</li>
-            <li>File and maintain inpatient and outpatient medical records</li>
-            <li>Perform and manage financial statements, budget estimates, and financial plans</li>
-            <li>Use medical computer systems for patient scheduling, budgeting, and staffing</li>
-            <li>Interview patients for admission and discharge purposes</li>
-            <li>Monitor information technology security programs</li>
-            <li>Analyze and advise on the completeness and accuracy of healthcare data</li>
-        </ul>
-        <h3>McDonald's Fast Food Restaurant - Manager</h3>
-        <p class="date-location">Fredericksburg, VA | 09/2019 - 03/2021</p>
-        <ul>
-            <li>Supervised food preparation stations to observe hygiene and taste quality of food served to customers</li>
-            <li>Created and implemented policies to achieve customer satisfaction and maintain food service standards</li>
-            <li>Maintained safe working and guest environment to reduce risk of injury and accidents</li>
-            <li>Controlled costs and optimized spending via restructuring of budgets for labor, capital assets, inventory purchasing, and technology upgrades</li>
-            <li>Coached crew members in product specifications, sales incentives, and selling techniques, significantly increasing customer satisfaction ratings</li>        
-            <li>Purchased adequate quantities of necessary restaurant items, including food, beverages, equipment, and supplies</li>
-            <li>Reduced shortages by holding staff accountable for excessive food waste and conducting shift inventories</li>
-            <li>Effectively managed payroll and timekeeping, and paperwork for new hires and terminations</li>
-        </ul>
-    </div>
-
-    <!-- Skills Section -->
-    <div id="skills" class="section">
+        <div class="timeline-entry job-entry">
+          <div class="job-header">
+            <h3 style="color: #2c3e50;">Problem Solver <span class="divider">(Seasonal Special Assignment)</span>
+            </h3>
+            <p class="job-meta" style="color: #555;">Amazon – Florence, NJ</p>
+            <span class="job-date" style="color: #888;">Sep 2021 – Dec 2021</span>
+          </div>
+          <ul class="job-details">
+            <li>Resolved fulfillment issues and supported end-to-end tracking for delayed shipments</li>
+            <li>Reduced average processing delays by 15% through real-time barcode and incident reporting</li>
+            <li>Trained new associates on inventory software and tech onboarding practices</li>
+          </ul>
+        </div>
+        <div class="timeline-entry job-entry">
+          <div class="job-header">
+            <h3 style="color: #2c3e50;">Leadership & Volunteer Work</h3>
+          </div>
+          <ul class="job-details">
+            <li>Vice President, 514 AMDS Airmen’s Council – led new member onboarding and Microsoft Teams adoption</li>
+            <li>Organized base-wide morale events and created digital materials for HRSD communications</li>
+            <li>Volunteered with Special Olympics, Red Cross, food pantries, and Arctic mission outreach</li>
+          </ul>
+        </div>
+      </section>
+      <section id="skills" class="section">
         <h2>Skills</h2>
+        <h3>Technical Skills</h3>
         <ul>
-            <li>Effective Listener with a People First Attitude</li>
-            <li>Good phone etiquette and communication</li>
-            <li>Time Management and Professionalism</li>
-            <li>Problem solver / Power user</li>
-            <li>Computer Programming and Software development with Lua, Python, C++, Java, Kotlin</li>
-            <li>Web development with HTML, CSS, JavaScript</li>
+          <li>Operating Systems: Windows OS, Windows Server</li>
+          <li>System Administration: Active Directory, Group Policy, RSAT</li>
+          <li>Deployment & Imaging: SmartDeploy, PXE Boot, SCCM/MECM</li>
+          <li>Security & Compliance: Endpoint protection, HIPAA, ITSM, ITOM, HRSD platforms</li>
+          <li>Networking: VLANs, basic switch and firewall troubleshooting</li>
+          <li>Support Tools: ServiceNow, Remedy, Bomgar, MHS Genesis, Power BI</li>
+          <li>Hardware: Laptops, desktops, printers, scanners, mobile devices</li>
+          <li>Programming & Scripting: Python, Java, JavaScript, C++, SQL, Bash, PowerShell, Lua</li>
         </ul>
-    </div>
-
-    <!-- Education Section -->
-    <div id="education" class="section">
+        <h3>Soft Skills</h3>
+        <ul>
+          <li>Effective listener with a people-first attitude</li>
+          <li>Strong written and verbal communication</li>
+          <li>Good phone etiquette and interpersonal skills</li>
+          <li>Time management and task prioritization</li>
+          <li>Problem solving under pressure</li>
+          <li>Team leadership and collaboration</li>
+          <li>Adaptability and willingness to learn</li>
+          <li>Professionalism and attention to detail</li>
+        </ul>
+      </section>
+      <section id="education" class="section">
         <h2>Education</h2>
-        <h3>USAF Technical School</h3>
-        <p class="date-location">San Antonio, TX | 08/2021</p>
-        <p>CCAF: Health Services Management</p>
-        <h3>Courtland High School</h3>
-        <p class="date-location">Spotsylvania, VA | 04/2020</p>
-        <p>High School Diploma</p>
-    </div>
-
-    <!-- Contact Information Section -->
-    <div id="contact" class="section">
-        <h2>Contact Information</h2>
-        <ul class="contact-info">
-            <li>Email: <a href="mailto:Saihanswissle@gmail.com" aria-label="Email Hans Sai">Saihanswissle@gmail.com</a></li>
-            <li>LinkedIn: <a href="https://www.linkedin.com/in/hanssai" target="_blank" aria-label="LinkedIn Profile of Hans Sai">linkedin.com/in/hanssai</a></li>
-            <li>GitHub: <a href="https://github.com/hanssai" target="_blank" aria-label="GitHub Profile of Hans Sai">github.com/hanssai</a></li>
-            <li>Phone: <a href="tel:+15406840965" aria-label="Call Hans Sai">(540) 684-0965</a></li>
-        </ul>
-    </div>
-</div>
-
-<!-- Scroll to Top Button -->
-<button onclick="topFunction()" id="scrollTopBtn" title="Go to top"></button>
-
-<footer>
-    <p>&copy; 2024 Hans Sai. All rights reserved.</p>
-</footer>
-
-<!-- Metaballs Canvas -->
-<canvas id="metaballs"></canvas>
-
-<script>
-    // JavaScript for metaballs
-
-    const canvas = document.getElementById('metaballs');
-    const ctx = canvas.getContext('2d');
-
-    // Update canvas size based on window size
-    function updateCanvasSize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-
-    updateCanvasSize(); // Initial call to set canvas size
-
-    // Metaball configuration
-    const numBalls = 50;
-    const balls = [];
-    const radius = 40;
-
-    // Generate random color
-    function randomColor() {
-        return '#' + Math.floor(Math.random() * 16777215).toString(16);
-    }
-
-    // Ball class
-    class Ball {
-        constructor(x, y, dx, dy, color) {
-            this.x = x;
-            this.y = y;
-            this.dx = dx;
-            this.dy = dy;
-            this.color = color;
-        }
-        
-        // Update ball position
-        update() {
-            this.x += this.dx;
-            this.y += this.dy;
-
-            if (this.x + radius > canvas.width || this.x - radius < 0) {
-                this.dx = -this.dx;
-            }
-
-            if (this.y + radius > canvas.height || this.y - radius < 0) {
-                this.dy = -this.dy;
-            }
-        }
-
-        // Draw ball
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
-            ctx.fillStyle = this.color;
-            ctx.globalAlpha = 0.2; // Adjust opacity
-            ctx.fill();
-            ctx.globalAlpha = 1; // Reset opacity
-        }
-    }
-
-    // Initialize balls
-    for (let i = 0; i < numBalls; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const dx = (Math.random() - 0.5) * 4;
-        const dy = (Math.random() - 0.5) * 4;
-        const color = randomColor();
-
-        balls.push(new Ball(x, y, dx, dy, color));
-    }
-
-    // Animation loop
-    function animate() {
-        requestAnimationFrame(animate);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        for (const ball of balls) {
-            ball.update();
-            ball.draw();
-        }
-    }
-
-    animate();
-
-    // Event listener for window resize
-    window.addEventListener('resize', updateCanvasSize);
-
-    // Get the button
-    let mybutton = document.getElementById("scrollTopBtn");
-
-    // When the user scrolls down 20px from the top of the document, show the button
-    window.onscroll = function() {scrollFunction()};
-
-    function scrollFunction() {
-        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-            mybutton.style.display = "block";
-        } else {
-            mybutton.style.display = "none";
-        }
-    }
-
-    // Smooth scroll to top function
-    function topFunction() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    }
-
-    // Smooth scroll to section function
-    function scrollToSection(sectionId) {
-        document.getElementById(sectionId).scrollIntoView({
-            behavior: 'smooth'
-        });
-    }
-</script>
-
-</body>
+        <p>
+          <strong>Liberty University</strong> – B.S. Computer Science: Cybersecurity (In Progress)
+        </p>
+        <p>
+          <strong>CCAF (USAF Technical School)</strong> – Health Info Technology & Services Management
+        </p>
+      </section>
+      <section id="certs" class="section">
+        <h2>Certifications</h2>
+        <div class="cert-carousel-wrapper">
+          <button class="cert-btn left" id="certLeftBtn">&#10094;</button>
+          <div class="cert-carousel" id="certCarousel">
+            <div class="cert-card">
+              <h3>CompTIA Security+ (CE)</h3>
+              <p>Credential ID: <em>Click to verify</em>
+              </p>
+              <a href="certs/CompTIA Security+ ce certificate (1).pdf" target="_blank">View Certificate</a>
+            </div>
+            <div class="cert-card">
+              <h3>CompTIA IT Fundamentals+ (FC0-U61)</h3>
+              <a href="certs/CompTIA IT Fundamentals+ (FC0-U61).pdf" target="_blank">View Certificate</a>
+            </div>
+            <div class="cert-card">
+              <h3>Microsoft Technology Associate</h3>
+              <p>Windows Operating System Fundamentals</p>
+              <a href="certs/Microsoft Technology Associate.pdf" target="_blank">View Certificate</a>
+            </div>
+            <div class="cert-card">
+              <h3>Basic Life Support (BLS)</h3>
+              <p>Issued by: American Heart Association (placeholder)</p>
+            </div>
+            <div class="cert-card">
+              <h3>Air Force CPI & Six Sigma Green Belt</h3>
+              <p>Includes foundational process improvement skills</p>
+            </div>
+          </div>
+          <button class="cert-btn right" id="certRightBtn">&#10095;</button>
+        </div>
+        <div class="cert-dots" id="certDots"></div>
+      </section>
+      <section id="resume" class="section">
+        <h2>Resume</h2>
+        <p>Click the button below to preview my resume without downloading it.</p>
+        <button class="download-button" onclick="openResumeModal()">View Resume</button>
+      </section>
+      <!-- Resume Modal -->
+      <div id="resumeModal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeResumeModal()">&times;</span>
+          <iframe src="resume/Hans%20Sai%20-%20System%20Admin%20Resume.pdf" frameborder="0"></iframe>
+        </div>
+      </div>
+      <section id="contact" class="section">
+        <h2>Contact</h2>
+        <p>Email: <a href="mailto:saihanswissle@gmail.com">saihanswissle@gmail.com</a>
+        </p>
+        <p>GitHub: <a href="https://github.com/spairkie" target="_blank">github.com/spairkie</a>
+        </p>
+        <p>LinkedIn: <a href="https://linkedin.com/in/8pairkie" target="_blank">linkedin.com/in/8pairkie</a>
+        </p>
+        <p>Phone: <a href="tel:+15406840965">(540) 684-0965</a>
+        </p>
+      </section>
+    </main>
+    <button id="scrollTopBtn" title="Back to Top">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up">
+        <line x1="12" y1="19" x2="12" y2="5"></line>
+        <polyline points="5 12 12 5 19 12"></polyline>
+      </svg>
+    </button>
+    <footer>
+      <p>&copy; 2025 Hans Sai. All rights reserved.</p>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <script src="scripts/main.js"></script>
+  </body>
 </html>
