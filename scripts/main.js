@@ -315,3 +315,270 @@ document.addEventListener('keydown', function (e) {
   }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const output = document.getElementById("terminalOutput");
+  const input = document.getElementById("terminalInput");
+  const cursor = document.getElementById("terminalCursor");
+
+  const responses = {
+    "whoami": [
+      "Hi, I'm Hans",
+      "IT Support Specialist",
+      "Air Force Reservist",
+      "Cybersecurity Student"
+    ],
+    "sudo": ["Permission denied. You are not in the sudoers file."],
+    "skills": [
+      "✔ Active Directory  ✔ PXE Boot  ✔ SmartDeploy",
+      "✔ PowerShell  ✔ Security+  ✔ ITSM / ITOM / HRSD"
+    ],
+    "ls projects": [ 
+      "📁 Helpdesk Ticketing System",
+      "📁 Bash Resource Monitor",
+      "📁 React Chat App"
+    ],
+    "cd about": [
+      "Navigating to /about/",
+      "Hans Sai is an IT specialist with experience in both military and civilian systems..."
+    ],
+    "cat education": [
+      "Liberty University – BS in Computer Science (Cybersecurity)",
+      "CCAF A.A.S. – Health Info Tech & Services"
+    ],
+    "ls certs": [
+      "📜 CompTIA Security+",
+      "📜 CompTIA IT Fundamentals+",
+      "📜 Microsoft OS Fundamentals",
+      "📜 Six Sigma Green Belt"
+    ],
+    "cat resume": [
+      "Opening resume modal...",
+      "(Not really, but you can click the resume button!)"
+    ],
+    "clear": [],
+
+    // NEW: Current system date
+    "date": [new Date().toString()],
+
+    // NEW: Dynamic command list
+    "help": [], // will be set dynamically below
+  };
+
+  // Multi-mapping (aliases)
+  responses["projects"] = responses["ls projects"];
+  responses["certs"] = responses["ls certs"];
+  responses["education"] = responses["cat education"];
+  responses["resume"] = responses["cat resume"];
+  responses["motd"] = [
+    "==============================",
+    "   Welcome to Hans Terminal",
+    "==============================",
+    "💡 IT Specialist | Cybersecurity Student",
+    "🛡️  CompTIA Security+ | Active Directory | PowerShell",
+    "",
+    "\"Discipline is the bridge between goals and accomplishment.\""
+  ];
+
+  // Help command auto-generates list
+  responses["help"] = [
+    "Available commands:",
+    ...Object.keys(responses).filter(cmd => !["help", "clear"].includes(cmd)).map(cmd => `• ${cmd}`)
+  ];
+  responses["sudo make me a sandwich"] = [
+    "Okay. 🥪",
+    "(That worked?!)"
+  ];
+
+  responses["echo hello, world!"] = [
+    "Hello, World!"
+  ];
+
+  responses["rm -rf /"] = [
+    "Warning: this will delete EVERYTHING...",
+    "Just kidding. 😅 You're safe here."
+  ];
+
+responses["ascii hans"] = [
+  " _   _              ____  ",
+  "| | | | __ _ _ __ / ___| ",
+  "| |_| |/ _` | '__\\\___ \ ",
+  "|  _  | (_| | |  |  ___)|",
+  "|_| |_|\\__,_|_| |_|____/ ",
+  "  H   A   N   S   S A I "
+];
+
+
+responses["uname -a"] = [
+  "HansOS 1.0.5-elite x86_64 HansKernel SMP Wed May 2025",
+  "Compiled for awesome people only"
+];
+responses["neofetch"] = [
+  "HansOS 1.0.5",
+  "------------",
+  "User: hans",
+  "Shell: /bin/bash (emulated)",
+  "Uptime: ∞",
+  "Terminal: Web CLI",
+  "Certs: Security+ | ITF+ | MTA",
+  "Quote: \"Stay ready so you don’t have to get ready.\""
+];
+
+responses["ping google.com"] = [
+  "Pinging google.com [142.250.72.14] with 32 bytes of data:",
+  "Reply from 142.250.72.14: bytes=32 time=42ms TTL=57",
+  "Reply from 142.250.72.14: bytes=32 time=39ms TTL=57",
+  "Reply from 142.250.72.14: bytes=32 time=40ms TTL=57",
+  "",
+  "Ping statistics for google.com:",
+  "    Packets: Sent = 3, Received = 3, Lost = 0 (0% loss),",
+  "Approximate round trip times in milliseconds:",
+  "    Minimum = 39ms, Maximum = 42ms, Average = 40ms"
+];
+
+
+
+  function typeText(line, container, delay = 30, callback) {
+    let charIndex = 0;
+    const div = document.createElement("div");
+
+    function typeChar() {
+      if (charIndex < line.length) {
+        div.textContent += line.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeChar, delay);
+      } else {
+        if (callback) callback();
+      }
+    }
+
+    container.appendChild(div);
+    typeChar();
+  }
+
+  function typeLines(lines, delayBetween = 300, callback) {
+    let i = 0;
+    function typeNext() {
+      if (i < lines.length) {
+        typeText(lines[i], output, 30, () => {
+          i++;
+          setTimeout(typeNext, delayBetween);
+        });
+      } else if (callback) {
+        callback();
+      }
+    }
+    typeNext();
+  }
+
+  // Initial animated boot: whoami + response
+  function bootSequence() {
+    cursor.style.display = "none";
+    typeLines(
+      ["> whoami"],
+      400,
+      () => {
+        typeLines(responses["whoami"], 400, () => {
+          cursor.style.display = "inline-block";
+          input.removeAttribute("disabled");
+          input.focus();
+        });
+      }
+    );
+  }
+
+  bootSequence();
+
+  // Handle user input
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const command = input.value.trim().toLowerCase();
+      const prompt = document.createElement("div");
+      prompt.textContent = `> ${command}`;
+      output.appendChild(prompt);
+
+      if (command === "clear") {
+        output.innerHTML = "";
+        cursor.style.display = "none";
+      } else if (responses.hasOwnProperty(command)) {
+        cursor.style.display = "none";
+        typeLines(responses[command], 300, () => {
+          cursor.style.display = "inline-block";
+        });
+      } else {
+        cursor.style.display = "none";
+        typeLines([
+          `Command not found: ${command}`,
+          "Try commands like: whoami, skills, ls projects, cat education, cat resume, or type help to see all options."
+        ], 300, () => {
+          cursor.style.display = "inline-block";
+        });
+      }
+
+      input.value = "";
+    }
+  });
+  // Cursor animation toggle while typing
+input.addEventListener("input", () => {
+  cursor.classList.add("typing");
+});
+
+input.addEventListener("blur", () => {
+  cursor.classList.remove("typing");
+});
+
+input.addEventListener("focusout", () => {
+  cursor.classList.remove("typing");
+});
+
+input.addEventListener("keyup", (e) => {
+  if (e.key !== "Enter") {
+    // Remove the typing class a bit after typing stops
+    setTimeout(() => {
+      cursor.classList.remove("typing");
+    }, 500);
+  }
+});
+
+});
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('terminalInput');
+
+  function resizeInput() {
+    const span = document.createElement('span');
+    span.style.visibility = 'hidden';
+    span.style.position = 'absolute';
+    span.style.font = getComputedStyle(input).font;
+    span.textContent = input.value || input.placeholder || '';
+    document.body.appendChild(span);
+
+    // Add a little extra space
+    const width = Math.min(span.offsetWidth + 10, 300);
+    input.style.width = `${width}px`;
+
+    document.body.removeChild(span);
+  }
+
+  input.addEventListener('input', resizeInput);
+  resizeInput(); // initialize on load
+});
+
+function typeText(line, container, delay = 30, callback) {
+  let charIndex = 0;
+  const div = document.createElement("div");
+  const scrollRegion = document.getElementById("terminalScroll");
+
+  function typeChar() {
+    if (charIndex < line.length) {
+      div.textContent += line.charAt(charIndex);
+      charIndex++;
+      scrollRegion.scrollTop = scrollRegion.scrollHeight; // force scroll down
+      setTimeout(typeChar, delay);
+    } else {
+      if (callback) callback();
+    }
+  }
+
+  container.appendChild(div);
+  scrollRegion.scrollTop = scrollRegion.scrollHeight; // initial scroll
+  typeChar();
+}

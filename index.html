@@ -37,23 +37,38 @@
       <div class="hero-container">
         <div class="hero fade-in">
           <div class="hero-image slide-in-left">
-            <img src="headshot.jpeg" alt="Hans Sai professional headshot">
+            <img src="headshot.jpeg" alt="Hans Sai professional headshot" />
           </div>
-          <div class="hero-text slide-in-right">
-            <h1>Hi, I'm Hans.</h1>
-            <p>
-              IT Support Specialist <br>
-              Air Force Reservist <br>
-              Cybersecurity Student <br>
-              <span class="fade-in delay">Scroll and explore my work.</span>
-            </p>
+          <div class="hero-text terminal-hero">
 
+            <div class="terminal-window">
+              <div class="terminal-scroll-region" id="terminalScroll">
+                <div class="terminal-output" id="terminalOutput"></div>
+              </div>
+              <div class="terminal-input-line">
+                <span class="terminal-prefix">&gt;</span>
+                <input
+                  type="text"
+                  id="terminalInput"
+                  autocomplete="off"
+                  disabled
+                  placeholder="Type a command..."
+                />
+                <div class="terminal-cursor" id="terminalCursor">█</div>
+              </div>
+            </div>
+
+
+
+
+            
           </div>
         </div>
       </div>
     </header>
+
     <main class="container">
-      
+
       <section id="about" class="section">
         <h2>About Me</h2>
         <p>Hi, I'm Hans Sai — an experienced IT Support Specialist and Air Force Reservist currently pursuing a degree in Computer Science with a concentration in Cybersecurity. My career bridges both military and civilian environments, where I've led system administration, digital transformation, and technical support initiatives. From configuring Active Directory in secure, mission-critical settings to deploying SmartDeploy images and troubleshooting print servers, I bring hands-on expertise backed by certifications like CompTIA Security+ and an active Secret Clearance. I’m known for being detail-oriented, adaptable, and team-driven, with a teachable spirit and a passion for solving problems through technology. Outside of work, you’ll find me exploring the latest tech trends, coding, or enjoying the outdoors.</p>
