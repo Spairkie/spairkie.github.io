@@ -1,20 +1,98 @@
-// Make logo clickable to scroll to top/home
-  document.addEventListener('DOMContentLoaded', () => {
-    const logo = document.querySelector('.nav-logo');
-    if (logo) {
-      logo.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+window.addEventListener("load", () => {
+  const preloader = document.getElementById("preloader");
+  const screen = document.querySelector(".access-screen");
+  const granted = document.querySelector(".access-granted");
+  const spinner = document.querySelector(".neon-spinner");
+  const line = document.querySelector(".access-line");
+  const canvas = document.getElementById("matrixCanvas");
+  const ctx = canvas.getContext("2d");
+
+  // Setup canvas
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const chars = "01ABCDEFGHIJKLMNOPQRSTUVXYZ#$%&*".split("");
+  const fontSize = 16;
+  const columns = Math.floor(canvas.width / fontSize);
+  const drops = Array(columns).fill(1);
+
+  function drawMatrix() {
+    ctx.fillStyle = "rgba(44, 62, 80, 0.08)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#00ff9f";
+    ctx.font = fontSize + "px monospace";
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
     }
-  });// === Toggle Mobile Nav ===
+
+    requestAnimationFrame(drawMatrix);
+  }
+
+  // Timeline sequence
+  setTimeout(() => {
+    spinner.classList.add("hide");
+    line.classList.add("hide");
+  }, 2000);
+
+  setTimeout(() => {
+    granted.classList.add("show");
+  }, 2500);
+
+  setTimeout(() => {
+    screen.classList.add("fade-out");
+    canvas.classList.add("show");
+    drawMatrix();
+  }, 4000);
+
+  setTimeout(() => {
+    canvas.classList.remove("show");
+    preloader.classList.add("fade-out");
+    setTimeout(() => preloader.remove(), 1200);
+  }, 7000);
+});
+
+// === Scroll to Top on Logo Click ===
+document.addEventListener('DOMContentLoaded', () => {
+  const logo = document.querySelector('.nav-logo');
+  if (logo) {
+    logo.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+});
+
+// === Toggle Mobile Navigation ===
 function toggleNav() {
   const navLinks = document.querySelector('.nav-links');
   const overlay = document.querySelector('.nav-overlay');
   const hamburger = document.querySelector('.hamburger');
+
   navLinks.classList.toggle('show');
   overlay.classList.toggle('show');
   hamburger.classList.toggle('open');
 }
+
+// Close mobile nav on link click (only on mobile)
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        toggleNav();
+      }
+    });
+  });
+});
+
+// === Sticky Navbar Scroll Effect ===
 window.addEventListener('scroll', () => {
   const nav = document.querySelector('nav');
   if (window.scrollY > 10) {
@@ -24,235 +102,7 @@ window.addEventListener('scroll', () => {
   }
 });
 
-
-document.querySelectorAll('.nav-links a').forEach(link => {
-  link.addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
-      toggleNav();
-    }
-  });
-});
-
-// === Scroll to Top Button ===
-const scrollTopBtn = document.getElementById("scrollTopBtn");
-
-window.onscroll = function () {
-  if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-    scrollTopBtn.style.display = "block";
-  } else {
-    scrollTopBtn.style.display = "none";
-  }
-};
-
-scrollTopBtn.addEventListener("click", function () {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
-
-// === jQuery Slick Carousel ===
-$(document).ready(function() {
-  $('.carousel').slick({
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    adaptiveHeight: true
-  });
-});
-
-// === Project Carousel ===
-const carousel = document.getElementById('projectCarousel');
-const dotsContainer = document.getElementById('carouselDots');
-const itemCount = carousel.children.length;
-const itemWidth = carousel.children[0].offsetWidth + 20;
-const visibleWidth = carousel.offsetWidth;
-const itemsPerView = Math.floor(visibleWidth / itemWidth);
-const dotCount = Math.ceil(itemCount / itemsPerView);
-let autoScroll;
-let activeIndex = 0;
-
-function scrollCarousel(direction) {
-  const scrollAmount = itemWidth * itemsPerView;
-  carousel.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-  updateDots(direction);
-}
-
-function autoScrollCarousel() {
-  autoScroll = setInterval(() => {
-    if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
-      carousel.scrollTo({ left: 0, behavior: 'smooth' });
-      activeIndex = 0;
-      updateDots(0);
-    } else {
-      scrollCarousel(1);
-    }
-  }, 4000);
-}
-
-function updateDots(direction) {
-  activeIndex += direction;
-  if (activeIndex < 0) activeIndex = 0;
-  if (activeIndex >= dotCount) activeIndex = dotCount - 1;
-
-  document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === activeIndex);
-  });
-}
-
-function goToSlide(index) {
-  carousel.scrollTo({ left: index * itemWidth * itemsPerView, behavior: 'smooth' });
-  activeIndex = index;
-  updateDots(0);
-}
-
-for (let i = 0; i < dotCount; i++) {
-  const dot = document.createElement('span');
-  dot.classList.add('carousel-dot');
-  if (i === 0) dot.classList.add('active');
-  dot.addEventListener('click', () => goToSlide(i));
-  dotsContainer.appendChild(dot);
-}
-
-carousel.addEventListener('mouseenter', () => clearInterval(autoScroll));
-carousel.addEventListener('mouseleave', autoScrollCarousel);
-
-let startX = 0;
-let isDown = false;
-
-carousel.addEventListener('touchstart', (e) => {
-  startX = e.touches[0].clientX;
-  isDown = true;
-});
-
-carousel.addEventListener('touchmove', (e) => {
-  if (!isDown) return;
-  let moveX = e.touches[0].clientX;
-  let diff = startX - moveX;
-  if (Math.abs(diff) > 50) {
-    scrollCarousel(diff > 0 ? 1 : -1);
-    isDown = false;
-  }
-});
-
-carousel.addEventListener('touchend', () => {
-  isDown = false;
-});
-
-autoScrollCarousel();
-
-// === Certification Carousel ===
-const certCarousel = document.getElementById('certCarousel');
-const certLeftBtn = document.getElementById('certLeftBtn');
-const certRightBtn = document.getElementById('certRightBtn');
-const certDotsContainer = document.getElementById('certDots');
-const certItemWidth = certCarousel.children[0].offsetWidth + 20;
-const certVisibleWidth = certCarousel.offsetWidth;
-const certItemsPerView = Math.floor(certVisibleWidth / certItemWidth);
-const certItemCount = certCarousel.children.length;
-const certDotCount = Math.ceil(certItemCount / certItemsPerView);
-let certAutoScroll;
-let certActiveIndex = 0;
-
-function updateCertNavButtons() {
-  const atLeft = certCarousel.scrollLeft <= 5;
-  const atRight = certCarousel.scrollLeft + certCarousel.clientWidth >= certCarousel.scrollWidth - 5;
-  certLeftBtn.classList.toggle('hidden', atLeft);
-  certRightBtn.classList.toggle('hidden', atRight);
-}
-
-function updateCertDots(index) {
-  document.querySelectorAll('.cert-dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === index);
-  });
-}
-
-function goToCertSlide(index) {
-  certCarousel.scrollTo({ left: index * certItemWidth * certItemsPerView, behavior: 'smooth' });
-  certActiveIndex = index;
-  updateCertDots(index);
-}
-
-function scrollCertCarousel(direction) {
-  const scrollAmount = certItemWidth * certItemsPerView;
-  certCarousel.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-  certActiveIndex += direction;
-  if (certActiveIndex < 0) certActiveIndex = 0;
-  if (certActiveIndex >= certDotCount) certActiveIndex = certDotCount - 1;
-  updateCertDots(certActiveIndex);
-  setTimeout(updateCertNavButtons, 500);
-}
-
-function autoScrollCertCarousel() {
-  certAutoScroll = setInterval(() => {
-    if (certCarousel.scrollLeft + certCarousel.clientWidth >= certCarousel.scrollWidth - 5) {
-      certCarousel.scrollTo({ left: 0, behavior: 'smooth' });
-      certActiveIndex = 0;
-      updateCertDots(0);
-    } else {
-      scrollCertCarousel(1);
-    }
-  }, 5000);
-}
-
-for (let i = 0; i < certDotCount; i++) {
-  const dot = document.createElement('span');
-  dot.classList.add('cert-dot');
-  if (i === 0) dot.classList.add('active');
-  dot.addEventListener('click', () => goToCertSlide(i));
-  certDotsContainer.appendChild(dot);
-}
-
-certLeftBtn.addEventListener('click', () => scrollCertCarousel(-1));
-certRightBtn.addEventListener('click', () => scrollCertCarousel(1));
-
-certCarousel.addEventListener('mouseenter', () => clearInterval(certAutoScroll));
-certCarousel.addEventListener('mouseleave', autoScrollCertCarousel);
-certCarousel.addEventListener('scroll', updateCertNavButtons);
-
-let certStartX = 0;
-let certIsTouching = false;
-
-certCarousel.addEventListener('touchstart', (e) => {
-  certStartX = e.touches[0].clientX;
-  certIsTouching = true;
-  clearInterval(certAutoScroll);
-});
-
-certCarousel.addEventListener('touchmove', (e) => {
-  if (!certIsTouching) return;
-  const moveX = e.touches[0].clientX;
-  const diff = certStartX - moveX;
-  if (Math.abs(diff) > 50) {
-    scrollCertCarousel(diff > 0 ? 1 : -1);
-    certIsTouching = false;
-  }
-});
-
-certCarousel.addEventListener('touchend', () => {
-  certIsTouching = false;
-  autoScrollCertCarousel();
-});
-
-window.addEventListener('resize', updateCertNavButtons);
-window.addEventListener('load', () => {
-  updateCertNavButtons();
-  autoScrollCertCarousel();
-});
-
-
-const timelineEntries = document.querySelectorAll('.timeline-entry');
-
-  const animateOnScroll = () => {
-    timelineEntries.forEach(entry => {
-      const rect = entry.getBoundingClientRect();
-      if (rect.top < window.innerHeight - 100) {
-        entry.classList.add('visible');
-      }
-    });
-  };
-
-  window.addEventListener('scroll', animateOnScroll);
-  window.addEventListener('load', animateOnScroll);
-
+// === Highlight Active Nav Link Based on Scroll Position ===
 window.addEventListener("scroll", () => {
   const sections = document.querySelectorAll("section");
   const navLinks = document.querySelectorAll(".nav-links a");
@@ -273,8 +123,9 @@ window.addEventListener("scroll", () => {
   });
 });
 
+// === Smooth Scroll for Anchor Links ===
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
+  anchor.addEventListener('click', function(e) {
     const target = document.querySelector(this.getAttribute('href'));
     if (target) {
       e.preventDefault();
@@ -285,40 +136,453 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
-function openModal(id) {
-  document.getElementById(id).style.display = "block";
+// === Scroll to Top Button ===
+const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+window.addEventListener("scroll", () => {
+  const shouldShow = document.body.scrollTop > 300 || document.documentElement.scrollTop > 300;
+  if (scrollTopBtn) {
+    scrollTopBtn.style.display = shouldShow ? "block" : "none";
+  }
+});
+
+if (scrollTopBtn) {
+  scrollTopBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
 }
 
-function closeModal(id) {
-  document.getElementById(id).style.display = "none";
+// === Animate About Section on Scroll ===
+document.addEventListener("DOMContentLoaded", () => {
+  const aboutSection = document.querySelector('#about');
+
+  if (aboutSection) {
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('fade-in-right');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
+    observer.observe(aboutSection);
+  }
+});
+
+// === Project Carousel Logic ===
+const carousel = document.getElementById('projectCarousel');
+const dotsContainer = document.getElementById('carouselDots');
+const itemCount = carousel?.children.length || 0;
+const itemWidth = carousel?.children[0]?.offsetWidth + 20 || 0;
+const visibleWidth = carousel?.offsetWidth || 0;
+const itemsPerView = Math.floor(visibleWidth / itemWidth) || 1;
+const dotCount = Math.ceil(itemCount / itemsPerView);
+let autoScroll;
+let activeIndex = 0;
+
+function updateDots(index) {
+  document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === index);
+  });
 }
 
-window.onclick = function(event) {
-  document.querySelectorAll('.modal').forEach(modal => {
-    if (event.target === modal) {
-      modal.style.display = "none";
+function goToSlide(index) {
+  if (!carousel) return;
+  carousel.scrollTo({
+    left: index * itemWidth * itemsPerView,
+    behavior: 'smooth'
+  });
+  activeIndex = index;
+  updateDots(index);
+}
+
+function scrollCarousel(direction) {
+  if (!carousel) return;
+  const scrollAmount = itemWidth * itemsPerView;
+  carousel.scrollBy({
+    left: direction * scrollAmount,
+    behavior: 'smooth'
+  });
+  activeIndex += direction;
+  activeIndex = Math.max(0, Math.min(activeIndex, dotCount - 1));
+  updateDots(activeIndex);
+}
+
+function autoScrollCarousel() {
+  autoScroll = setInterval(() => {
+    if (!carousel) return;
+    if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 5) {
+      carousel.scrollTo({
+        left: 0,
+        behavior: 'smooth'
+      });
+      activeIndex = 0;
+    } else {
+      scrollCarousel(1);
+    }
+    updateDots(activeIndex);
+  }, 4000);
+}
+
+if (dotsContainer && itemCount > 0) {
+  for (let i = 0; i < dotCount; i++) {
+    const dot = document.createElement('span');
+    dot.classList.add('carousel-dot');
+    if (i === 0) dot.classList.add('active');
+    dot.addEventListener('click', () => goToSlide(i));
+    dotsContainer.appendChild(dot);
+  }
+}
+
+if (carousel) {
+  carousel.addEventListener('mouseenter', () => clearInterval(autoScroll));
+  carousel.addEventListener('mouseleave', autoScrollCarousel);
+
+  let startX = 0;
+  let isDown = false;
+
+  carousel.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    isDown = true;
+  });
+
+  carousel.addEventListener('touchmove', (e) => {
+    if (!isDown) return;
+    const moveX = e.touches[0].clientX;
+    const diff = startX - moveX;
+    if (Math.abs(diff) > 50) {
+      scrollCarousel(diff > 0 ? 1 : -1);
+      isDown = false;
     }
   });
-};
 
-function openContactModal() {
-  openModal('contactModal');
+  carousel.addEventListener('touchend', () => {
+    isDown = false;
+  });
+
+  autoScrollCarousel();
 }
 
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.modal').forEach(modal => {
-      if (modal.style.display === 'block') {
-        modal.style.display = 'none';
+
+// === Animate Timeline Entries and Resume CTA ===
+document.addEventListener("DOMContentLoaded", () => {
+  const timelineItems = document.querySelectorAll(".timeline-entry");
+  const resumeCta = document.querySelector(".resume-cta");
+
+  const observerOptions = {
+    threshold: 0.15
+  };
+
+  const timelineObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, index) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add("visible"), index * 150);
+      } else {
+        entry.target.classList.remove("visible");
+      }
+    });
+  }, observerOptions);
+
+  timelineItems.forEach(item => timelineObserver.observe(item));
+
+  if (resumeCta) {
+    const ctaObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add("visible"), timelineItems.length * 150);
+        } else {
+          entry.target.classList.remove("visible");
+        }
+      });
+    }, observerOptions);
+
+    ctaObserver.observe(resumeCta);
+  }
+});
+
+
+// === Animate Skills Section and Tags on Scroll ===
+document.addEventListener("DOMContentLoaded", () => {
+  const skillsSection = document.getElementById("skills");
+  const skillTags = document.querySelectorAll(".skill-tag");
+
+  if (skillsSection) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          skillsSection.classList.add("visible");
+          skillTags.forEach((tag, index) => {
+            setTimeout(() => tag.classList.add("visible"), index * 70);
+          });
+        } else {
+          skillsSection.classList.remove("visible");
+          skillTags.forEach(tag => tag.classList.remove("visible"));
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
+    observer.observe(skillsSection);
+  }
+});
+
+// === Animate Education Section and Entries on Scroll ===
+document.addEventListener("DOMContentLoaded", () => {
+  const eduSection = document.getElementById("education");
+  const eduEntries = document.querySelectorAll(".education-entry");
+
+  if (eduSection) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          eduSection.classList.add("visible");
+          eduEntries.forEach((entry, i) => {
+            setTimeout(() => entry.classList.add("visible"), i * 150);
+          });
+        } else {
+          eduSection.classList.remove("visible");
+          eduEntries.forEach(entry => entry.classList.remove("visible"));
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
+    observer.observe(eduSection);
+  }
+});
+
+// === Certifications Carousel Logic ===
+const certCarousel = document.getElementById('certCarousel');
+const certLeftBtn = document.getElementById('certLeftBtn');
+const certRightBtn = document.getElementById('certRightBtn');
+const certDotsContainer = document.getElementById('certDots');
+const certItemWidth = certCarousel?.children[0]?.offsetWidth + 20 || 0;
+const certVisibleWidth = certCarousel?.offsetWidth || 0;
+const certItemsPerView = Math.floor(certVisibleWidth / certItemWidth) || 1;
+const certItemCount = certCarousel?.children.length || 0;
+const certDotCount = Math.ceil(certItemCount / certItemsPerView);
+let certAutoScroll;
+let certActiveIndex = 0;
+
+function updateCertDots(index) {
+  document.querySelectorAll('.cert-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === index);
+  });
+}
+
+function updateCertNavButtons() {
+  const atLeft = certCarousel.scrollLeft <= 5;
+  const atRight = certCarousel.scrollLeft + certCarousel.clientWidth >= certCarousel.scrollWidth - 5;
+  certLeftBtn.classList.toggle('hidden', atLeft);
+  certRightBtn.classList.toggle('hidden', atRight);
+}
+
+function goToCertSlide(index) {
+  certCarousel.scrollTo({
+    left: index * certItemWidth * certItemsPerView,
+    behavior: 'smooth'
+  });
+  certActiveIndex = index;
+  updateCertDots(index);
+}
+
+function scrollCertCarousel(direction) {
+  const scrollAmount = certItemWidth * certItemsPerView;
+  certCarousel.scrollBy({
+    left: direction * scrollAmount,
+    behavior: 'smooth'
+  });
+  certActiveIndex += direction;
+  certActiveIndex = Math.max(0, Math.min(certActiveIndex, certDotCount - 1));
+  updateCertDots(certActiveIndex);
+  setTimeout(updateCertNavButtons, 400);
+}
+
+function autoScrollCertCarousel() {
+  certAutoScroll = setInterval(() => {
+    if (certCarousel.scrollLeft + certCarousel.clientWidth >= certCarousel.scrollWidth - 5) {
+      certCarousel.scrollTo({
+        left: 0,
+        behavior: 'smooth'
+      });
+      certActiveIndex = 0;
+    } else {
+      scrollCertCarousel(1);
+    }
+    updateCertDots(certActiveIndex);
+  }, 5000);
+}
+
+// Dot nav generation
+if (certDotsContainer && certItemCount > 0) {
+  for (let i = 0; i < certDotCount; i++) {
+    const dot = document.createElement('span');
+    dot.classList.add('cert-dot');
+    if (i === 0) dot.classList.add('active');
+    dot.addEventListener('click', () => goToCertSlide(i));
+    certDotsContainer.appendChild(dot);
+  }
+}
+
+// Event listeners
+certLeftBtn?.addEventListener('click', () => scrollCertCarousel(-1));
+certRightBtn?.addEventListener('click', () => scrollCertCarousel(1));
+certCarousel?.addEventListener('mouseenter', () => clearInterval(certAutoScroll));
+certCarousel?.addEventListener('mouseleave', autoScrollCertCarousel);
+certCarousel?.addEventListener('scroll', updateCertNavButtons);
+
+// Touch support
+let certStartX = 0;
+let certIsTouching = false;
+
+certCarousel?.addEventListener('touchstart', (e) => {
+  certStartX = e.touches[0].clientX;
+  certIsTouching = true;
+  clearInterval(certAutoScroll);
+});
+
+certCarousel?.addEventListener('touchmove', (e) => {
+  if (!certIsTouching) return;
+  const moveX = e.touches[0].clientX;
+  const diff = certStartX - moveX;
+  if (Math.abs(diff) > 50) {
+    scrollCertCarousel(diff > 0 ? 1 : -1);
+    certIsTouching = false;
+  }
+});
+
+certCarousel?.addEventListener('touchend', () => {
+  certIsTouching = false;
+  autoScrollCertCarousel();
+});
+
+window.addEventListener('resize', updateCertNavButtons);
+window.addEventListener('load', () => {
+  updateCertNavButtons();
+  autoScrollCertCarousel();
+});
+
+// Flip cards on click
+document.querySelectorAll('.cert-card').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.toggle('flipped');
+  });
+});
+
+// === Resume Modal Logic ===
+document.addEventListener("DOMContentLoaded", () => {
+  const resumeModal = document.getElementById("resumeModal");
+  const resumeCloseBtn = resumeModal?.querySelector(".close");
+
+  window.openResumeModal = function() {
+    if (resumeModal) resumeModal.style.display = "block";
+  };
+
+  window.closeResumeModal = function() {
+    if (resumeModal) resumeModal.style.display = "none";
+  };
+
+  window.addEventListener("click", function(event) {
+    if (event.target === resumeModal) {
+      closeResumeModal();
+    }
+  });
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && resumeModal?.style.display === "block") {
+      closeResumeModal();
+    }
+  });
+
+  resumeCloseBtn?.addEventListener("click", closeResumeModal);
+});
+
+// === Contact Modal Logic ===
+document.addEventListener("DOMContentLoaded", () => {
+  const contactModal = document.getElementById("contactModal");
+  const contactForm = document.getElementById("contactForm");
+  const thankYou = document.getElementById("thankYouMsg");
+  const contactCloseBtn = contactModal?.querySelector(".close");
+
+  window.openContactModal = function() {
+    if (contactModal) contactModal.style.display = "block";
+  };
+
+  window.closeContactModal = function() {
+    if (contactModal) contactModal.style.display = "none";
+  };
+
+  window.addEventListener("click", function(event) {
+    if (event.target === contactModal) {
+      closeContactModal();
+    }
+  });
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && contactModal?.style.display === "block") {
+      closeContactModal();
+    }
+  });
+
+  contactCloseBtn?.addEventListener("click", closeContactModal);
+
+  if (contactForm && thankYou) {
+    contactForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const formData = new FormData(contactForm);
+
+      fetch(contactForm.action, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Accept: "application/json"
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            contactForm.style.display = "none";
+            thankYou.style.display = "block";
+          } else {
+            alert("Oops! Something went wrong.");
+          }
+        })
+        .catch(() => {
+          alert("There was a problem submitting the form.");
+        });
+    });
+
+    // Allow "Enter" key to submit form cleanly (without newline spam)
+    document.addEventListener("keydown", function(event) {
+      if (
+        contactModal?.style.display === "block" &&
+        event.key === "Enter" &&
+        document.activeElement &&
+        contactForm.contains(document.activeElement)
+      ) {
+        event.preventDefault();
+        contactForm.requestSubmit();
       }
     });
   }
 });
 
+// === Terminal Interaction Logic ===
+
 document.addEventListener("DOMContentLoaded", () => {
   const output = document.getElementById("terminalOutput");
   const input = document.getElementById("terminalInput");
   const cursor = document.getElementById("terminalCursor");
+  const scrollRegion = document.getElementById("terminalScroll");
+
+  const bootTime = Date.now();
 
   const responses = {
     "whoami": [
@@ -332,7 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "✔ Active Directory  ✔ PXE Boot  ✔ SmartDeploy",
       "✔ PowerShell  ✔ Security+  ✔ ITSM / ITOM / HRSD"
     ],
-    "ls projects": [ 
+    "ls projects": [
       "📁 Helpdesk Ticketing System",
       "📁 Bash Resource Monitor",
       "📁 React Chat App"
@@ -356,15 +620,50 @@ document.addEventListener("DOMContentLoaded", () => {
       "(Not really, but you can click the resume button!)"
     ],
     "clear": [],
-
-    // NEW: Current system date
     "date": [new Date().toString()],
-
-    // NEW: Dynamic command list
-    "help": [], // will be set dynamically below
+    "help": [],
+    "sudo make me a sandwich": ["Okay. 🥪", "(That worked?!)"],
+    "echo hello, world!": ["Hello, World!"],
+    "rm -rf /": [
+      "Warning: this will delete EVERYTHING...",
+      "Just kidding. 😅 You're safe here."
+    ],
+    "ascii hans": [
+      " _   _              ____  ",
+      "| | | | __ _ _ __ / ___| ",
+      "| |_| |/ _` | '__\\___ \ ",
+      "|  _  | (_| | |  |  ___)|",
+      "|_| |_|\\__,_|_| |_|____/ ",
+      "  H   A  N  S   S A I     "
+    ],
+    "uname -a": [
+      "HansOS 1.0.5-elite x86_64 HansKernel SMP Wed May 2025",
+      "Compiled for awesome people only"
+    ],
+    "neofetch": [
+      "HansOS 1.0.5",
+      "------------",
+      "User: hans",
+      "Shell: /bin/bash (emulated)",
+      "Uptime: ∞",
+      "Terminal: Web CLI",
+      "Certs: Security+ | ITF+ | MTA",
+      "Quote: \"Stay ready so you don’t have to get ready.\""
+    ],
+    "ping google.com": [
+      "Pinging google.com [142.250.72.14] with 32 bytes of data:",
+      "Reply from 142.250.72.14: bytes=32 time=42ms TTL=57",
+      "Reply from 142.250.72.14: bytes=32 time=39ms TTL=57",
+      "Reply from 142.250.72.14: bytes=32 time=40ms TTL=57",
+      "",
+      "Ping statistics for google.com:",
+      "    Packets: Sent = 3, Received = 3, Lost = 0 (0% loss),",
+      "Approximate round trip times in milliseconds:",
+      "    Minimum = 39ms, Maximum = 42ms, Average = 40ms"
+    ]
   };
 
-  // Multi-mapping (aliases)
+  // Aliases
   responses["projects"] = responses["ls projects"];
   responses["certs"] = responses["ls certs"];
   responses["education"] = responses["cat education"];
@@ -379,206 +678,129 @@ document.addEventListener("DOMContentLoaded", () => {
     "\"Discipline is the bridge between goals and accomplishment.\""
   ];
 
-  // Help command auto-generates list
   responses["help"] = [
     "Available commands:",
     ...Object.keys(responses).filter(cmd => !["help", "clear"].includes(cmd)).map(cmd => `• ${cmd}`)
   ];
-  responses["sudo make me a sandwich"] = [
-    "Okay. 🥪",
-    "(That worked?!)"
-  ];
 
-  responses["echo hello, world!"] = [
-    "Hello, World!"
-  ];
+  // Dynamic: uptime
+  responses["uptime"] = function() {
+    const ms = Date.now() - bootTime;
+    const h = Math.floor(ms / (1000 * 60 * 60));
+    const m = Math.floor((ms / (1000 * 60)) % 60);
+    const s = Math.floor((ms / 1000) % 60);
+    return [`Uptime: ${h}h ${m}m ${s}s`];
+  };
 
-  responses["rm -rf /"] = [
-    "Warning: this will delete EVERYTHING...",
-    "Just kidding. 😅 You're safe here."
-  ];
-
-responses["ascii hans"] = [
-  " _   _              ____  ",
-  "| | | | __ _ _ __ / ___| ",
-  "| |_| |/ _` | '__\\\___ \ ",
-  "|  _  | (_| | |  |  ___)|",
-  "|_| |_|\\__,_|_| |_|____/ ",
-  "  H   A   N   S   S A I "
-];
-
-
-responses["uname -a"] = [
-  "HansOS 1.0.5-elite x86_64 HansKernel SMP Wed May 2025",
-  "Compiled for awesome people only"
-];
-responses["neofetch"] = [
-  "HansOS 1.0.5",
-  "------------",
-  "User: hans",
-  "Shell: /bin/bash (emulated)",
-  "Uptime: ∞",
-  "Terminal: Web CLI",
-  "Certs: Security+ | ITF+ | MTA",
-  "Quote: \"Stay ready so you don’t have to get ready.\""
-];
-
-responses["ping google.com"] = [
-  "Pinging google.com [142.250.72.14] with 32 bytes of data:",
-  "Reply from 142.250.72.14: bytes=32 time=42ms TTL=57",
-  "Reply from 142.250.72.14: bytes=32 time=39ms TTL=57",
-  "Reply from 142.250.72.14: bytes=32 time=40ms TTL=57",
-  "",
-  "Ping statistics for google.com:",
-  "    Packets: Sent = 3, Received = 3, Lost = 0 (0% loss),",
-  "Approximate round trip times in milliseconds:",
-  "    Minimum = 39ms, Maximum = 42ms, Average = 40ms"
-];
+  // Dynamic: current time
+  responses["date +%T"] = function() {
+    const now = new Date();
+    const time = now.toLocaleTimeString();
+    return [`Current time: ${time}`];
+  };
 
 
 
   function typeText(line, container, delay = 30, callback) {
-    let charIndex = 0;
+    let i = 0;
     const div = document.createElement("div");
+    container.appendChild(div);
 
     function typeChar() {
-      if (charIndex < line.length) {
-        div.textContent += line.charAt(charIndex);
-        charIndex++;
+      if (i < line.length) {
+        div.textContent += line.charAt(i);
+        i++;
+        scrollRegion.scrollTop = scrollRegion.scrollHeight;
         setTimeout(typeChar, delay);
-      } else {
-        if (callback) callback();
-      }
+      } else if (callback) callback();
     }
-
-    container.appendChild(div);
     typeChar();
   }
 
   function typeLines(lines, delayBetween = 300, callback) {
     let i = 0;
+
     function typeNext() {
       if (i < lines.length) {
         typeText(lines[i], output, 30, () => {
           i++;
           setTimeout(typeNext, delayBetween);
         });
-      } else if (callback) {
-        callback();
-      }
+      } else if (callback) callback();
     }
     typeNext();
   }
 
-  // Initial animated boot: whoami + response
   function bootSequence() {
     cursor.style.display = "none";
-    typeLines(
-      ["> whoami"],
-      400,
-      () => {
-        typeLines(responses["whoami"], 400, () => {
-          cursor.style.display = "inline-block";
-          input.removeAttribute("disabled");
-          input.focus();
-        });
-      }
-    );
+    typeLines(["> whoami"], 400, () => {
+      typeLines(responses["whoami"], 400, () => {
+        cursor.style.display = "inline-block";
+        input.removeAttribute("disabled");
+        input.focus();
+      });
+    });
   }
 
   bootSequence();
 
-  // Handle user input
-  input.addEventListener("keydown", (e) => {
+  input.addEventListener("keydown", e => {
     if (e.key === "Enter") {
       const command = input.value.trim().toLowerCase();
       const prompt = document.createElement("div");
       prompt.textContent = `> ${command}`;
       output.appendChild(prompt);
 
+      input.value = "";
+      cursor.style.display = "none";
+
       if (command === "clear") {
         output.innerHTML = "";
-        cursor.style.display = "none";
-      } else if (responses.hasOwnProperty(command)) {
-        cursor.style.display = "none";
-        typeLines(responses[command], 300, () => {
-          cursor.style.display = "inline-block";
-        });
-      } else {
-        cursor.style.display = "none";
-        typeLines([
-          `Command not found: ${command}`,
-          "Try commands like: whoami, skills, ls projects, cat education, cat resume, or type help to see all options."
-        ], 300, () => {
-          cursor.style.display = "inline-block";
-        });
+        return;
       }
 
-      input.value = "";
+
+
+      if (responses.hasOwnProperty(command)) {
+        const res = responses[command];
+        if (typeof res === "function") {
+          const result = res(command);
+          if (result instanceof Promise) {
+            result.then(lines => typeLines(lines, 300, () => cursor.style.display = "inline-block"));
+          } else {
+            typeLines([result].flat(), 300, () => cursor.style.display = "inline-block");
+          }
+        } else {
+          typeLines(res, 300, () => cursor.style.display = "inline-block");
+        }
+      } else {
+        typeLines([
+          `Command not found: ${command}`,
+          "Try commands like: whoami, skills, ascii hans, uptime, or help."
+        ], 300, () => cursor.style.display = "inline-block");
+      }
     }
   });
-  // Cursor animation toggle while typing
-input.addEventListener("input", () => {
-  cursor.classList.add("typing");
-});
 
-input.addEventListener("blur", () => {
-  cursor.classList.remove("typing");
-});
-
-input.addEventListener("focusout", () => {
-  cursor.classList.remove("typing");
-});
-
-input.addEventListener("keyup", (e) => {
-  if (e.key !== "Enter") {
-    // Remove the typing class a bit after typing stops
-    setTimeout(() => {
-      cursor.classList.remove("typing");
-    }, 500);
-  }
-});
-
-});
-document.addEventListener('DOMContentLoaded', () => {
-  const input = document.getElementById('terminalInput');
-
-  function resizeInput() {
-    const span = document.createElement('span');
-    span.style.visibility = 'hidden';
-    span.style.position = 'absolute';
+  input.addEventListener("input", () => {
+    cursor.classList.add("typing");
+    const span = document.createElement("span");
+    span.style.visibility = "hidden";
+    span.style.position = "absolute";
     span.style.font = getComputedStyle(input).font;
-    span.textContent = input.value || input.placeholder || '';
+    span.textContent = input.value || input.placeholder || "";
     document.body.appendChild(span);
-
-    // Add a little extra space
-    const width = Math.min(span.offsetWidth + 10, 300);
-    input.style.width = `${width}px`;
-
+    input.style.width = `${Math.min(span.offsetWidth + 10, 300)}px`;
     document.body.removeChild(span);
-  }
+  });
 
-  input.addEventListener('input', resizeInput);
-  resizeInput(); // initialize on load
-});
+  ["blur", "focusout"].forEach(event => input.addEventListener(event, () => {
+    cursor.classList.remove("typing");
+  }));
 
-function typeText(line, container, delay = 30, callback) {
-  let charIndex = 0;
-  const div = document.createElement("div");
-  const scrollRegion = document.getElementById("terminalScroll");
-
-  function typeChar() {
-    if (charIndex < line.length) {
-      div.textContent += line.charAt(charIndex);
-      charIndex++;
-      scrollRegion.scrollTop = scrollRegion.scrollHeight; // force scroll down
-      setTimeout(typeChar, delay);
-    } else {
-      if (callback) callback();
+  input.addEventListener("keyup", e => {
+    if (e.key !== "Enter") {
+      setTimeout(() => cursor.classList.remove("typing"), 500);
     }
-  }
-
-  container.appendChild(div);
-  scrollRegion.scrollTop = scrollRegion.scrollHeight; // initial scroll
-  typeChar();
-}
+  });
+});
