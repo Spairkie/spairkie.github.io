@@ -1,11 +1,3 @@
-/* === MATRIX PRELOADER STYLES === */
-body {
-  margin: 0;
-  background: #2c3e50;
-  font-family: 'Courier New', monospace;
-  overflow-x: hidden;
-}
-
 #preloader {
   position: fixed;
   top: 0;
@@ -22,6 +14,10 @@ body {
   transition: opacity 1.2s ease, visibility 1.2s ease;
   pointer-events: none;
 }
+.preloader-hidden {
+  display: none !important;
+}
+
 
 #preloader.fade-out {
   opacity: 0;
@@ -102,7 +98,6 @@ body {
   opacity: 1;
   animation: pulseBeat 1.4s ease-in-out infinite;
 }
-
 
 @keyframes spin {
   to {
@@ -1788,4 +1783,13 @@ footer marquee {
 #scrollTopBtn:hover {
   background-color: #1abc9c;
   transform: translateY(-4px);
+}
+
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+img[loading="lazy"]:not([src=""]) {
+  opacity: 1;
 }

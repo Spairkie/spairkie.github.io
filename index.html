@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2c3e50">
     <title>Hans Sai | IT Specialist & Cybersecurity Student</title>
+    <link rel="manifest" href="/manifest.json">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"
@@ -17,22 +19,15 @@
   </head>
   <body>
     <!-- Cinematic Matrix Preloader -->
-    <div id="preloader">
+    <div id="preloader" class="preloader-hidden">
       <canvas id="matrixCanvas"></canvas>
-
       <div class="access-screen">
         <div class="neon-spinner"></div>
         <div class="access-line">Accessing system<span class="dots"></span></div>
         <div class="access-granted">ACCESS GRANTED</div>
       </div>
     </div>
-
-
-
-
-
-
-
+    <!-- _______ -->
     <div class="nav-overlay" onclick="toggleNav()"></div>
     <nav>
       <div class="nav-brand">
@@ -64,7 +59,7 @@
       <div class="hero-container">
         <div class="hero fade-in">
           <div class="hero-image slide-in-left">
-            <img src="headshot.jpeg" alt="Hans Sai professional headshot" />
+            <img src="headshot.jpeg" alt="Hans Sai professional headshot"/>
           </div>
           <div class="hero-text terminal-hero">
             <div class="terminal-window">
@@ -130,6 +125,7 @@
                   src="images/homelab.png"
                   alt="Home Lab Setup Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Home Lab Setup</h3>
                 <p>Network config</p>
@@ -144,6 +140,7 @@
                   src="images/helpdesk.png"
                   alt="Simple Ticketing Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Simple Ticketing</h3>
                 <p>CRUD Helpdesk</p>
@@ -159,6 +156,7 @@
                   src="images/expense.png"
                   alt="Expense Tracker Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Expense Tracker</h3>
                 <p>Track personal expenses</p>
@@ -174,6 +172,7 @@
                   src="images/taskscheduler.png"
                   alt="Task Scheduler Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Task Scheduler</h3>
                 <p>With Notifications</p>
@@ -189,6 +188,7 @@
                   src="images/automation.png"
                   alt="Automated Tasks Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Automated Tasks</h3>
                 <p>Inspired by Al Sweigart</p>
@@ -203,6 +203,7 @@
                   src="images/chatapp.png"
                   alt="React Chat App Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>React Chat App</h3>
                 <p>Built with Chatkit</p>
@@ -217,6 +218,7 @@
                   src="images/bashmonitor.png"
                   alt="Resource Monitor Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Resource Monitor</h3>
                 <p>Bash Script</p>
@@ -231,6 +233,7 @@
                   src="images/todo.png"
                   alt="CRUD TODO List Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>CRUD TODO List</h3>
                 <p>Simple Task Tracker</p>
@@ -245,6 +248,7 @@
                   src="images/keylogger.png"
                   alt="C++ Keylogger Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>C++ Keylogger</h3>
                 <p>Educational Use</p>
@@ -259,6 +263,7 @@
                   src="images/16puzzle.png"
                   alt="16 Puzzle Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>16 Puzzle</h3>
                 <p>Implemented in C++</p>
@@ -273,6 +278,7 @@
                   src="images/pythonvisuals.png"
                   alt="Creative Sketches Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Creative Sketches</h3>
                 <p>Visuals with Python</p>
@@ -287,6 +293,7 @@
                   src="images/typing.png"
                   alt="Typing Game Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Typing Game</h3>
                 <p>Love2D & Lua</p>
@@ -301,6 +308,7 @@
                   src="images/rain.png"
                   alt="Rain Sketch Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Rain Sketch</h3>
                 <p>Love2D Animation</p>
@@ -315,6 +323,7 @@
                   src="images/salamander.png"
                   alt="Salamander Animation Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Salamander Animation</h3>
                 <p>Love2D + Lua</p>
@@ -329,6 +338,7 @@
                   src="images/2048.png"
                   alt="2048 Clone Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>2048 Clone</h3>
                 <p>Love2D Game</p>
@@ -343,6 +353,7 @@
                   src="images/platformer.png"
                   alt="Unity Platformer Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Unity Platformer</h3>
                 <p>Unity + C#</p>
@@ -357,6 +368,7 @@
                   src="images/oscilloscope.png"
                   alt="Oscilloscope Game Thumbnail"
                   class="project-thumb"
+                  loading="lazy"
                 />
                 <h3>Oscilloscope Game</h3>
                 <p>Love Jam 2020</p>
@@ -596,6 +608,7 @@
               src="https://upload.wikimedia.org/wikipedia/en/thumb/4/4f/Liberty_University_seal.svg/250px-Liberty_University_seal.svg.png"
               alt="Liberty University Logo"
               class="edu-icon"
+              loading="lazy"
             />
             Liberty University
           </h3>
@@ -609,6 +622,7 @@
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Community_College_of_the_Air_Force.png/960px-Community_College_of_the_Air_Force.png"
               alt="CCAF Logo"
               class="edu-icon"
+              loading="lazy"
             />
             Community College of the Air Force
           </h3>
@@ -636,6 +650,7 @@
                     src="https://partners.comptia.org/images/default-source/templateimages/securityplus-logo.png"
                     alt="Security+ Logo"
                     class="cert-logo"
+                    loading="lazy"
                   />
                   <h3>CompTIA Security+ (CE)</h3>
                   <p class="cert-meta">Issued: Oct 25, 2024</p>
@@ -665,6 +680,7 @@
                     src="https://partners.comptia.org/images/default-source/templateimages/it-fundamentals-logo.jpg"
                     alt="ITF+ Logo"
                     class="cert-logo"
+                    loading="lazy"
                   />
                   <h3>CompTIA IT Fundamentals+ (FC0-U61)</h3>
                   <p class="cert-meta">Issued: Nov 12, 2022</p>
@@ -694,6 +710,7 @@
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/MCTS_logo.png/778px-MCTS_logo.png"
                     alt="Microsoft MTA Logo"
                     class="cert-logo"
+                    loading="lazy"
                   />
                   <h3>Microsoft Technology Associate</h3>
                   <p class="cert-meta">Issued: Feb 20, 2020</p>
@@ -723,6 +740,7 @@
                     src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e6/American_Heart_Association_Logo.svg/250px-American_Heart_Association_Logo.svg.png"
                     alt="AHA Logo"
                     class="cert-logo"
+                    loading="lazy"
                   />
                   <h3>Basic Life Support (BLS)</h3>
                   <p class="cert-meta">Issuer: American Heart Association</p>
@@ -741,6 +759,7 @@
                     src="https://d1ldvf68ux039x.cloudfront.net/thumbs/photos/1908/5655101/1000w_q95.jpg"
                     alt="Six Sigma Badge"
                     class="cert-logo"
+                    loading="lazy"
                   />
                   <h3>Air Force CPI & Six Sigma Green Belt</h3>
                   <p class="cert-meta">Issued by: USAF</p>
@@ -902,7 +921,7 @@
       <div class="modal-content resume-modal-content">
         <span class="close" onclick="closeResumeModal()">&times;</span>
         <h3>My Resume</h3>
-        <iframe src="resume/HansSai_SystemAdminResume.pdf" frameborder="0" width="100%" height="500px"></iframe>
+        <iframe id="resumeIframe" data-src="resume/HansSai_SystemAdminResume.pdf" frameborder="0" width="100%" height="500px"></iframe>
         <div class="resume-actions">
           <a href="resume/HansSai_SystemAdminResume.pdf" download class="download-resume-btn">Download PDF</a>
         </div>

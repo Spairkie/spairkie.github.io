@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>404 – Not Found</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Courier New", monospace;
+      color: #00ff9f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas {
+      background: #2c3e50;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .container {
+      text-align: center;
+      padding: 1rem;
+      max-width: 95vw;
+    }
+
+    .error-code {
+      font-size: 10rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      letter-spacing: 0em;
+      text-shadow: 0 0 10px #00ff9f, 0 0 30px #00ff9f;
+    }
+
+    .digit {
+      display: inline-block;
+      opacity: 0;
+      animation: fadeIn 0.6s forwards ease-out;
+      text-shadow: 0 0 10px #00ff9f, 0 0 30px #00ff9f;
+    }
+
+    .digit.left {
+      transform: translateX(-50px);
+      animation-delay: 0.2s;
+    }
+
+    .digit.top {
+      transform: translateY(-50px);
+      animation-delay: 0.5s;
+    }
+
+    .digit.right {
+      transform: translateX(50px);
+      animation-delay: 0.8s;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translate(0, 0);
+      }
+    }
+    .error-code:hover {
+      animation: jitter 0.25s steps(2, end) 1;
+      cursor: default;
+    }
+    .digit:hover {
+      text-shadow: 0 0 4px #00ff9f, 0 0 8px #00ff9f;
+    }
+
+
+    @keyframes jitter {
+      0%   { transform: translate(0, 0); }
+      25%  { transform: translate(-1px, 1px); }
+      50%  { transform: translate(1px, -1px); }
+      75%  { transform: translate(-1px, -2px); }
+      100% { transform: translate(0, 0); }
+    }
+
+
+    .terminal-message div {
+      font-size: 1.2rem;
+      line-height: 1.75;
+      word-wrap: break-word;
+    }
+
+    .redirect-note {
+      margin-top: 1.2rem;
+      font-size: 0.95rem;
+      opacity: 0.7;
+    }
+
+    a {
+      color: #00ff9f;
+      text-decoration: underline;
+    }
+
+    a:hover {
+      color: white;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 1ch;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0; }
+      50%      { opacity: 1; }
+    }
+
+    #countdown {
+      font-weight: bold;
+      display: inline-block;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.6; transform: scale(1.2); }
+    }
+
+    #dots::after {
+      content: '';
+      width: 1.5ch;
+      animation: loadingDots 1.5s steps(4, end) infinite;
+      text-align: left;
+    }
+
+    @keyframes loadingDots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+      100% { content: ''; }
+    }
+
+    @media (max-width: 600px) {
+      .error-code {
+        font-size: 5rem;
+      }
+      .terminal-message div {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="binaryCanvas"></canvas>
+
+  <div class="container">
+    <div class="error-code">
+      <span class="digit left">4</span>
+      <span class="digit top">0</span>
+      <span class="digit right">4</span>
+    </div>
+
+
+    <div class="terminal-message">
+      <div >> SYSTEM MESSAGE:</div>
+      <div><span id="scrambleText">n3d#f!e_u</span><span class="cursor">_</span></div>
+      <div>> Attempting reconnection in <span id="countdown">15</span> seconds<span id="dots"></span></div>
+      <div>> Press [Esc] to return immediately.</div>
+      <div class="redirect-note">
+        Not sure what happened? <a href="/">Return Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === Canvas Background ===
+    const canvas = document.getElementById("binaryCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.speed = 0.5 + Math.random() * 1.5;
+        this.size = 15 + Math.random() * 10;
+        this.char = Math.random() > 0.5 ? "0" : "1";
+        // this.char = Math.random() > 0.5 ? "0" : "4";
+        // this.char = "undefined";
+        // this.char = "404";
+
+
+        this.opacity = 0.05 + Math.random() * 0.25;
+        this.rotation = Math.random() * Math.PI * 2;
+      }
+
+      update() {
+        this.y -= this.speed;
+        if (this.y < -this.size) {
+          this.reset();
+          this.y = canvas.height + this.size;
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.font = `${this.size}px monospace`;
+        ctx.fillStyle = `rgba(0, 255, 159, ${this.opacity})`;
+        ctx.shadowColor = "#00ff9f";
+        ctx.shadowBlur = 8;
+        ctx.fillText(this.char, 0, 0);
+        ctx.restore();
+      }
+    }
+
+    const particles = [];
+    for (let i = 0; i < 100; i++) {
+      particles.push(new Particle());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // === Scramble Typing Animation ===
+    const scrambleEl = document.getElementById("scrambleText");
+    const targetText = "> You’ve reached an undefined node in the matrix.";
+    const scrambleChars = "01<>/#$%&*ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    let frame = 0;
+    const delay = 40;
+    const scrambleSpeed = 2;
+    const output = new Array(targetText.length).fill("");
+
+    function updateScramble() {
+      const mid = Math.floor(targetText.length / 2);
+      const radius = Math.floor(frame / scrambleSpeed);
+
+      for (let i = 0; i < targetText.length; i++) {
+        const dist = Math.abs(i - mid);
+        if (dist <= radius) {
+          output[i] = targetText[i];
+        } else {
+          output[i] = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+        }
+      }
+
+      scrambleEl.textContent = output.join("");
+
+      if (frame === 0) {
+        for (let i = 0; i < output.length; i++) {
+          output[i] = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+        }
+        scrambleEl.textContent = output.join("");
+      }
+
+      if (frame > 0) {
+        scrambleEl.textContent = output.join("");
+      }
+
+      if (output.join("") !== targetText) {
+        frame++;
+        setTimeout(updateScramble, delay);
+      }
+    }
+
+    setTimeout(updateScramble, 400);
+
+    // === Countdown + Redirect ===
+    let seconds = 15;
+    const countdownEl = document.getElementById("countdown");
+
+    const timer = setInterval(() => {
+      seconds--;
+      countdownEl.textContent = seconds;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        window.location.href = "/";
+      }
+    }, 1000);
+
+    // ESC shortcut
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        window.location.href = "/";
+      }
+    });
+  </script>
+
+</body>
+</html>

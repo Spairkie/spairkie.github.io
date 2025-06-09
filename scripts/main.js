@@ -7,11 +7,25 @@ window.addEventListener("load", () => {
   const canvas = document.getElementById("matrixCanvas");
   const ctx = canvas.getContext("2d");
 
+  // const hasSeenIntro = sessionStorage.getItem("seenIntro");
+  const hasSeenIntro = localStorage.getItem("seenIntro") === "true";
+
+
+  if (hasSeenIntro && preloader) {
+    preloader.remove(); // Skip preloader entirely
+    return;
+  }
+
+  // Unhide the preloader only if animation is needed
+  // sessionStorage.setItem("seenIntro", "true");
+  localStorage.setItem("seenIntro", "true");
+  preloader.classList.remove("preloader-hidden");
+
   // Setup canvas
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const chars = "01ABCDEFGHIJKLMNOPQRSTUVXYZ#$%&*".split("");
+  const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&*".split("");
   const fontSize = 16;
   const columns = Math.floor(canvas.width / fontSize);
   const drops = Array(columns).fill(1);
@@ -34,7 +48,7 @@ window.addEventListener("load", () => {
     requestAnimationFrame(drawMatrix);
   }
 
-  // Timeline sequence
+  // Preloader animation sequence
   setTimeout(() => {
     spinner.classList.add("hide");
     line.classList.add("hide");
@@ -53,9 +67,22 @@ window.addEventListener("load", () => {
   setTimeout(() => {
     canvas.classList.remove("show");
     preloader.classList.add("fade-out");
-    setTimeout(() => preloader.remove(), 1200);
+    setTimeout(() => {
+      preloader.remove();
+      history.replaceState({}, document.title, window.location.pathname);
+    }, 1200);
   }, 7000);
 });
+document.addEventListener("keydown", function (e) {
+  const isCtrlR = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "r";
+
+  if (isCtrlR) {
+    e.preventDefault(); // Stop default page reload
+    localStorage.removeItem("seenIntro");
+    location.reload(); // Triggers Matrix intro again
+  }
+});
+
 
 // === Scroll to Top on Logo Click ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -483,8 +510,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumeCloseBtn = resumeModal?.querySelector(".close");
 
   window.openResumeModal = function() {
-    if (resumeModal) resumeModal.style.display = "block";
+    if (resumeModal) {
+      const iframe = document.getElementById("resumeIframe");
+      if (iframe && !iframe.src) {
+        iframe.src = iframe.dataset.src;
+      }
+      resumeModal.style.display = "block";
+    }
   };
+
 
   window.closeResumeModal = function() {
     if (resumeModal) resumeModal.style.display = "none";
@@ -678,6 +712,12 @@ document.addEventListener("DOMContentLoaded", () => {
     "\"Discipline is the bridge between goals and accomplishment.\""
   ];
 
+  responses["restart matrix"] = function() {
+    localStorage.removeItem("seenIntro");
+    location.reload();
+    return ["Restarting Matrix..."];
+  }
+  
   responses["help"] = [
     "Available commands:",
     ...Object.keys(responses).filter(cmd => !["help", "clear"].includes(cmd)).map(cmd => `• ${cmd}`)
@@ -756,6 +796,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (command === "clear") {
         output.innerHTML = "";
+        cursor.style.display = "inline-block";
         return;
       }
 
@@ -804,3 +845,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  if ('loading' in HTMLImageElement.prototype) return; // native lazy loading is supported
+
+  const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+  lazyImages.forEach(img => {
+    const src = img.getAttribute('src');
+    if (src) {
+      img.src = src;
+    }
+  });
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/scripts/sw.js")
+      .then(reg => console.log("Service Worker registered:", reg.scope))
+      .catch(err => console.error("Service Worker registration failed:", err));
+  });
+}
