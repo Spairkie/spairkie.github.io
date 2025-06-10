@@ -1785,6 +1785,14 @@ footer marquee {
   transform: translateY(-4px);
 }
 
+#scrollTopBtn span#installText {
+  font-family: monospace;
+  font-size: 0.55rem;
+  color: #00ff9f;
+  text-shadow: 0 0 4px #00ff9f;
+  display: none;
+}
+
 img[loading="lazy"] {
   opacity: 0;
   transition: opacity 0.6s ease-in-out;

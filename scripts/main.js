@@ -866,3 +866,56 @@ if ("serviceWorker" in navigator) {
       .catch(err => console.error("Service Worker registration failed:", err));
   });
 }
+
+let deferredPrompt = null;
+const scrollBtn = document.getElementById("scrollTopBtn");
+const installText = document.getElementById("installText");
+const scrollIcon = scrollBtn.querySelector("svg");
+
+// Catch install event
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  maybeShowInstall();
+});
+
+// On scroll, decide which mode to show
+window.addEventListener("scroll", () => {
+  if (window.scrollY < 20 && deferredPrompt) {
+    // Show install prompt
+    installText.style.display = "inline";
+    scrollIcon.style.display = "none";
+    scrollBtn.style.display = "flex";
+  } else if (window.scrollY > 100) {
+    // Show back-to-top
+    installText.style.display = "none";
+    scrollIcon.style.display = "inline";
+    scrollBtn.style.display = "flex";
+  } else {
+    scrollBtn.style.display = "none";
+  }
+});
+
+// On click: scroll or install
+scrollBtn.addEventListener("click", () => {
+  if (installText.style.display === "inline" && deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choice) => {
+      if (choice.outcome === "accepted") {
+        console.log("User installed the app");
+      }
+      deferredPrompt = null;
+    });
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+});
+
+// Initial state check
+function maybeShowInstall() {
+  if (window.scrollY < 20 && deferredPrompt) {
+    scrollBtn.style.display = "flex";
+    installText.style.display = "inline";
+    scrollIcon.style.display = "none";
+  }
+}

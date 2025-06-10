@@ -4,27 +4,34 @@ const urlsToCache = [
   "/index.html",
   "/style.css",
   "/main.js",
+  "/offline.html",
   "/icons/icon-192.png",
   "/icons/icon-512.png"
 ];
 
-// Install
+// Install and cache files
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(urlsToCache);
+    })
   );
 });
 
-// Activate
+// Clean up old caches
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(key => key !== CACHE_NAME && caches.delete(key)))
-    )
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
+      );
+    })
   );
 });
 
-// Fetch
+// Intercept fetch requests
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches.match(event.request).then(response => {
@@ -35,4 +42,3 @@ self.addEventListener("fetch", event => {
     })
   );
 });
-
