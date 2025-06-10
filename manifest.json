@@ -6,6 +6,9 @@
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
   "description": "Hans' Personal Portfolio Website",
+  "orientation": "portrait",
+  "dir": "ltr",
+  "lang": "en-US",
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -16,6 +19,29 @@
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Projects",
+      "short_name": "Projects",
+      "description": "View my featured projects",
+      "url": "/#projects",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Download Contact",
+      "short_name": "vCard",
+      "description": "Save my contact info",
+      "url": "/files/Hans_Sai_Business_Card.vcf",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Resume",
+      "short_name": "Resume",
+      "description": "Open my resume PDF",
+      "url": "/resume/HansSai_SystemAdminResume.pdf",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

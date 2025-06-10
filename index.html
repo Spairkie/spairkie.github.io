@@ -813,9 +813,15 @@
         </p>
 
         <div class="contact-actions">
-          <button class="contact-btn" onclick="openContactModal()">
+          <!-- <button class="contact-btn" onclick="openContactModal()">
             Message Me
-          </button>
+          </button> -->
+          <a class="download-fab" href="#contact" onclick="openContactModal()" title="Message Me">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z" />
+            </svg>
+            <span class="download-label">Message Me</span>
+          </a>
 
           <a
             href="files/Hans_Sai_Business_Card.vcf"
@@ -837,6 +843,14 @@
               <line x1="12" y1="8" x2="12" y2="16" />
             </svg>
             <span class="download-label">Download vCard</span>
+          </a>
+          <a id="shareBtn" class="download-fab" title="Share This Site" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M4 12v-1a4 4 0 014-4h8a4 4 0 014 4v1" />
+              <polyline points="16 16 12 12 8 16" />
+              <line x1="12" y1="12" x2="12" y2="21" />
+            </svg>
+            <span class="download-label">Share This Site</span>
           </a>
         </div>
       </section>

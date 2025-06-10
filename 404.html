@@ -5,6 +5,9 @@
   <title>404 – Not Found</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    html {
+      background: #2c3e50;
+    }
     html, body {
       margin: 0;
       padding: 0;
@@ -18,7 +21,6 @@
     }
 
     canvas {
-      background: #2c3e50;
       position: fixed;
       top: 0;
       left: 0;
@@ -28,11 +30,12 @@
     .container {
       text-align: center;
       padding: 1rem;
-      max-width: 95vw;
+      max-width: 90vw;
+      box-sizing: border-box;
     }
 
     .error-code {
-      font-size: 10rem;
+      font-size: clamp(4rem, 18vw, 12rem);
       font-weight: bold;
       margin-bottom: 1rem;
       letter-spacing: 0em;
@@ -46,47 +49,29 @@
       text-shadow: 0 0 10px #00ff9f, 0 0 30px #00ff9f;
     }
 
-    .digit.left {
-      transform: translateX(-50px);
-      animation-delay: 0.2s;
-    }
-
-    .digit.top {
-      transform: translateY(-50px);
-      animation-delay: 0.5s;
-    }
-
-    .digit.right {
-      transform: translateX(50px);
-      animation-delay: 0.8s;
-    }
+    .digit.left   { transform: translateX(-50px); animation-delay: 0.2s; }
+    .digit.top    { transform: translateY(-50px); animation-delay: 0.5s; }
+    .digit.right  { transform: translateX(50px);  animation-delay: 0.8s; }
 
     @keyframes fadeIn {
-      to {
-        opacity: 1;
-        transform: translate(0, 0);
-      }
+      to { opacity: 1; transform: translate(0, 0); }
     }
+
     .error-code:hover {
       animation: jitter 0.25s steps(2, end) 1;
       cursor: default;
     }
-    .digit:hover {
-      text-shadow: 0 0 4px #00ff9f, 0 0 8px #00ff9f;
-    }
-
 
     @keyframes jitter {
-      0%   { transform: translate(0, 0); }
-      25%  { transform: translate(-1px, 1px); }
-      50%  { transform: translate(1px, -1px); }
-      75%  { transform: translate(-1px, -2px); }
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-1px, 1px); }
+      50% { transform: translate(1px, -1px); }
+      75% { transform: translate(-1px, -2px); }
       100% { transform: translate(0, 0); }
     }
 
-
     .terminal-message div {
-      font-size: 1.2rem;
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
       line-height: 1.75;
       word-wrap: break-word;
     }
@@ -136,20 +121,11 @@
     }
 
     @keyframes loadingDots {
-      0%   { content: ''; }
-      25%  { content: '.'; }
-      50%  { content: '..'; }
-      75%  { content: '...'; }
+      0% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
       100% { content: ''; }
-    }
-
-    @media (max-width: 600px) {
-      .error-code {
-        font-size: 5rem;
-      }
-      .terminal-message div {
-        font-size: 1rem;
-      }
     }
   </style>
 </head>
@@ -164,9 +140,8 @@
       <span class="digit right">4</span>
     </div>
 
-
     <div class="terminal-message">
-      <div >> SYSTEM MESSAGE:</div>
+      <div>> SYSTEM MESSAGE:</div>
       <div><span id="scrambleText">n3d#f!e_u</span><span class="cursor">_</span></div>
       <div>> Attempting reconnection in <span id="countdown">15</span> seconds<span id="dots"></span></div>
       <div>> Press [Esc] to return immediately.</div>
@@ -177,7 +152,7 @@
   </div>
 
   <script>
-    // === Canvas Background ===
+    // === Background Canvas ===
     const canvas = document.getElementById("binaryCanvas");
     const ctx = canvas.getContext("2d");
 
@@ -189,10 +164,7 @@
     window.addEventListener("resize", resizeCanvas);
 
     class Particle {
-      constructor() {
-        this.reset();
-      }
-
+      constructor() { this.reset(); }
       reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
@@ -203,11 +175,9 @@
         // this.char = "undefined";
         // this.char = "404";
 
-
         this.opacity = 0.05 + Math.random() * 0.25;
         this.rotation = Math.random() * Math.PI * 2;
       }
-
       update() {
         this.y -= this.speed;
         if (this.y < -this.size) {
@@ -215,7 +185,6 @@
           this.y = canvas.height + this.size;
         }
       }
-
       draw() {
         ctx.save();
         ctx.translate(this.x, this.y);
@@ -229,10 +198,7 @@
       }
     }
 
-    const particles = [];
-    for (let i = 0; i < 100; i++) {
-      particles.push(new Particle());
-    }
+    const particles = Array.from({ length: 100 }, () => new Particle());
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -257,29 +223,13 @@
     function updateScramble() {
       const mid = Math.floor(targetText.length / 2);
       const radius = Math.floor(frame / scrambleSpeed);
-
       for (let i = 0; i < targetText.length; i++) {
         const dist = Math.abs(i - mid);
-        if (dist <= radius) {
-          output[i] = targetText[i];
-        } else {
-          output[i] = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
-        }
+        output[i] = dist <= radius
+          ? targetText[i]
+          : scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
       }
-
       scrambleEl.textContent = output.join("");
-
-      if (frame === 0) {
-        for (let i = 0; i < output.length; i++) {
-          output[i] = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
-        }
-        scrambleEl.textContent = output.join("");
-      }
-
-      if (frame > 0) {
-        scrambleEl.textContent = output.join("");
-      }
-
       if (output.join("") !== targetText) {
         frame++;
         setTimeout(updateScramble, delay);
@@ -291,18 +241,18 @@
     // === Countdown + Redirect ===
     let seconds = 15;
     const countdownEl = document.getElementById("countdown");
-
     const timer = setInterval(() => {
       seconds--;
       countdownEl.textContent = seconds;
       if (seconds <= 0) {
         clearInterval(timer);
+        localStorage.removeItem("seenIntro");
         window.location.href = "/";
       }
     }, 1000);
 
     // ESC shortcut
-    document.addEventListener("keydown", e => {
+    document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         window.location.href = "/";
       }

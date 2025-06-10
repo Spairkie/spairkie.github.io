@@ -83,20 +83,6 @@ document.addEventListener("keydown", function (e) {
   }
 });
 
-
-// === Scroll to Top on Logo Click ===
-document.addEventListener('DOMContentLoaded', () => {
-  const logo = document.querySelector('.nav-logo');
-  if (logo) {
-    logo.addEventListener('click', () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    });
-  }
-});
-
 // === Toggle Mobile Navigation ===
 function toggleNav() {
   const navLinks = document.querySelector('.nav-links');
@@ -608,6 +594,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const shareBtn = document.getElementById("shareBtn");
+
+  if (navigator.share) {
+    shareBtn.style.display = "inline-flex"; // make visible only if supported
+    shareBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      navigator
+        .share({
+          title: "Hans' Portfolio",
+          text: "Check out this awesome portfolio!",
+          url: window.location.href,
+        })
+        .then(() => console.log("Shared successfully!"))
+        .catch((err) => console.error("Share failed:", err));
+    });
+  }
+
+});
+
 // === Terminal Interaction Logic ===
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -847,6 +853,88 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  const scrollBtn = document.getElementById("scrollTopBtn");
+  const installText = document.getElementById("installText");
+  const scrollIcon = scrollBtn.querySelector("svg");
+  let deferredPrompt = null;
+
+  // Scroll to top on logo click
+  const logo = document.querySelector(".nav-logo");
+  if (logo) {
+    logo.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
+  // Catch install event
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    maybeShowInstall();
+  });
+
+  // Button click handler
+  scrollBtn.addEventListener("click", () => {
+    if (installText.style.display === "inline" && deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choice) => {
+        if (choice.outcome === "accepted") {
+          console.log("User installed the app");
+        }
+        deferredPrompt = null;
+        hideInstallPrompt();
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  });
+
+  // Scroll event toggle
+  window.addEventListener("scroll", () => {
+    if (window.scrollY < 20 && deferredPrompt) {
+      showInstallPrompt();
+    } else if (window.scrollY > 100) {
+      showScrollButton();
+    } else {
+      hideInstallPrompt();
+    }
+  });
+
+  function maybeShowInstall() {
+    if (window.scrollY < 20 && deferredPrompt) {
+      showInstallPrompt();
+    }
+  }
+
+  function showInstallPrompt() {
+    scrollBtn.classList.add("fade-in");
+    scrollBtn.classList.remove("fade-out");
+    scrollBtn.style.display = "flex";
+    installText.style.display = "inline";
+    scrollIcon.style.display = "none";
+  }
+
+  function showScrollButton() {
+    scrollBtn.classList.add("fade-in");
+    scrollBtn.classList.remove("fade-out");
+    scrollBtn.style.display = "flex";
+    installText.style.display = "none";
+    scrollIcon.style.display = "inline";
+  }
+
+  function hideInstallPrompt() {
+    scrollBtn.classList.add("fade-out");
+    scrollBtn.classList.remove("fade-in");
+    // Optionally: scrollBtn.style.display = "none"; after animation ends
+  }
+
+  // Fallback check (e.g. if no scroll occurs)
+  setTimeout(() => {
+    maybeShowInstall();
+  }, 1000);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
   if ('loading' in HTMLImageElement.prototype) return; // native lazy loading is supported
 
   const lazyImages = document.querySelectorAll('img[loading="lazy"]');
@@ -858,6 +946,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
@@ -865,57 +954,4 @@ if ("serviceWorker" in navigator) {
       .then(reg => console.log("Service Worker registered:", reg.scope))
       .catch(err => console.error("Service Worker registration failed:", err));
   });
-}
-
-let deferredPrompt = null;
-const scrollBtn = document.getElementById("scrollTopBtn");
-const installText = document.getElementById("installText");
-const scrollIcon = scrollBtn.querySelector("svg");
-
-// Catch install event
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  maybeShowInstall();
-});
-
-// On scroll, decide which mode to show
-window.addEventListener("scroll", () => {
-  if (window.scrollY < 20 && deferredPrompt) {
-    // Show install prompt
-    installText.style.display = "inline";
-    scrollIcon.style.display = "none";
-    scrollBtn.style.display = "flex";
-  } else if (window.scrollY > 100) {
-    // Show back-to-top
-    installText.style.display = "none";
-    scrollIcon.style.display = "inline";
-    scrollBtn.style.display = "flex";
-  } else {
-    scrollBtn.style.display = "none";
-  }
-});
-
-// On click: scroll or install
-scrollBtn.addEventListener("click", () => {
-  if (installText.style.display === "inline" && deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choice) => {
-      if (choice.outcome === "accepted") {
-        console.log("User installed the app");
-      }
-      deferredPrompt = null;
-    });
-  } else {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-});
-
-// Initial state check
-function maybeShowInstall() {
-  if (window.scrollY < 20 && deferredPrompt) {
-    scrollBtn.style.display = "flex";
-    installText.style.display = "inline";
-    scrollIcon.style.display = "none";
-  }
 }
