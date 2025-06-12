@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hans Sai Portfolio</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="bento.css" />
+  </head>
+
+  <body>
+    <div class="grid">
+      <div class="item header">
+        <div class="header-content">
+          <div class="logo">
+            <span class="first-name">HANS</span>
+            <span class="last-name">SAI</span>
+          </div>
+
+          <button class="theme-toggle" aria-label="Switch color theme">
+            🎨
+          </button>
+
+          <button class="nav-toggle" aria-label="Toggle navigation">
+            &#9776;
+          </button>
+          <nav class="nav-links">
+            <a href="#about">ABOUT</a>
+            <a href="#projects">PROJECTS</a>
+            <a href="#contact">CONTACT</a>
+          </nav>
+        </div>
+      </div>
+
+      <div class="item main-text">
+        <div class="headline-block">
+          <h1><strong>IT Specialist & Airman</strong></h1>
+          <h2><em>Delivering Secure, Scalable Systems</em></h2>
+          <h3>with Purpose & Precision</h3>
+        </div>
+      </div>
+
+      <div class="item hero-photo">
+        <img src="headshot.jpeg" alt="Hans Sai Headshot" class="hero-img" />
+      </div>
+
+      <div class="item bio" id="about">
+        <p>
+          Hans Sai is an experienced IT Support Specialist and U.S. Air Force
+          Reservist, currently pursuing a degree in Computer Science with a
+          concentration in Cybersecurity. With a Security+ certification and an
+          active Secret Clearance, he brings military-grade precision to
+          mission-critical systems.
+          <br /><br />
+          Known for his adaptability and a teachable spirit, Hans thrives at the
+          intersection of discipline and innovation — making tech more secure,
+          efficient, and human-focused.
+        </p>
+      </div>
+
+      <div class="item projects" id="projects">
+        <div class="project-list">
+          <div class="project-entry">
+            <a href="#" class="project-toggle active">Home Lab Setup</a>
+            <div class="project-details open" style="max-height: 500px">
+              <p>
+                Created a virtualization environment with pfSense, Ubuntu
+                Server, and Splunk SIEM.
+              </p>
+              <div class="project-image">[IMAGE PLACEHOLDER]</div>
+            </div>
+            <hr />
+          </div>
+
+          <div class="project-entry">
+            <a href="#" class="project-toggle">Simple Ticketing System</a>
+            <div class="project-details">
+              <p>
+                Built a basic IT support ticket intake and resolution tracker
+                using Flask.
+              </p>
+              <div class="project-image">[IMAGE PLACEHOLDER]</div>
+            </div>
+            <hr />
+          </div>
+
+          <div class="project-entry">
+            <a href="#" class="project-toggle">Task Scheduler</a>
+            <div class="project-details">
+              <p>A command-line based task scheduler script for automation.</p>
+              <div class="project-image">[IMAGE PLACEHOLDER]</div>
+            </div>
+            <hr />
+          </div>
+        </div>
+      </div>
+
+      <div class="item contact" id="contact">
+        <span class="prompt">Have some questions?</span>
+
+        <a
+          href="mailto:hello@example.com"
+          class="contact-arrow"
+          aria-label="Send an email"
+        >
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 24 L18 6" />
+
+            <path d="M6 6 H18 V18" />
+          </svg>
+        </a>
+
+        <a href="mailto:hello@example.com" class="action">
+          CONTACT <em>me</em>
+        </a>
+      </div>
+
+      <div class="item socials">
+        <a href="https://www.instagram.com" target="_blank">INSTAGRAM</a>
+        <a href="https://github.com/spairkie" target="_blank">GITHUB</a>
+        <a href="https://linkedin.com/in/8pairkie" target="_blank">LINKEDIN</a>
+      </div>
+
+      <div class="item footer">
+        <div>&copy; 2025 Hans Sai — All rights reserved.</div>
+      </div>
+    </div>
+
+    <script>
+      function collectThemes() {
+        const names = new Set();
+        for (const sheet of document.styleSheets) {
+          try {
+            for (const rule of sheet.cssRules) {
+              if (rule.selectorText) {
+                const m = rule.selectorText.match(/\[data-theme="([^"]+)"/);
+                if (m) names.add(m[1]);
+              }
+            }
+          } catch (e) {
+            // Ignore CORS-blocked stylesheets
+          }
+        }
+        return [...names];
+      }
+
+      const themes = collectThemes();
+      const FALLBACK = "rustic";
+
+      // Use fallback if nothing is stored
+      const saved = localStorage.getItem("theme") || FALLBACK;
+      document.documentElement.dataset.theme = saved;
+
+      let idx = themes.indexOf(saved);
+      if (idx === -1) idx = 0; // fallback if theme list has changed
+
+      const btn = document.querySelector(".theme-toggle");
+      btn.addEventListener("click", () => {
+        idx = (idx + 1) % themes.length;
+        const t = themes[idx];
+
+        document.documentElement.dataset.theme = t;
+        localStorage.setItem("theme", t);
+      });
+
+
+      const navToggle = document.querySelector(".nav-toggle");
+      const navLinks = document.querySelector(".nav-links");
+
+      navToggle.addEventListener("click", () => {
+        navLinks.classList.toggle("show");
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!navToggle.contains(e.target) && !navLinks.contains(e.target)) {
+          navLinks.classList.remove("show");
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          navLinks.classList.remove("show");
+        }
+
+        if (e.key === "ArrowRight") {
+          idx = (idx + 1) % themes.length;
+          const t = themes[idx];
+          document.documentElement.dataset.theme = t;
+          localStorage.setItem("theme", t);
+        }
+
+        if (e.key === "ArrowLeft") {
+          idx = (idx - 1 + themes.length) % themes.length;
+          const t = themes[idx];
+          document.documentElement.dataset.theme = t;
+          localStorage.setItem("theme", t);
+        }
+      });
+
+
+      const toggles = document.querySelectorAll(".project-toggle");
+      const details = document.querySelectorAll(".project-details");
+
+      toggles.forEach((toggle, i) => {
+        toggle.addEventListener("click", (e) => {
+          e.preventDefault();
+          const isOpen = toggle.classList.contains("active");
+          if (isOpen) return;
+
+          toggles.forEach((t) => t.classList.remove("active"));
+          details.forEach((d) => {
+            d.classList.remove("open");
+            d.style.maxHeight = null;
+          });
+
+          toggle.classList.add("active");
+          const content = toggle.nextElementSibling;
+          content.classList.add("open");
+          content.style.maxHeight = content.scrollHeight + "px";
+        });
+      });
+    </script>
+  </body>
+</html>
