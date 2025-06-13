@@ -1,7 +1,8 @@
 {
   "name": "Hans' Portfolio",
   "short_name": "Portfolio",
-  "start_url": "/",
+  // "start_url": "/",
+  "start_url": "/bento.html",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",

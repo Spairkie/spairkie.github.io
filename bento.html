@@ -8,7 +8,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="bento.css" />
+    <link rel="stylesheet" href="style/theme.css" />
+    <link rel="stylesheet" href="style/bento.css" />
   </head>
 
   <body>
@@ -27,11 +28,19 @@
           <button class="nav-toggle" aria-label="Toggle navigation">
             &#9776;
           </button>
-          <nav class="nav-links">
+          <!-- Full-site nav for desktop -->
+          <nav class="nav-links full-site">
+            <a href="/index.html">View Full Site</a>
+          </nav>
+
+          <!-- Internal section nav for mobile -->
+          <nav class="nav-links internal-nav">
             <a href="#about">ABOUT</a>
             <a href="#projects">PROJECTS</a>
             <a href="#contact">CONTACT</a>
+            <a href="/index.html">View Full Site</a>
           </nav>
+
         </div>
       </div>
 
@@ -46,20 +55,30 @@
       <div class="item hero-photo">
         <img src="headshot.jpeg" alt="Hans Sai Headshot" class="hero-img" />
       </div>
-
       <div class="item bio" id="about">
-        <p>
-          Hans Sai is an experienced IT Support Specialist and U.S. Air Force
-          Reservist, currently pursuing a degree in Computer Science with a
-          concentration in Cybersecurity. With a Security+ certification and an
-          active Secret Clearance, he brings military-grade precision to
-          mission-critical systems.
-          <br /><br />
-          Known for his adaptability and a teachable spirit, Hans thrives at the
-          intersection of discipline and innovation — making tech more secure,
-          efficient, and human-focused.
-        </p>
+        <div class="bio-grid">
+          <div class="bio-icon-wrapper">
+            <svg class="bio-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
+            </svg>
+          </div>
+          <div class="bio-content">
+            <p>
+              Hans Sai is an experienced IT Support Specialist and U.S. Air Force
+              Reservist, currently pursuing a degree in Computer Science with a
+              concentration in Cybersecurity. With a Security+ certification and an
+              active Secret Clearance, he brings military-grade precision to
+              mission-critical systems.
+              <br /><br />
+              Known for his adaptability and a teachable spirit, Hans thrives at the
+              intersection of discipline and innovation — making tech more secure,
+              efficient, and human-focused.
+            </p>
+          </div>
+        </div>
       </div>
+
+
 
       <div class="item projects" id="projects">
         <div class="project-list">
@@ -113,15 +132,15 @@
           </svg>
         </a>
 
-        <a href="mailto:hello@example.com" class="action">
+        <a href="mailto:saihanswissle@gmail.com" class="action">
           CONTACT <em>me</em>
         </a>
       </div>
 
       <div class="item socials">
-        <a href="https://www.instagram.com" target="_blank">INSTAGRAM</a>
         <a href="https://github.com/spairkie" target="_blank">GITHUB</a>
         <a href="https://linkedin.com/in/8pairkie" target="_blank">LINKEDIN</a>
+        <a href="https://www.buymeacoffee.com/spairkie" target="_blank">BUY ME A COFFEE</a>
       </div>
 
       <div class="item footer">
@@ -148,7 +167,7 @@
       }
 
       const themes = collectThemes();
-      const FALLBACK = "rustic";
+      const FALLBACK = "midnight";
 
       // Use fallback if nothing is stored
       const saved = localStorage.getItem("theme") || FALLBACK;
@@ -168,17 +187,21 @@
 
 
       const navToggle = document.querySelector(".nav-toggle");
-      const navLinks = document.querySelector(".nav-links");
+      const internalNav = document.querySelector(".nav-links.internal-nav");
 
       navToggle.addEventListener("click", () => {
-        navLinks.classList.toggle("show");
+        internalNav.classList.toggle("show");
       });
 
       document.addEventListener("click", (e) => {
-        if (!navToggle.contains(e.target) && !navLinks.contains(e.target)) {
-          navLinks.classList.remove("show");
+        if (
+          !navToggle.contains(e.target) &&
+          !internalNav.contains(e.target)
+        ) {
+          internalNav.classList.remove("show");
         }
       });
+
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
@@ -222,6 +245,15 @@
           content.style.maxHeight = content.scrollHeight + "px";
         });
       });
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth"
+          });
+        });
+      });
+
     </script>
   </body>
 </html>

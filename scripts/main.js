@@ -745,6 +745,19 @@ document.addEventListener("DOMContentLoaded", () => {
     return [`Current time: ${time}`];
   };
 
+  
+  responses["open bento"] = () => {
+    return function() {
+      printLine("Redirecting to Bento site...");
+      window.location.href = "/bento.html";
+      return Promise.resolve();
+    };
+  };
+
+
+  responses["bento"] = responses["open bento"];
+  responses["goto bento"] = responses["open bento"];
+
 
 
   function typeText(line, container, delay = 30, callback) {

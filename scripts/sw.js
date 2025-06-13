@@ -1,10 +1,19 @@
 const CACHE_NAME = "portfolio-cache-v1";
 const urlsToCache = [
   "/",
+  
   "/index.html",
-  "/style.css",
-  "/main.js",
+  "/style/style.css",
+  "/scripts/main.js",
+
+  "/bento.html",
+  "/style/bento.css",
+  
+  "/style/theme.css",
+  
   "/offline.html",
+
+  "/headshot.jpeg",
   "/icons/icon-192.png",
   "/icons/icon-512.png"
 ];
