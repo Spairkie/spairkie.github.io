@@ -1,950 +1,461 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#2c3e50">
-    <title>Hans Sai | IT Specialist & Cybersecurity Student</title>
-    <link rel="manifest" href="/manifest.json">
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"
-    />
-    <link rel="stylesheet" href="style/style.css" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  </head>
-  <body>
-    <!-- Cinematic Matrix Preloader -->
-    <div id="preloader" class="preloader-hidden">
-      <canvas id="matrixCanvas"></canvas>
-      <div class="access-screen">
-        <div class="neon-spinner"></div>
-        <div class="access-line">Accessing system<span class="dots"></span></div>
-        <div class="access-granted">ACCESS GRANTED</div>
-      </div>
-    </div>
-    <!-- _______ -->
-    <div class="nav-overlay" onclick="toggleNav()"></div>
-    <nav>
-      <div class="nav-brand">
-        <a href="#">
-          <img
-            src="favicon.ico"
-            alt="Logo"
-            class="nav-logo"
-            onclick="this.blur();"
-          />
-        </a>
-        <a href="#about" class="nav-name">Hans Sai</a>
-      </div>
-      <div class="hamburger" onclick="toggleNav()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <div class="nav-links">
-        <a href="#projects">Projects</a>
-        <a href="#work">Work History</a>
-        <a href="#skills">Skills</a>
-        <a href="#education">Education</a>
-        <a href="#certs">Certifications</a>
-        <a href="#contact">Contact</a>
-      </div>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hans Sai — Systems Administrator</title>
+<meta name="description" content="Hans Sai — cleared Systems Administrator with Active Directory, endpoint, and infrastructure experience, building toward security engineering.">
+<meta name="theme-color" content="#0b1220">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b1220;
+    --bg-elev: #111a2c;
+    --bg-elev-2: #16213a;
+    --border: #223151;
+    --text: #e7ecf7;
+    --text-dim: #9fb0cc;
+    --text-dimmer: #6b7fa3;
+    --accent: #5b9dff;
+    --accent-2: #7ce0c3;
+    --accent-warn: #f5b350;
+    --radius: 14px;
+    --max-w: 980px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.55;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+  header.site-nav {
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: blur(10px);
+    background: rgba(11,18,32,0.85);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; max-width: var(--max-w); margin: 0 auto; }
+  .brand { font-weight: 700; font-size: 15px; letter-spacing: .01em; }
+  .brand span { color: var(--accent); }
+  nav.links { display: flex; gap: 22px; }
+  nav.links a { color: var(--text-dim); font-size: 14px; font-weight: 500; }
+  nav.links a:hover { color: var(--text); text-decoration: none; }
+  .nav-cta {
+    border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px;
+    color: var(--text) !important; font-size: 13px; font-weight: 600;
+  }
+  .nav-cta:hover { border-color: var(--accent); text-decoration: none; background: var(--bg-elev); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 84px 0 56px; }
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .badge {
+    font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px;
+    background: var(--bg-elev); border: 1px solid var(--border); color: var(--text-dim);
+  }
+  .badge.accent { color: var(--accent-2); border-color: rgba(124,224,195,0.35); background: rgba(124,224,195,0.07); }
+  h1 { font-size: 42px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .hero h1 .accent { color: var(--accent); }
+  .role-line { font-size: 19px; color: var(--text-dim); font-weight: 500; margin: 0 0 22px; }
+  .lede { font-size: 16px; color: var(--text-dim); max-width: 640px; margin: 0 0 28px; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px; border-radius: 10px; font-weight: 600; font-size: 14px;
+  }
+  .btn-primary { background: var(--accent); color: #06101f !important; }
+  .btn-primary:hover { background: #79b1ff; text-decoration: none; }
+  .btn-ghost { border: 1px solid var(--border); color: var(--text) !important; }
+  .btn-ghost:hover { border-color: var(--accent); text-decoration: none; background: var(--bg-elev); }
+
+  /* ---------- Sections ---------- */
+  section { padding: 56px 0; border-top: 1px solid var(--border); }
+  .section-head { margin-bottom: 30px; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-2); margin: 0 0 8px; }
+  h2 { font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
+  .section-sub { color: var(--text-dim); font-size: 15px; margin-top: 8px; max-width: 640px; }
+
+  p.body-text { color: var(--text-dim); font-size: 15.5px; max-width: 680px; }
+
+  /* ---------- Experience ---------- */
+  .timeline { display: flex; flex-direction: column; gap: 26px; }
+  .job { display: grid; grid-template-columns: 150px 1fr; gap: 22px; }
+  .job-dates { color: var(--text-dimmer); font-size: 13px; font-weight: 600; padding-top: 3px; white-space: nowrap; }
+  .job-body h3 { margin: 0 0 2px; font-size: 17px; font-weight: 700; }
+  .job-org { color: var(--accent-2); font-size: 13.5px; font-weight: 600; margin-bottom: 10px; }
+  .job-body ul { margin: 0; padding-left: 18px; color: var(--text-dim); font-size: 14.5px; }
+  .job-body li { margin-bottom: 5px; }
+
+  /* ---------- Projects ---------- */
+  .project-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .project-card {
+    background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px; display: flex; flex-direction: column;
+  }
+  .project-card.featured { grid-column: span 2; display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; align-items: center; }
+  .project-card img { width: 100%; border-radius: 8px; border: 1px solid var(--border); display: block; }
+  .project-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .project-title { font-size: 16.5px; font-weight: 700; margin: 0; }
+  .stack-tag { font-size: 11px; font-weight: 600; color: var(--text-dimmer); background: var(--bg-elev-2); border: 1px solid var(--border); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+  .project-desc { color: var(--text-dim); font-size: 14px; margin: 0 0 14px; flex-grow: 1; }
+  .project-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .chip { font-size: 11.5px; color: var(--accent-2); background: rgba(124,224,195,0.08); border: 1px solid rgba(124,224,195,0.25); padding: 3px 9px; border-radius: 999px; }
+  .project-links { display: flex; gap: 14px; font-size: 13.5px; font-weight: 600; margin-top: auto; }
+  .project-links a::after { content: " →"; }
+
+  .also-built { margin-top: 22px; }
+  .also-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .mini-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .mini-card h4 { margin: 0 0 4px; font-size: 14.5px; }
+  .mini-card p { margin: 0; font-size: 13px; color: var(--text-dim); }
+  .mini-card a { font-size: 12.5px; font-weight: 600; }
+
+  /* ---------- Skills ---------- */
+  .skills-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .skill-group { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .skill-group h4 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-2); }
+  .skill-group p { margin: 0; color: var(--text-dim); font-size: 14px; }
+
+  /* ---------- Education / Certs ---------- */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .edu-item { margin-bottom: 18px; }
+  .edu-item h4 { margin: 0 0 2px; font-size: 15px; }
+  .edu-item .meta { font-size: 13px; color: var(--text-dimmer); }
+  .cert-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .cert-list li { font-size: 14.5px; color: var(--text-dim); display: flex; gap: 10px; align-items: baseline; }
+  .cert-list li::before { content: "✓"; color: var(--accent-2); font-weight: 700; }
+
+  /* ---------- Contact / Footer ---------- */
+  footer { padding: 56px 0 70px; text-align: center; }
+  footer h2 { margin-bottom: 10px; }
+  .contact-links { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 22px; }
+  .contact-links a { color: var(--text); font-weight: 600; font-size: 14.5px; border: 1px solid var(--border); padding: 9px 16px; border-radius: 10px; }
+  .contact-links a:hover { border-color: var(--accent); text-decoration: none; }
+  .fine-print { margin-top: 40px; color: var(--text-dimmer); font-size: 12.5px; }
+
+  @media (max-width: 720px) {
+    h1 { font-size: 32px; }
+    .job { grid-template-columns: 1fr; gap: 4px; }
+    .project-grid, .also-grid, .skills-grid, .two-col { grid-template-columns: 1fr; }
+    .project-card.featured { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <div class="brand">Hans <span>Sai</span></div>
+    <nav class="links">
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#education">Education</a>
     </nav>
-    <header>
-      <div class="hero-container">
-        <div class="hero fade-in">
-          <div class="hero-image slide-in-left">
-            <img src="headshot.jpeg" alt="Hans Sai professional headshot"/>
-          </div>
-          <div class="hero-text terminal-hero">
-            <div class="terminal-window">
-              <div class="terminal-scroll-region" id="terminalScroll">
-                <div class="terminal-output" id="terminalOutput"></div>
-              </div>
-              <div class="terminal-input-line">
-                <span class="terminal-prefix">&gt;</span>
-                <input
-                  type="text"
-                  id="terminalInput"
-                  autocomplete="off"
-                  disabled
-                  placeholder="Type a command..."
-                />
-                <div class="terminal-cursor" id="terminalCursor">█</div>
-              </div>
-            </div>
-          </div>
+    <a class="nav-cta" href="#contact">Contact</a>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <div class="badge-row">
+    <span class="badge accent">🔒 Active Secret Clearance</span>
+    <span class="badge">CompTIA Security+</span>
+    <span class="badge">B.S. Computer Science – Cybersecurity, 2026</span>
+  </div>
+  <h1>Systems Administrator,<br>building toward <span class="accent">security engineering</span>.</h1>
+  <p class="role-line">Active Directory &amp; Endpoint Management · IT Operations · Applied Security</p>
+  <p class="lede">
+    Five-plus years of hands-on IT operations across military healthcare and civilian environments —
+    Active Directory administration, endpoint imaging for 150+ systems, and 1,000+ resolved tickets a year.
+    I build and document real automation and detection tooling outside of work to turn that operations
+    experience into applied security skill.
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="https://github.com/Spairkie" target="_blank" rel="noopener">View GitHub</a>
+    <a class="btn btn-ghost" href="https://www.linkedin.com/in/8pairkie/" target="_blank" rel="noopener">Connect on LinkedIn</a>
+    <a class="btn btn-ghost" href="mailto:saihanswissle@gmail.com">Email Me</a>
+  </div>
+</div>
+
+<section id="experience">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Experience</p>
+      <h2>Where I've worked</h2>
+    </div>
+    <div class="timeline">
+
+      <div class="job">
+        <div class="job-dates">Jul 2026 — Present</div>
+        <div class="job-body">
+          <h3>IT Support Associate II — Operations Technology</h3>
+          <div class="job-org">Amazon · South Jersey, NJ</div>
+          <ul>
+            <li>Tier 1/2 support for operations technology (scanners, workstations, network printers, kiosks) across a high-volume fulfillment/operations site</li>
+            <li>Troubleshoot hardware, OS, and connectivity issues to minimize downtime on the operations floor</li>
+          </ul>
         </div>
       </div>
-    </header>
 
-    <main class="container">
-      <section id="about" class="section fade-in-right">
-        <h2>About Me</h2>
-        <div class="about-intro">
-          <p>
-            Hi, I'm Hans Sai — an experienced IT Support Specialist and Air
-            Force Reservist currently pursuing a degree in Computer Science with
-            a concentration in Cybersecurity. My career bridges both military
-            and civilian environments, where I've led system administration,
-            digital transformation, and technical support initiatives. From
-            configuring Active Directory in secure, mission-critical settings to
-            deploying SmartDeploy images and troubleshooting print servers, I
-            bring hands-on expertise backed by certifications like CompTIA
-            Security+ and an active Secret Clearance. I’m known for being
-            detail-oriented, adaptable, and team-driven, with a teachable spirit
-            and a passion for solving problems through technology. Outside of
-            work, you’ll find me exploring the latest tech trends, coding, or
-            enjoying the outdoors.
-          </p>
-        </div>
-      </section>
-
-      <section id="projects" class="section slide-in-left">
-        <h2>Project Portfolio</h2>
-        <div class="projects-intro animated-intro">
-          <p>
-            I'm actively curating and uploading my past projects and academic
-            work to GitHub. Below are just a few that showcase what I've been
-            building — from automation scripts and system tools to full-stack
-            applications and creative code experiments.
-          </p>
-
-          <div class="carousel-wrapper">
-            <button class="carousel-btn left" onclick="scrollCarousel(-1)">
-              &#10094;
-            </button>
-            <div class="project-carousel" id="projectCarousel">
-              <div class="carousel-item">
-                <img
-                  src="images/homelab.png"
-                  alt="Home Lab Setup Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Home Lab Setup</h3>
-                <p>Network config</p>
-                <div class="badges">
-                  <span>Networking</span>
-                  <span>Hardware</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/helpdesk.png"
-                  alt="Simple Ticketing Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Simple Ticketing</h3>
-                <p>CRUD Helpdesk</p>
-                <div class="badges">
-                  <span>HTML</span>
-                  <span>PHP</span>
-                  <span>SQL</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/expense.png"
-                  alt="Expense Tracker Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Expense Tracker</h3>
-                <p>Track personal expenses</p>
-                <div class="badges">
-                  <span>C++</span>
-                  <span>File I/O</span>
-                  <span>OOP</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/taskscheduler.png"
-                  alt="Task Scheduler Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Task Scheduler</h3>
-                <p>With Notifications</p>
-                <div class="badges">
-                  <span>Java</span>
-                  <span>JavaFX</span>
-                  <span>Threads</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/automation.png"
-                  alt="Automated Tasks Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Automated Tasks</h3>
-                <p>Inspired by Al Sweigart</p>
-                <div class="badges">
-                  <span>Python</span>
-                  <span>Automation</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/chatapp.png"
-                  alt="React Chat App Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>React Chat App</h3>
-                <p>Built with Chatkit</p>
-                <div class="badges">
-                  <span>React</span>
-                  <span>JavaScript</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/bashmonitor.png"
-                  alt="Resource Monitor Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Resource Monitor</h3>
-                <p>Bash Script</p>
-                <div class="badges">
-                  <span>Bash</span>
-                  <span>Linux</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/todo.png"
-                  alt="CRUD TODO List Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>CRUD TODO List</h3>
-                <p>Simple Task Tracker</p>
-                <div class="badges">
-                  <span>JavaScript</span>
-                  <span>LocalStorage</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/keylogger.png"
-                  alt="C++ Keylogger Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>C++ Keylogger</h3>
-                <p>Educational Use</p>
-                <div class="badges">
-                  <span>C++</span>
-                  <span>Security</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/16puzzle.png"
-                  alt="16 Puzzle Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>16 Puzzle</h3>
-                <p>Implemented in C++</p>
-                <div class="badges">
-                  <span>C++</span>
-                  <span>Algorithm</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/pythonvisuals.png"
-                  alt="Creative Sketches Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Creative Sketches</h3>
-                <p>Visuals with Python</p>
-                <div class="badges">
-                  <span>Python</span>
-                  <span>Graphics</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/typing.png"
-                  alt="Typing Game Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Typing Game</h3>
-                <p>Love2D & Lua</p>
-                <div class="badges">
-                  <span>Lua</span>
-                  <span>Love2D</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/rain.png"
-                  alt="Rain Sketch Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Rain Sketch</h3>
-                <p>Love2D Animation</p>
-                <div class="badges">
-                  <span>Lua</span>
-                  <span>Animation</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/salamander.png"
-                  alt="Salamander Animation Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Salamander Animation</h3>
-                <p>Love2D + Lua</p>
-                <div class="badges">
-                  <span>Lua</span>
-                  <span>GameDev</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/2048.png"
-                  alt="2048 Clone Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>2048 Clone</h3>
-                <p>Love2D Game</p>
-                <div class="badges">
-                  <span>Lua</span>
-                  <span>GameDev</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/platformer.png"
-                  alt="Unity Platformer Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Unity Platformer</h3>
-                <p>Unity + C#</p>
-                <div class="badges">
-                  <span>Unity</span>
-                  <span>C#</span>
-                </div>
-                <a href="#" target="_blank">View Project</a>
-              </div>
-              <div class="carousel-item">
-                <img
-                  src="images/oscilloscope.png"
-                  alt="Oscilloscope Game Thumbnail"
-                  class="project-thumb"
-                  loading="lazy"
-                />
-                <h3>Oscilloscope Game</h3>
-                <p>Love Jam 2020</p>
-                <div class="badges">
-                  <span>Love2D</span>
-                  <span>Jam</span>
-                </div>
-                <a href="https://itch.io" target="_blank">View Project</a>
-              </div>
-            </div>
-            <button class="carousel-btn right" onclick="scrollCarousel(1)">
-              &#10095;
-            </button>
-          </div>
-          <div class="carousel-dots" id="carouselDots"></div>
-          <p class="coming-soon">...and there's plenty more on the way.</p>
-        </div>
-      </section>
-      <section id="work" class="section work-section">
-        <h2 style="color: #2c3e50">Work History</h2>
-        <div class="timeline">
-          <div class="timeline-entry job-entry">
-            <div class="job-header">
-              <h3 style="color: #2c3e50">
-                IT Systems Administrator <span class="divider">|</span> Health
-                Services Administrator
-              </h3>
-              <p class="job-meta" style="color: #555">
-                U.S. Air Force – 87MDG / 514 AMDS – JBMDL McGuire, NJ
-              </p>
-              <span class="job-date" style="color: #888"
-                >Jan 2021 – Present</span
-              >
-            </div>
-            <ul class="job-details">
-              <li>
-                Provided IT and administrative support for medical staff,
-                including digital record systems and compliance processes
-              </li>
-              <li>
-                Resolved over 1,000 annual Level 2 support tickets across AD,
-                networking, printing, and endpoint management
-              </li>
-              <li>
-                Deployed, reimaged, and maintained 150+ endpoints using
-                SmartDeploy and PXE Boot
-              </li>
-              <li>
-                Managed AD user provisioning, enforced GPOs, applied security
-                patches, and ensured NIST compliance
-              </li>
-              <li>
-                Improved patient data security with HIPAA-compliant tracking
-                tools and dashboards
-              </li>
-              <li>
-                Led training for 80+ personnel on contingency communications and
-                cyber readiness tools
-              </li>
-              <li>
-                Supported ITBM workflows and managed base-wide hardware/software
-                inventory databases
-              </li>
-            </ul>
-          </div>
-          <div class="timeline-entry job-entry">
-            <div class="job-header">
-              <h3 style="color: #2c3e50">
-                Organization Technology Person 3
-                <span class="divider">|</span> Department Manager
-              </h3>
-              <p class="job-meta" style="color: #555">
-                McDonald’s – Clark LLC / Holman LLC
-              </p>
-              <span class="job-date" style="color: #888"
-                >Sep 2019 – Present</span
-              >
-            </div>
-            <ul class="job-details">
-              <li>
-                Provided IT support for POS terminals, kiosks, and wireless
-                systems at high-volume store locations
-              </li>
-              <li>
-                Lowered average downtime by 25% through proactive hardware
-                replacements and network tuning
-              </li>
-              <li>
-                Trained 30+ team members on basic tech and software use to
-                reduce support escalations
-              </li>
-              <li>
-                Managed scheduling, payroll, and inventory using back-office
-                software aligned to corporate standards
-              </li>
-              <li>
-                Improved labor accuracy by 30% with forecast-based schedule
-                planning
-              </li>
-              <li>
-                Coordinated with regional IT on system upgrades, patch cycles,
-                and ITSM standardization
-              </li>
-            </ul>
-          </div>
-          <div class="timeline-entry job-entry">
-            <div class="job-header">
-              <h3 style="color: #2c3e50">
-                Problem Solver
-                <span class="divider">(Seasonal Special Assignment)</span>
-              </h3>
-              <p class="job-meta" style="color: #555">Amazon – Florence, NJ</p>
-              <span class="job-date" style="color: #888"
-                >Sep 2021 – Dec 2021</span
-              >
-            </div>
-            <ul class="job-details">
-              <li>
-                Resolved fulfillment issues and supported end-to-end tracking
-                for delayed shipments
-              </li>
-              <li>
-                Reduced average processing delays by 15% through real-time
-                barcode and incident reporting
-              </li>
-              <li>
-                Trained new associates on inventory software and tech onboarding
-                practices
-              </li>
-            </ul>
-          </div>
-          <div class="timeline-entry job-entry">
-            <div class="job-header">
-              <h3 style="color: #2c3e50">Leadership & Volunteer Work</h3>
-            </div>
-            <ul class="job-details">
-              <li>
-                Vice President, 514 AMDS Airmen’s Council – led new member
-                onboarding and Microsoft Teams adoption
-              </li>
-              <li>
-                Organized base-wide morale events and created digital materials
-                for HRSD communications
-              </li>
-              <li>
-                Volunteered with Special Olympics, Red Cross, food pantries, and
-                Arctic mission outreach
-              </li>
-            </ul>
-          </div>
-          <div class="resume-cta">
-            <h3>Want to see more?</h3>
-            <p>
-              You can view my full resume for additional experience, project
-              highlights, and professional details.
-            </p>
-            <button onclick="openResumeModal()" class="view-resume-btn">View Resume</button>
-
-          </div>
-        </div>
-      </section>
-
-      <section id="skills" class="section">
-        <h2>Skills</h2>
-
-        <div class="skills-section">
-          <!-- TECHNICAL SKILLS -->
-          <h3>Technical Skills</h3>
-          <div class="skills-grid">
-            <!-- System Administration -->
-            <span class="skill-tag">🖥 Active Directory</span>
-            <span class="skill-tag">⚙️ Group Policy</span>
-            <span class="skill-tag">🧩 RSAT</span>
-            <span class="skill-tag">🗂 Windows Server</span>
-
-            <!-- Imaging & Deployment -->
-            <span class="skill-tag">📦 SmartDeploy</span>
-            <span class="skill-tag">🚀 PXE Boot</span>
-            <span class="skill-tag">📡 SCCM / MECM</span>
-
-            <!-- Security & Compliance -->
-            <span class="skill-tag">🛡️ CompTIA Security+</span>
-            <span class="skill-tag">📘 NIST</span>
-            <span class="skill-tag">🔐 HIPAA</span>
-            <span class="skill-tag">📋 ITSM / ITOM / HRSD</span>
-
-            <!-- Networking -->
-            <span class="skill-tag">🌐 VLANs</span>
-            <span class="skill-tag">🧠 Switch & Firewall Troubleshooting</span>
-
-            <!-- Tools & Platforms -->
-            <span class="skill-tag">🧾 ServiceNow</span>
-            <span class="skill-tag">📞 Remedy</span>
-            <span class="skill-tag">🕶️ Bomgar</span>
-            <span class="skill-tag">🏥 MHS Genesis</span>
-            <span class="skill-tag">📊 Power BI</span>
-
-            <!-- Scripting & Languages -->
-            <span class="skill-tag">⚡ PowerShell</span>
-            <span class="skill-tag">🐍 Python</span>
-            <span class="skill-tag">☕ Java</span>
-            <span class="skill-tag">📜 JavaScript</span>
-            <span class="skill-tag">💾 C++</span>
-            <span class="skill-tag">🐚 Bash</span>
-            <span class="skill-tag">🧮 SQL</span>
-            <span class="skill-tag">🌀 Lua</span>
-
-            <!-- Hardware & Support -->
-            <span class="skill-tag">💻 Laptops & Desktops</span>
-            <span class="skill-tag">🖨️ Printers & Scanners</span>
-            <span class="skill-tag">📱 Mobile Devices</span>
-          </div>
-
-          <!-- SOFT SKILLS -->
-          <h3>Soft Skills</h3>
-          <div class="skills-grid">
-            <span class="skill-tag">🧠 Problem Solving</span>
-            <span class="skill-tag">🌱 Adaptability</span>
-            <span class="skill-tag">🤝 Team Collaboration</span>
-            <span class="skill-tag">🗣️ Communication</span>
-            <span class="skill-tag">⏳ Time Management</span>
-            <span class="skill-tag">📞 Customer Support</span>
-            <span class="skill-tag">🎓 Teachable Spirit</span>
-            <span class="skill-tag">🔍 Attention to Detail</span>
-            <span class="skill-tag">🧑‍💼 Professionalism</span>
-            <span class="skill-tag">👂 Listening</span>
-          </div>
-        </div>
-      </section>
-
-      <section id="education" class="section">
-        <h2>Education</h2>
-
-        <div class="education-entry liberty-entry">
-          <h3>
-            <img
-              src="https://upload.wikimedia.org/wikipedia/en/thumb/4/4f/Liberty_University_seal.svg/250px-Liberty_University_seal.svg.png"
-              alt="Liberty University Logo"
-              class="edu-icon"
-              loading="lazy"
-            />
-            Liberty University
-          </h3>
-          <p class="degree">B.S. in Computer Science – Cybersecurity</p>
-          <p class="edu-meta">Expected Graduation: 2026</p>
-        </div>
-
-        <div class="education-entry">
-          <h3>
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Community_College_of_the_Air_Force.png/960px-Community_College_of_the_Air_Force.png"
-              alt="CCAF Logo"
-              class="edu-icon"
-              loading="lazy"
-            />
-            Community College of the Air Force
-          </h3>
-          <p class="degree">
-            A.A.S. in Health Information Technology & Services Management
-          </p>
-          <p class="edu-meta">
-            Earned through USAF Technical School | Completed 2021
-          </p>
-        </div>
-      </section>
-
-      <section id="certs" class="section">
-        <h2>Certifications</h2>
-
-        <div class="cert-carousel-wrapper">
-          <button class="cert-btn left" id="certLeftBtn">&#10094;</button>
-
-          <div class="cert-carousel" id="certCarousel">
-            <!-- CompTIA Security+ -->
-            <div class="cert-card" data-issuer="comptia">
-              <div class="cert-card-inner">
-                <div class="cert-front">
-                  <img
-                    src="https://partners.comptia.org/images/default-source/templateimages/securityplus-logo.png"
-                    alt="Security+ Logo"
-                    class="cert-logo"
-                    loading="lazy"
-                  />
-                  <h3>CompTIA Security+ (CE)</h3>
-                  <p class="cert-meta">Issued: Oct 25, 2024</p>
-                  <span class="cert-verified">✅ Verified</span>
-                </div>
-                <div class="cert-back">
-                  <p><strong>Credential ID:</strong><br />COMP001022652384</p>
-                  <a
-                    href="https://www.certmetrics.com/comptia/public/verification.aspx"
-                    target="_blank"
-                    >Verify Certificate</a
-                  >
-                  <a
-                    href="certs/CompTIA Security+ ce certificate.pdf"
-                    target="_blank"
-                    >View PDF</a
-                  >
-                </div>
-              </div>
-            </div>
-
-            <!-- CompTIA ITF+ -->
-            <div class="cert-card" data-issuer="comptia">
-              <div class="cert-card-inner">
-                <div class="cert-front">
-                  <img
-                    src="https://partners.comptia.org/images/default-source/templateimages/it-fundamentals-logo.jpg"
-                    alt="ITF+ Logo"
-                    class="cert-logo"
-                    loading="lazy"
-                  />
-                  <h3>CompTIA IT Fundamentals+ (FC0-U61)</h3>
-                  <p class="cert-meta">Issued: Nov 12, 2022</p>
-                  <span class="cert-verified">✅ Verified</span>
-                </div>
-                <div class="cert-back">
-                  <p>No credential ID listed</p>
-                  <a
-                    href="https://www.certmetrics.com/comptia/public/verification.aspx"
-                    target="_blank"
-                    >Verify Certificate</a
-                  >
-                  <a
-                    href="certs/CompTIA IT Fundamentals+ (FC0-U61).pdf"
-                    target="_blank"
-                    >View PDF</a
-                  >
-                </div>
-              </div>
-            </div>
-
-            <!-- Microsoft MTA -->
-            <div class="cert-card" data-issuer="microsoft">
-              <div class="cert-card-inner">
-                <div class="cert-front">
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/MCTS_logo.png/778px-MCTS_logo.png"
-                    alt="Microsoft MTA Logo"
-                    class="cert-logo"
-                    loading="lazy"
-                  />
-                  <h3>Microsoft Technology Associate</h3>
-                  <p class="cert-meta">Issued: Feb 20, 2020</p>
-                  <span class="cert-verified">✅ Verified</span>
-                </div>
-                <div class="cert-back">
-                  <p><strong>Credential ID:</strong><br />wy6U9-4SCy</p>
-                  <a
-                    href="https://www.microsoft.com/en-us/learning/dashboard.aspx"
-                    target="_blank"
-                    >Verify Certificate</a
-                  >
-                  <a
-                    href="certs/Microsoft Technology Associate.pdf"
-                    target="_blank"
-                    >View PDF</a
-                  >
-                </div>
-              </div>
-            </div>
-
-            <!-- BLS + CPR -->
-            <div class="cert-card" data-issuer="aha">
-              <div class="cert-card-inner">
-                <div class="cert-front">
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e6/American_Heart_Association_Logo.svg/250px-American_Heart_Association_Logo.svg.png"
-                    alt="AHA Logo"
-                    class="cert-logo"
-                    loading="lazy"
-                  />
-                  <h3>Basic Life Support (BLS)</h3>
-                  <p class="cert-meta">Issuer: American Heart Association</p>
-                </div>
-                <div class="cert-back">
-                  <p>Certification for healthcare CPR & emergency response.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- CPI & Six Sigma -->
-            <div class="cert-card" data-issuer="usaf">
-              <div class="cert-card-inner">
-                <div class="cert-front">
-                  <img
-                    src="https://d1ldvf68ux039x.cloudfront.net/thumbs/photos/1908/5655101/1000w_q95.jpg"
-                    alt="Six Sigma Badge"
-                    class="cert-logo"
-                    loading="lazy"
-                  />
-                  <h3>Air Force CPI & Six Sigma Green Belt</h3>
-                  <p class="cert-meta">Issued by: USAF</p>
-                </div>
-                <div class="cert-back">
-                  <p>
-                    Foundational process improvement and Lean Six Sigma
-                    principles applied within Air Force systems.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <button class="cert-btn right" id="certRightBtn">&#10095;</button>
-        </div>
-
-        <div class="cert-dots" id="certDots"></div>
-      </section>
-
-      <section id="contact" class="section">
-        <h2>Let's Connect</h2>
-
-        <p>
-          Email:
-          <a href="mailto:saihanswissle@gmail.com">saihanswissle@gmail.com</a>
-        </p>
-        <p>
-          GitHub:
-          <a
-            href="https://github.com/spairkie"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            github.com/spairkie
-          </a>
-        </p>
-        <p>
-          LinkedIn:
-          <a
-            href="https://linkedin.com/in/8pairkie"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            linkedin.com/in/8pairkie
-          </a>
-        </p>
-        <p>
-          Phone:
-          <a href="tel:+15406840965">(540) 684-0965</a>
-        </p>
-
-        <div class="contact-actions">
-          <!-- <button class="contact-btn" onclick="openContactModal()">
-            Message Me
-          </button> -->
-          <a class="download-fab" href="#contact" onclick="openContactModal()" title="Message Me">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z" />
-            </svg>
-            <span class="download-label">Message Me</span>
-          </a>
-
-          <a
-            href="files/Hans_Sai_Business_Card.vcf"
-            download
-            class="download-fab"
-            title="Download Contact Card"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="8 12 12 16 16 12" />
-              <line x1="12" y1="8" x2="12" y2="16" />
-            </svg>
-            <span class="download-label">Download vCard</span>
-          </a>
-          <a id="shareBtn" class="download-fab" title="Share This Site" style="display: none;">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-              <path d="M4 12v-1a4 4 0 014-4h8a4 4 0 014 4v1" />
-              <polyline points="16 16 12 12 8 16" />
-              <line x1="12" y1="12" x2="12" y2="21" />
-            </svg>
-            <span class="download-label">Share This Site</span>
-          </a>
-        </div>
-      </section>
-
-      <!-- Contact Modal -->
-      <div id="contactModal" class="modal">
-        <div class="modal-content">
-          <span class="close" onclick="closeContactModal()">&times;</span>
-          <h3>Contact Me</h3>
-
-          <form
-            id="contactForm"
-            action="https://formspree.io/f/xwporonk"
-            method="POST"
-            class="modern-form"
-          >
-            <div class="form-group">
-              <input type="text" name="name" required placeholder=" " />
-              <label>Your Name</label>
-            </div>
-
-            <div class="form-group">
-              <input type="email" name="_replyto" required placeholder=" " />
-              <label>Your Email</label>
-            </div>
-
-            <div class="form-group">
-              <textarea
-                name="message"
-                rows="5"
-                required
-                placeholder=" "
-              ></textarea>
-              <label>Your Message</label>
-            </div>
-
-            <button type="submit">Send Message</button>
-          </form>
-
-          <div id="thankYouMsg" class="thank-you-msg" style="display: none">
-            <h4>Thank you!</h4>
-            <p>
-              Your message has been sent successfully. I'll be in touch soon.
-            </p>
-          </div>
+      <div class="job">
+        <div class="job-dates">Mar 2025 — Aug 2026</div>
+        <div class="job-body">
+          <h3>IT Support Technician</h3>
+          <div class="job-org">Shoppers World &amp; Forman Mills · South Jersey, NJ</div>
+          <ul>
+            <li>On-site IT support across multiple retail locations — POS systems, networking equipment, back-office hardware</li>
+            <li>Supported equipment rollouts and vendor coordination for store IT infrastructure</li>
+          </ul>
         </div>
       </div>
-    </main>
 
-    <button id="scrollTopBtn" title="Back to Top">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="feather feather-arrow-up"
-      >
-        <line x1="12" y1="19" x2="12" y2="5"></line>
-        <polyline points="5 12 12 5 19 12"></polyline>
-      </svg>
-      <span id="installText" style="display: none;">Install App?</span>
-    </button>
+      <div class="job">
+        <div class="job-dates">Jan 2021 — Present</div>
+        <div class="job-body">
+          <h3>IT Systems Administrator | Health Services Administrator</h3>
+          <div class="job-org">U.S. Air Force Reserve · 87 MDG / 514 AMDS, JBMDL McGuire, NJ (AFSC 4A0X1S)</div>
+          <ul>
+            <li>Reimaged and deployed 150+ computers via SmartDeploy/PXE Boot; decommissioned 150+ legacy systems for compliance</li>
+            <li>Resolve 12–15 Level 2 tickets/day (1,000+ annually) — AD access, network connectivity, printer and system issues</li>
+            <li>Administer Active Directory for provisioning, account unlocks, and Group Policy enforcement on a secure medical network</li>
+            <li>Built a QR-code clinic tracking system and an encrypted HIPAA-compliant records workflow</li>
+            <li>Trained 80+ personnel on emergency response and readiness-tracking procedures</li>
+          </ul>
+        </div>
+      </div>
 
-    <!-- This is my favorite HTML ELEMENT 💀 -->
-    <footer
-      onclick="window.open('https://www.buymeacoffee.com/spairkie', '_blank')"
-      style="cursor: pointer"
-    >
-      <marquee behavior="scroll" direction="left" scrollamount="4">
-        Built with ❤️ and not enough caffeine • ☕ Tap to support the next
-        project • Every click helps — be part of the build • Thanks for
-        visiting! • Smooth scroll gang
-      </marquee>
-      <p>&copy; 2025 Hans Sai — All rights reserved.</p>
-    </footer>
+      <div class="job">
+        <div class="job-dates">Sep 2019 — Mar 2025</div>
+        <div class="job-body">
+          <h3>Organization Technology Pro | Department Manager</h3>
+          <div class="job-org">McDonald's · Fredericksburg, VA &amp; Medford, NJ</div>
+          <ul>
+            <li>Frontline IT support for POS systems, kiosks, printers, and back-office hardware across two locations</li>
+            <li>Reduced technology downtime 25% through proactive maintenance and rapid hardware replacement</li>
+          </ul>
+        </div>
+      </div>
 
-    <!-- Resume Modal -->
-    <div id="resumeModal" class="modal resume-modal">
-      <div class="modal-content resume-modal-content">
-        <span class="close" onclick="closeResumeModal()">&times;</span>
-        <h3>My Resume</h3>
-        <iframe id="resumeIframe" data-src="resume/HansSai_SystemAdminResume.pdf" frameborder="0" width="100%" height="500px"></iframe>
-        <div class="resume-actions">
-          <a href="resume/HansSai_SystemAdminResume.pdf" download class="download-resume-btn">Download PDF</a>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Projects</p>
+      <h2>Security &amp; infrastructure tooling</h2>
+      <p class="section-sub">Four projects, each real, working, tested, and documented — built to extend real
+        AD/sysadmin/ticketing experience into applied automation and detection, not tutorial clones.</p>
+    </div>
+
+    <div class="project-grid">
+
+      <div class="project-card featured">
+        <div>
+          <div class="project-top">
+            <h3 class="project-title">Helpdesk Ticket Analytics</h3>
+            <span class="stack-tag">Python</span>
+          </div>
+          <p class="project-desc">Turns a raw ticket export into SLA compliance, resolution-time, and volume
+            metrics — built to mirror real high-volume ticket queue work (1,000+ tickets/year). Zero
+            dependencies; renders its own charts as inline SVG, no matplotlib needed.</p>
+          <div class="project-meta">
+            <span class="chip">14 tests passing</span>
+            <span class="chip">Zero dependencies</span>
+            <span class="chip">HTML + CSV reports</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/Spairkie/helpdesk-ticket-analytics" target="_blank" rel="noopener">Source on GitHub</a>
+          </div>
+        </div>
+        <div style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:16px;">
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:16px;">
+            <svg viewBox="0 0 640 180" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" style="width:100%;height:auto;display:block;">
+              <text x="0" y="20" font-size="15" font-weight="600" fill="#111827">SLA compliance by priority</text>
+              <text x="0" y="54" font-size="13" fill="#374151">Low</text>
+              <rect x="180" y="36" width="400.0" height="26" rx="4" fill="#2563eb" />
+              <text x="588.0" y="54" font-size="12" fill="#111827">100%</text>
+              <text x="0" y="90" font-size="13" fill="#374151">High</text>
+              <rect x="180" y="72" width="324.8" height="26" rx="4" fill="#7c3aed" />
+              <text x="512.8" y="90" font-size="12" fill="#111827">81.2%</text>
+              <text x="0" y="126" font-size="13" fill="#374151">Medium</text>
+              <rect x="180" y="108" width="400.0" height="26" rx="4" fill="#059669" />
+              <text x="588.0" y="126" font-size="12" fill="#111827">100%</text>
+              <text x="0" y="162" font-size="13" fill="#374151">Critical</text>
+              <rect x="180" y="144" width="371.6" height="26" rx="4" fill="#d97706" />
+              <text x="559.6" y="162" font-size="12" fill="#111827">92.9%</text>
+            </svg>
+          </div>
+          <p style="margin:10px 2px 2px;font-size:12px;color:var(--text-dimmer);">Live chart from the tool's own inline-SVG report generator — rendered from the 620-ticket sample dataset, no image file.</p>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-top">
+          <h3 class="project-title">AD &amp; Endpoint Automation Toolkit</h3>
+          <span class="stack-tag">PowerShell</span>
+        </div>
+        <p class="project-desc">Scripts for AD user provisioning/offboarding, stale-account cleanup, account
+          hygiene reporting, and endpoint compliance audits — every write action supports <code>-WhatIf</code>,
+          every run produces a log and a CSV report.</p>
+        <div class="project-meta">
+          <span class="chip">SupportsShouldProcess</span>
+          <span class="chip">PS 5.1 compatible</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Spairkie/ad-automation-toolkit" target="_blank" rel="noopener">Source on GitHub</a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-top">
+          <h3 class="project-title">WinLog Threat Hunter</h3>
+          <span class="stack-tag">Python</span>
+        </div>
+        <p class="project-desc">Parses exported Windows Security/Sysmon events and flags brute-force logons,
+          privilege escalation, suspicious process command lines, and admin-persistence patterns — each mapped
+          to a MITRE ATT&amp;CK technique.</p>
+        <div class="project-meta">
+          <span class="chip">25 tests passing</span>
+          <span class="chip">MITRE ATT&amp;CK mapped</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/Spairkie/winlog-threat-hunter" target="_blank" rel="noopener">Source on GitHub</a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-top">
+          <h3 class="project-title">JotRelay</h3>
+          <span class="stack-tag">JavaScript / Supabase</span>
+        </div>
+        <p class="project-desc">Real-time encrypted collaborative notepad — shareable editable/read-only links,
+          QR codes, presence and typing indicators, offline drafts, and a PWA install with an OS-level share
+          target. Vanilla JS, no framework or build step.</p>
+        <div class="project-meta">
+          <span class="chip">Live demo</span>
+          <span class="chip">Encryption option</span>
+        </div>
+        <div class="project-links">
+          <a href="https://spairkie.github.io/JotRelay/" target="_blank" rel="noopener">Live demo</a>
+          <a href="https://github.com/Spairkie/JotRelay" target="_blank" rel="noopener">Source on GitHub</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="also-built">
+      <p class="section-sub" style="margin-bottom:14px;">Also built</p>
+      <div class="also-grid">
+        <div class="mini-card">
+          <h4>Interactive Diploma</h4>
+          <p>A 3D, browser-based recreation of my Liberty University diploma — Three.js, procedural
+            materials, studio lighting. A creative technical showcase.</p>
+          <div class="project-links" style="margin-top:10px;">
+            <a href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Live demo</a>
+          </div>
+        </div>
+        <div class="mini-card">
+          <h4>This portfolio site</h4>
+          <p>Static, single-file, no framework — the page you're on right now.</p>
+          <div class="project-links" style="margin-top:10px;">
+            <a href="https://github.com/Spairkie/spairkie.github.io" target="_blank" rel="noopener">Source on GitHub</a>
+          </div>
         </div>
       </div>
     </div>
+  </div>
+</section>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
-    <script src="scripts/main.js"></script>
-  </body>
+<section id="skills">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Skills</p>
+      <h2>Technical toolbox</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-group">
+        <h4>Identity &amp; Systems Administration</h4>
+        <p>Active Directory, AD Domain Services, Group Policy, Windows Server, RSAT, user provisioning/offboarding, print server administration</p>
+      </div>
+      <div class="skill-group">
+        <h4>Endpoint &amp; Infrastructure</h4>
+        <p>SmartDeploy imaging, PXE Boot, SCCM/MECM, workstation/laptop/thin-client deployment, asset inventory, patching</p>
+      </div>
+      <div class="skill-group">
+        <h4>Security &amp; Compliance</h4>
+        <p>Endpoint protection, least-privilege enforcement, access control, HIPAA-aligned data handling, VLANs, basic firewall/switch troubleshooting</p>
+      </div>
+      <div class="skill-group">
+        <h4>Scripting &amp; Automation</h4>
+        <p>PowerShell, Python, Bash, SQL, C++, Java, JavaScript</p>
+      </div>
+      <div class="skill-group">
+        <h4>Virtualization</h4>
+        <p>VMware, VirtualBox, VM deployment and snapshot management</p>
+      </div>
+      <div class="skill-group">
+        <h4>ITSM &amp; Tools</h4>
+        <p>ServiceNow, Remedy, ITOM/ITSM/ITBM, HRSD platforms, BeyondTrust/Bomgar, Power BI, Microsoft 365</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Education &amp; Certifications</p>
+      <h2>Background</h2>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="edu-item">
+          <h4>B.S., Computer Science – Cybersecurity</h4>
+          <div class="meta">Liberty University — Lynchburg, VA · May 2026</div>
+        </div>
+        <div class="edu-item">
+          <h4>CCAF A.A.S., Health Information Technology &amp; Services Management</h4>
+          <div class="meta">Community College of the Air Force — San Antonio, TX · 2021</div>
+        </div>
+      </div>
+      <ul class="cert-list">
+        <li>CompTIA Security+ — Active</li>
+        <li>Secret Security Clearance — Active (U.S. Air Force Reserve)</li>
+        <li>CompTIA IT Fundamentals+</li>
+        <li>Microsoft Technology Associate (MTA)</li>
+        <li>Basic Life Support (BLS) &amp; CPR Certified</li>
+        <li>Air Force Continuous Process Improvement &amp; Six Sigma Green Belt</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <p class="eyebrow">Contact</p>
+    <h2>Let's talk.</h2>
+    <p class="body-text" style="margin:0 auto;">Lindenwold, NJ — open to South Jersey / Philadelphia-area and fully remote roles.</p>
+    <div class="contact-links">
+      <a href="mailto:saihanswissle@gmail.com">saihanswissle@gmail.com</a>
+      <a href="https://www.linkedin.com/in/8pairkie/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/Spairkie" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <p class="fine-print">© 2026 Hans Sai. Built with plain HTML/CSS — no framework, no build step.</p>
+  </div>
+</footer>
+
+</body>
 </html>
