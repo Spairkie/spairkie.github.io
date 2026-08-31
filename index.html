@@ -28,6 +28,7 @@
   --font-body:'Inter',system-ui,sans-serif;
   --font-mono:'JetBrains Mono',ui-monospace,monospace;
   --maxw:1040px;
+  --ease:cubic-bezier(.16,1,.3,1);
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -45,6 +46,14 @@ a{color:var(--accent);text-decoration:none;}
 a:hover{text-decoration:underline;}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
 img{max-width:100%;}
+
+/* ---------- scroll progress ---------- */
+#scroll-progress{
+  position:fixed;top:0;left:0;height:2px;width:0%;z-index:100;
+  background:linear-gradient(90deg,var(--accent-dim),var(--accent));
+  box-shadow:0 0 10px var(--accent-glow);
+  transition:width .1s linear;
+}
 
 /* ---------- nav ---------- */
 header.nav{
@@ -68,8 +77,13 @@ header.nav{
 }
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 .nav-links{display:flex;gap:26px;font-size:14px;}
-.nav-links a{color:var(--text-dim);}
+.nav-links a{color:var(--text-dim);position:relative;padding-bottom:2px;transition:color .2s ease;}
+.nav-links a::after{
+  content:"";position:absolute;left:0;bottom:-3px;width:0;height:1px;background:var(--accent);
+  transition:width .25s var(--ease);
+}
 .nav-links a:hover{color:var(--accent);text-decoration:none;}
+.nav-links a:hover::after{width:100%;}
 .nav-toggle{display:none;background:none;border:1px solid var(--line);color:var(--text);width:36px;height:36px;border-radius:6px;font-family:var(--font-mono);}
 
 /* ---------- hero ---------- */
@@ -90,6 +104,17 @@ header.nav{
   pointer-events:none;
 }
 .hero-inner{position:relative;z-index:2;}
+@keyframes heroIn{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:translateY(0);}}
+.hero-inner > *{opacity:0;animation:heroIn .9s var(--ease) forwards;}
+.hero-inner > .badges{animation-delay:.05s;}
+.hero-inner > h1{animation-delay:.16s;}
+.hero-inner > .hero-sub{animation-delay:.30s;}
+.hero-inner > .lede{animation-delay:.40s;}
+.hero-inner > .hero-cta{animation-delay:.52s;}
+.hero-inner > .terminal{animation-delay:.64s;}
+@media (prefers-reduced-motion: reduce){
+  .hero-inner > *{animation:none;opacity:1;}
+}
 .badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px;}
 .badge{
   font-family:var(--font-mono);font-size:12px;color:var(--accent);
@@ -116,13 +141,20 @@ header.nav{
 }
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:56px;}
 .btn{
+  position:relative;overflow:hidden;
   font-family:var(--font-body);font-weight:600;font-size:14px;
   padding:11px 20px;border-radius:7px;display:inline-flex;align-items:center;gap:8px;
-  transition:transform .15s ease, border-color .15s ease, background .15s ease;
+  transition:transform .2s var(--ease), border-color .2s ease, background .2s ease, box-shadow .2s ease;
 }
-.btn:hover{text-decoration:none;transform:translateY(-1px);}
+.btn::before{
+  content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+  background:linear-gradient(115deg,transparent,rgba(255,255,255,0.22),transparent);
+  transform:skewX(-20deg);transition:left .55s var(--ease);
+}
+.btn:hover::before{left:140%;}
+.btn:hover{text-decoration:none;transform:translateY(-2px);}
 .btn-primary{background:var(--accent);color:#04120f;}
-.btn-primary:hover{background:#7ff2df;}
+.btn-primary:hover{background:#7ff2df;box-shadow:0 10px 30px -8px var(--accent-glow);}
 .btn-ghost{border:1px solid var(--line);color:var(--text);}
 .btn-ghost:hover{border-color:var(--accent-dim);color:var(--accent);}
 
@@ -166,16 +198,31 @@ section:last-of-type{border-bottom:none;}
   font-family:var(--font-display);font-size:clamp(24px,3vw,32px);font-weight:600;
   margin:0;color:var(--text);letter-spacing:-0.01em;
 }
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease, transform .6s ease;}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease), transform .8s var(--ease);}
 .reveal.in{opacity:1;transform:translateY(0);}
+.stagger-item{opacity:0;transform:translateY(20px) scale(.98);transition:opacity .7s var(--ease), transform .7s var(--ease);transition-delay:var(--d,0s);}
+.stagger-item.in{opacity:1;transform:translateY(0) scale(1);}
+@media (prefers-reduced-motion: reduce){
+  .reveal,.stagger-item{opacity:1;transform:none;transition:none;}
+}
 
 /* ---------- about ---------- */
 .about-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:start;}
 .about-grid p{color:var(--text-dim);margin:0 0 16px;font-size:15.5px;}
 .stat-list{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
 .stat{
+  position:relative;overflow:hidden;
   border:1px solid var(--line);background:var(--bg-card);border-radius:10px;padding:16px 18px;
+  transition:transform .3s var(--ease), border-color .3s ease;
+  transform-style:preserve-3d;will-change:transform;
 }
+.stat::before{
+  content:"";position:absolute;inset:0;opacity:0;pointer-events:none;
+  background:radial-gradient(160px circle at var(--mx,50%) var(--my,50%), var(--accent-glow), transparent 70%);
+  transition:opacity .3s ease;
+}
+.stat:hover::before{opacity:1;}
+.stat:hover{border-color:var(--accent-dim);}
 .stat .num{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--accent);}
 .stat .label{font-size:12.5px;color:var(--text-dimmer);margin-top:2px;}
 
@@ -184,12 +231,15 @@ section:last-of-type{border-bottom:none;}
 .timeline::before{
   content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:var(--line);
 }
-.tl-item{position:relative;padding-bottom:38px;}
+.tl-item{position:relative;padding-bottom:38px;transition:transform .3s var(--ease);}
+.tl-item:hover{transform:translateX(4px);}
 .tl-item:last-child{padding-bottom:0;}
 .tl-dot{
   position:absolute;left:-26px;top:4px;width:11px;height:11px;border-radius:50%;
   background:var(--bg);border:2px solid var(--accent-dim);
+  transition:box-shadow .3s ease, transform .3s ease;
 }
+.tl-item:hover .tl-dot{transform:scale(1.35);box-shadow:0 0 0 5px var(--accent-glow);}
 .tl-item.current .tl-dot{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow);}
 .tl-date{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);margin-bottom:4px;}
 .tl-role{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text);margin:0 0 2px;}
@@ -201,10 +251,19 @@ section:last-of-type{border-bottom:none;}
 .proj-lede{color:var(--text-dim);font-size:15px;max-width:640px;margin:-18px 0 34px;}
 .proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 .proj-card{
+  position:relative;overflow:hidden;
   border:1px solid var(--line);background:var(--bg-card);border-radius:12px;padding:24px;
-  transition:border-color .2s ease, transform .2s ease, background .2s ease;
+  transition:border-color .3s ease, transform .35s var(--ease), background .3s ease, box-shadow .35s var(--ease);
+  transform-style:preserve-3d;will-change:transform;
 }
-.proj-card:hover{border-color:var(--accent-dim);transform:translateY(-2px);background:var(--bg-card-hover);}
+.proj-card::before{
+  content:"";position:absolute;inset:0;opacity:0;pointer-events:none;z-index:0;
+  background:radial-gradient(280px circle at var(--mx,50%) var(--my,50%), var(--accent-glow), transparent 65%);
+  transition:opacity .35s ease;
+}
+.proj-card:hover::before{opacity:1;}
+.proj-card > *{position:relative;z-index:1;}
+.proj-card:hover{border-color:var(--accent-dim);background:var(--bg-card-hover);box-shadow:0 24px 50px -24px rgba(0,0,0,0.55);}
 .proj-card.wide{grid-column:1 / -1;}
 .proj-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;}
 .proj-title{font-family:var(--font-display);font-size:17px;font-weight:600;margin:0;}
@@ -220,7 +279,8 @@ section:last-of-type{border-bottom:none;}
 .also-built{margin-top:24px;}
 .also-label{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.1em;}
 .also-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.mini-card{border:1px solid var(--line-soft);border-radius:10px;padding:18px;}
+.mini-card{border:1px solid var(--line-soft);border-radius:10px;padding:18px;transition:transform .3s var(--ease), border-color .3s ease;transform-style:preserve-3d;will-change:transform;}
+.mini-card:hover{border-color:var(--accent-dim);}
 .mini-card h4{font-family:var(--font-display);font-size:15px;margin:0 0 6px;font-weight:600;}
 .mini-card p{font-size:13.5px;color:var(--text-dim);margin:0 0 10px;}
 .mini-card a{font-family:var(--font-mono);font-size:12px;}
@@ -228,7 +288,8 @@ section:last-of-type{border-bottom:none;}
 
 /* ---------- skills ---------- */
 .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;}
-.skill-group{background:var(--bg-card);padding:22px 24px;}
+.skill-group{background:var(--bg-card);padding:22px 24px;transition:background .3s ease;}
+.skill-group:hover{background:var(--bg-card-hover);}
 .skill-group h4{font-family:var(--font-mono);font-size:12.5px;color:var(--accent);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.08em;}
 .skill-group p{margin:0;font-size:14px;color:var(--text-dim);}
 
@@ -263,6 +324,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
 </style>
 </head>
 <body>
+<div id="scroll-progress"></div>
 
 <header class="nav">
   <div class="nav-inner">
@@ -317,10 +379,10 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
         <p>I finish a B.S. in Computer Science with a Cybersecurity focus in May 2026 and I'm looking to grow from systems administration into security-adjacent infrastructure or junior security engineering roles, based in the Philadelphia and South Jersey metro or fully remote.</p>
       </div>
       <div class="stat-list">
-        <div class="stat"><div class="num">150+</div><div class="label">Endpoints imaged &amp; deployed</div></div>
-        <div class="stat"><div class="num">1,000+</div><div class="label">Support tickets resolved / yr</div></div>
-        <div class="stat"><div class="num">5+ yrs</div><div class="label">IT operations experience</div></div>
-        <div class="stat"><div class="num">4</div><div class="label">Real tools built &amp; shipped</div></div>
+        <div class="stat stagger-item"><div class="num">150+</div><div class="label">Endpoints imaged &amp; deployed</div></div>
+        <div class="stat stagger-item"><div class="num">1,000+</div><div class="label">Support tickets resolved / yr</div></div>
+        <div class="stat stagger-item"><div class="num">5+ yrs</div><div class="label">IT operations experience</div></div>
+        <div class="stat stagger-item"><div class="num">4</div><div class="label">Real tools built &amp; shipped</div></div>
       </div>
     </div>
   </div>
@@ -334,7 +396,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
     </div>
     <div class="timeline">
 
-      <div class="tl-item current">
+      <div class="tl-item current stagger-item">
         <span class="tl-dot"></span>
         <div class="tl-date">Jul 2026 to Present</div>
         <h3 class="tl-role">IT Support Associate II, Operations Technology</h3>
@@ -345,7 +407,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
         </ul>
       </div>
 
-      <div class="tl-item">
+      <div class="tl-item stagger-item">
         <span class="tl-dot"></span>
         <div class="tl-date">Mar 2025 to Aug 2026</div>
         <h3 class="tl-role">IT Support Technician</h3>
@@ -356,7 +418,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
         </ul>
       </div>
 
-      <div class="tl-item current">
+      <div class="tl-item current stagger-item">
         <span class="tl-dot"></span>
         <div class="tl-date">Jan 2021 to Present</div>
         <h3 class="tl-role">IT Systems Administrator | Health Services Administrator</h3>
@@ -371,7 +433,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
         </ul>
       </div>
 
-      <div class="tl-item">
+      <div class="tl-item stagger-item">
         <span class="tl-dot"></span>
         <div class="tl-date">Sep 2019 to Mar 2025</div>
         <h3 class="tl-role">Organization Technology Pro | Department Manager</h3>
@@ -396,7 +458,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
 
     <div class="proj-grid">
 
-      <div class="proj-card wide">
+      <div class="proj-card wide stagger-item">
         <div class="proj-top">
           <h3 class="proj-title">Helpdesk Ticket Analytics</h3>
           <span class="stack-tag">Python</span>
@@ -432,7 +494,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
         </div>
       </div>
 
-      <div class="proj-card">
+      <div class="proj-card stagger-item">
         <div class="proj-top">
           <h3 class="proj-title">AD &amp; Endpoint Automation Toolkit</h3>
           <span class="stack-tag">PowerShell</span>
@@ -445,7 +507,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
         <div class="proj-links"><a href="https://github.com/Spairkie/ad-automation-toolkit" target="_blank" rel="noopener">Source on GitHub</a></div>
       </div>
 
-      <div class="proj-card">
+      <div class="proj-card stagger-item">
         <div class="proj-top">
           <h3 class="proj-title">WinLog Threat Hunter</h3>
           <span class="stack-tag">Python</span>
@@ -458,7 +520,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
         <div class="proj-links"><a href="https://github.com/Spairkie/winlog-threat-hunter" target="_blank" rel="noopener">Source on GitHub</a></div>
       </div>
 
-      <div class="proj-card wide">
+      <div class="proj-card wide stagger-item">
         <div class="proj-top">
           <h3 class="proj-title">JotRelay</h3>
           <span class="stack-tag">JavaScript / Supabase</span>
@@ -479,12 +541,12 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
     <div class="also-built">
       <p class="also-label">Also built</p>
       <div class="also-grid">
-        <div class="mini-card">
+        <div class="mini-card stagger-item">
           <h4>Interactive Diploma</h4>
           <p>A 3D, browser-based recreation of my Liberty University diploma. Three.js, procedural materials, studio lighting.</p>
           <a href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Live demo</a>
         </div>
-        <div class="mini-card">
+        <div class="mini-card stagger-item">
           <h4>This portfolio site</h4>
           <p>Static, single-file, hand-built. The WebGL network in the hero above is the same three.js engine as the diploma project.</p>
           <a href="https://github.com/Spairkie/spairkie.github.io" target="_blank" rel="noopener">Source on GitHub</a>
@@ -501,27 +563,27 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
       <h2>Technical toolbox</h2>
     </div>
     <div class="skills-grid">
-      <div class="skill-group">
+      <div class="skill-group stagger-item">
         <h4>Identity &amp; Systems Administration</h4>
         <p>Active Directory, AD Domain Services, Group Policy, Windows Server, RSAT, user provisioning/offboarding, print server administration</p>
       </div>
-      <div class="skill-group">
+      <div class="skill-group stagger-item">
         <h4>Endpoint &amp; Infrastructure</h4>
         <p>SmartDeploy imaging, PXE Boot, SCCM/MECM, workstation/laptop/thin-client deployment, asset inventory, patching</p>
       </div>
-      <div class="skill-group">
+      <div class="skill-group stagger-item">
         <h4>Security &amp; Compliance</h4>
         <p>Endpoint protection, least-privilege enforcement, access control, HIPAA-aligned data handling, VLANs, basic firewall/switch troubleshooting</p>
       </div>
-      <div class="skill-group">
+      <div class="skill-group stagger-item">
         <h4>Scripting &amp; Automation</h4>
         <p>PowerShell, Python, Bash, SQL, C++, Java, JavaScript</p>
       </div>
-      <div class="skill-group">
+      <div class="skill-group stagger-item">
         <h4>Virtualization</h4>
         <p>VMware, VirtualBox, VM deployment and snapshot management</p>
       </div>
-      <div class="skill-group">
+      <div class="skill-group stagger-item">
         <h4>ITSM &amp; Tools</h4>
         <p>ServiceNow, Remedy, ITOM/ITSM/ITBM, HRSD platforms, BeyondTrust/Bomgar, Power BI, Microsoft 365</p>
       </div>
@@ -633,16 +695,122 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
   step();
 })();
 
-/* ---------- scroll reveal ---------- */
+/* ---------- scroll reveal (with staggered children) ---------- */
 (function(){
   var els = document.querySelectorAll('.reveal');
-  if(!('IntersectionObserver' in window)){ els.forEach(function(e){e.classList.add('in');}); return; }
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function revealStaggerChildren(target){
+    var kids = target.querySelectorAll('.stagger-item');
+    kids.forEach(function(k, i){
+      if(!reduce){ k.style.setProperty('--d', (i * 65) + 'ms'); }
+      k.classList.add('in');
+    });
+  }
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(e){ e.classList.add('in'); revealStaggerChildren(e); });
+    return;
+  }
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(en){
-      if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+      if(en.isIntersecting){
+        en.target.classList.add('in');
+        revealStaggerChildren(en.target);
+        io.unobserve(en.target);
+      }
     });
   }, {threshold:0.12});
   els.forEach(function(e){ io.observe(e); });
+
+  /* stagger-items that aren't inside a .reveal ancestor: reveal them directly */
+  var orphanStagger = document.querySelectorAll('.stagger-item');
+  orphanStagger.forEach(function(k){
+    if(k.closest('.reveal')) return;
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('in'); io2.unobserve(en.target); }
+      });
+    }, {threshold:0.12});
+    io2.observe(k);
+  });
+})();
+
+/* ---------- scroll progress bar ---------- */
+(function(){
+  var bar = document.getElementById('scroll-progress');
+  if(!bar) return;
+  var ticking = false;
+  function update(){
+    var doc = document.documentElement;
+    var scrollTop = doc.scrollTop || document.body.scrollTop;
+    var scrollHeight = (doc.scrollHeight || document.body.scrollHeight) - doc.clientHeight;
+    var pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    bar.style.width = pct + '%';
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){ window.requestAnimationFrame(update); ticking = true; }
+  }, {passive:true});
+  update();
+})();
+
+/* ---------- number count-up on stats ---------- */
+(function(){
+  var nums = document.querySelectorAll('.stat .num');
+  if(!nums.length) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function animate(el){
+    var raw = el.textContent.trim();
+    var m = raw.match(/[\d,]+/);
+    if(!m){ return; }
+    var target = parseInt(m[0].replace(/,/g,''), 10);
+    if(isNaN(target)){ return; }
+    var prefix = raw.slice(0, m.index);
+    var suffix = raw.slice(m.index + m[0].length);
+    var hasComma = m[0].indexOf(',') !== -1;
+    if(reduce){ el.textContent = prefix + target.toLocaleString() + suffix; return; }
+    var dur = 1200, start = null;
+    function frame(ts){
+      if(start === null) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      var val = Math.round(target * eased);
+      el.textContent = prefix + (hasComma ? val.toLocaleString() : val) + suffix;
+      if(p < 1){ window.requestAnimationFrame(frame); }
+    }
+    window.requestAnimationFrame(frame);
+  }
+  if(!('IntersectionObserver' in window)){ nums.forEach(animate); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ animate(en.target); io.unobserve(en.target); }
+    });
+  }, {threshold:0.4});
+  nums.forEach(function(n){ io.observe(n); });
+})();
+
+/* ---------- mousemove spotlight / 3D tilt ---------- */
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return;
+  var targets = document.querySelectorAll('.proj-card, .stat, .mini-card');
+  var TILT = 5; /* max degrees */
+  targets.forEach(function(el){
+    el.addEventListener('mousemove', function(e){
+      var r = el.getBoundingClientRect();
+      var x = e.clientX - r.left, y = e.clientY - r.top;
+      var px = (x / r.width) * 100, py = (y / r.height) * 100;
+      el.style.setProperty('--mx', px + '%');
+      el.style.setProperty('--my', py + '%');
+      var rx = ((y / r.height) - 0.5) * -2 * TILT;
+      var ry = ((x / r.width) - 0.5) * 2 * TILT;
+      el.style.transform = 'perspective(700px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateY(-2px)';
+    });
+    el.addEventListener('mouseleave', function(){
+      el.style.transform = '';
+      el.style.removeProperty('--mx');
+      el.style.removeProperty('--my');
+    });
+  });
 })();
 
 /* ---------- hero network (three.js) ---------- */
