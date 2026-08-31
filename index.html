@@ -1,250 +1,385 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hans Sai — Systems Administrator</title>
-<meta name="description" content="Hans Sai — cleared Systems Administrator with Active Directory, endpoint, and infrastructure experience, building toward security engineering.">
-<meta name="theme-color" content="#0b1220">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hans Sai | Systems Administrator</title>
+<meta name="description" content="Hans Sai. Systems Administrator building toward security engineering. Active Directory, endpoint management, applied security tooling.">
+<link rel="icon" href="favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0b1220;
-    --bg-elev: #111a2c;
-    --bg-elev-2: #16213a;
-    --border: #223151;
-    --text: #e7ecf7;
-    --text-dim: #9fb0cc;
-    --text-dimmer: #6b7fa3;
-    --accent: #5b9dff;
-    --accent-2: #7ce0c3;
-    --accent-warn: #f5b350;
-    --radius: 14px;
-    --max-w: 980px;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    line-height: 1.55;
-  }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+:root{
+  --bg:#0a0e14;
+  --bg-panel:#0d1219;
+  --bg-card:#111826;
+  --bg-card-hover:#141d2c;
+  --line:#1c2634;
+  --line-soft:#161e2a;
+  --text:#e7edf5;
+  --text-dim:#93a1b4;
+  --text-dimmer:#5c6b80;
+  --accent:#5eead4;
+  --accent-dim:#3fa392;
+  --accent-glow:rgba(94,234,212,0.16);
+  --amber:#f0b429;
+  --font-display:'Space Grotesk',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --maxw:1040px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:#04120f;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+img{max-width:100%;}
 
-  .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+/* ---------- nav ---------- */
+header.nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,14,20,0.72);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-soft);
+}
+.nav-inner{
+  max-width:var(--maxw);margin:0 auto;padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+}
+.nav-brand{
+  font-family:var(--font-mono);font-weight:500;font-size:14px;color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.status-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-glow);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.nav-links{display:flex;gap:26px;font-size:14px;}
+.nav-links a{color:var(--text-dim);}
+.nav-links a:hover{color:var(--accent);text-decoration:none;}
+.nav-toggle{display:none;background:none;border:1px solid var(--line);color:var(--text);width:36px;height:36px;border-radius:6px;font-family:var(--font-mono);}
 
-  header.site-nav {
-    position: sticky; top: 0; z-index: 20;
-    backdrop-filter: blur(10px);
-    background: rgba(11,18,32,0.85);
-    border-bottom: 1px solid var(--border);
-  }
-  .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; max-width: var(--max-w); margin: 0 auto; }
-  .brand { font-weight: 700; font-size: 15px; letter-spacing: .01em; }
-  .brand span { color: var(--accent); }
-  nav.links { display: flex; gap: 22px; }
-  nav.links a { color: var(--text-dim); font-size: 14px; font-weight: 500; }
-  nav.links a:hover { color: var(--text); text-decoration: none; }
-  .nav-cta {
-    border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px;
-    color: var(--text) !important; font-size: 13px; font-weight: 600;
-  }
-  .nav-cta:hover { border-color: var(--accent); text-decoration: none; background: var(--bg-elev); }
+/* ---------- hero ---------- */
+.hero{
+  position:relative;
+  overflow:hidden;
+  padding:96px 0 80px;
+  border-bottom:1px solid var(--line-soft);
+}
+#hero-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:0.55;
+  pointer-events:none;
+}
+.hero::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 0%, transparent 0%, var(--bg) 78%);
+  pointer-events:none;
+}
+.hero-inner{position:relative;z-index:2;}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px;}
+.badge{
+  font-family:var(--font-mono);font-size:12px;color:var(--accent);
+  border:1px solid rgba(94,234,212,0.28);background:rgba(94,234,212,0.06);
+  padding:5px 10px;border-radius:5px;letter-spacing:0.02em;
+}
+.badge.amber{color:var(--amber);border-color:rgba(240,180,41,0.28);background:rgba(240,180,41,0.06);}
+.hero h1{
+  font-family:var(--font-display);
+  font-size:clamp(34px,5.2vw,58px);
+  line-height:1.08;
+  font-weight:700;
+  margin:0 0 18px;
+  letter-spacing:-0.01em;
+  max-width:820px;
+}
+.hero h1 .accent{color:var(--accent);}
+.hero-sub{
+  font-family:var(--font-mono);font-size:14px;color:var(--text-dim);
+  margin:0 0 22px;letter-spacing:0.01em;
+}
+.hero p.lede{
+  font-size:17px;color:var(--text-dim);max-width:620px;margin:0 0 34px;line-height:1.7;
+}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:56px;}
+.btn{
+  font-family:var(--font-body);font-weight:600;font-size:14px;
+  padding:11px 20px;border-radius:7px;display:inline-flex;align-items:center;gap:8px;
+  transition:transform .15s ease, border-color .15s ease, background .15s ease;
+}
+.btn:hover{text-decoration:none;transform:translateY(-1px);}
+.btn-primary{background:var(--accent);color:#04120f;}
+.btn-primary:hover{background:#7ff2df;}
+.btn-ghost{border:1px solid var(--line);color:var(--text);}
+.btn-ghost:hover{border-color:var(--accent-dim);color:var(--accent);}
 
-  /* ---------- Hero ---------- */
-  .hero { padding: 84px 0 56px; }
-  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
-  .badge {
-    font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px;
-    background: var(--bg-elev); border: 1px solid var(--border); color: var(--text-dim);
-  }
-  .badge.accent { color: var(--accent-2); border-color: rgba(124,224,195,0.35); background: rgba(124,224,195,0.07); }
-  h1 { font-size: 42px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
-  .hero h1 .accent { color: var(--accent); }
-  .role-line { font-size: 19px; color: var(--text-dim); font-weight: 500; margin: 0 0 22px; }
-  .lede { font-size: 16px; color: var(--text-dim); max-width: 640px; margin: 0 0 28px; }
-  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 11px 20px; border-radius: 10px; font-weight: 600; font-size: 14px;
-  }
-  .btn-primary { background: var(--accent); color: #06101f !important; }
-  .btn-primary:hover { background: #79b1ff; text-decoration: none; }
-  .btn-ghost { border: 1px solid var(--border); color: var(--text) !important; }
-  .btn-ghost:hover { border-color: var(--accent); text-decoration: none; background: var(--bg-elev); }
+/* terminal */
+.terminal{
+  max-width:560px;
+  background:var(--bg-card);
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 20px 60px -20px rgba(0,0,0,0.6);
+}
+.terminal-bar{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;
+  border-bottom:1px solid var(--line);background:var(--bg-panel);
+}
+.terminal-dot{width:10px;height:10px;border-radius:50%;}
+.terminal-dot.red{background:#ff5f56;}
+.terminal-dot.yellow{background:#ffbd2e;}
+.terminal-dot.green{background:#27c93f;}
+.terminal-title{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);margin-left:6px;}
+.terminal-body{
+  padding:16px 18px 20px;font-family:var(--font-mono);font-size:13.5px;line-height:1.85;
+  min-height:150px;
+}
+.terminal-body .prompt{color:var(--accent);}
+.terminal-line{color:var(--text-dim);white-space:pre-wrap;}
+.terminal-out{color:var(--text);}
+.terminal-cursor{display:inline-block;width:7px;height:14px;background:var(--accent);vertical-align:middle;animation:blink 1s step-end infinite;margin-left:2px;}
+@keyframes blink{50%{opacity:0;}}
 
-  /* ---------- Sections ---------- */
-  section { padding: 56px 0; border-top: 1px solid var(--border); }
-  .section-head { margin-bottom: 30px; }
-  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-2); margin: 0 0 8px; }
-  h2 { font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
-  .section-sub { color: var(--text-dim); font-size: 15px; margin-top: 8px; max-width: 640px; }
+/* ---------- sections ---------- */
+section{padding:76px 0;border-bottom:1px solid var(--line-soft);}
+section:last-of-type{border-bottom:none;}
+.section-head{margin-bottom:40px;}
+.eyebrow{
+  font-family:var(--font-mono);font-size:12.5px;color:var(--accent);
+  text-transform:uppercase;letter-spacing:0.14em;margin:0 0 10px;
+}
+.section-head h2{
+  font-family:var(--font-display);font-size:clamp(24px,3vw,32px);font-weight:600;
+  margin:0;color:var(--text);letter-spacing:-0.01em;
+}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease, transform .6s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
 
-  p.body-text { color: var(--text-dim); font-size: 15.5px; max-width: 680px; }
+/* ---------- about ---------- */
+.about-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:start;}
+.about-grid p{color:var(--text-dim);margin:0 0 16px;font-size:15.5px;}
+.stat-list{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.stat{
+  border:1px solid var(--line);background:var(--bg-card);border-radius:10px;padding:16px 18px;
+}
+.stat .num{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--accent);}
+.stat .label{font-size:12.5px;color:var(--text-dimmer);margin-top:2px;}
 
-  /* ---------- Experience ---------- */
-  .timeline { display: flex; flex-direction: column; gap: 26px; }
-  .job { display: grid; grid-template-columns: 150px 1fr; gap: 22px; }
-  .job-dates { color: var(--text-dimmer); font-size: 13px; font-weight: 600; padding-top: 3px; white-space: nowrap; }
-  .job-body h3 { margin: 0 0 2px; font-size: 17px; font-weight: 700; }
-  .job-org { color: var(--accent-2); font-size: 13.5px; font-weight: 600; margin-bottom: 10px; }
-  .job-body ul { margin: 0; padding-left: 18px; color: var(--text-dim); font-size: 14.5px; }
-  .job-body li { margin-bottom: 5px; }
+/* ---------- experience ---------- */
+.timeline{position:relative;padding-left:26px;}
+.timeline::before{
+  content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:var(--line);
+}
+.tl-item{position:relative;padding-bottom:38px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{
+  position:absolute;left:-26px;top:4px;width:11px;height:11px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--accent-dim);
+}
+.tl-item.current .tl-dot{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow);}
+.tl-date{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);margin-bottom:4px;}
+.tl-role{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text);margin:0 0 2px;}
+.tl-org{font-size:14px;color:var(--accent-dim);margin-bottom:10px;}
+.tl-item ul{margin:0;padding-left:18px;color:var(--text-dim);font-size:14.5px;}
+.tl-item li{margin-bottom:5px;}
 
-  /* ---------- Projects ---------- */
-  .project-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-  .project-card {
-    background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 22px; display: flex; flex-direction: column;
-  }
-  .project-card.featured { grid-column: span 2; display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; align-items: center; }
-  .project-card img { width: 100%; border-radius: 8px; border: 1px solid var(--border); display: block; }
-  .project-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-  .project-title { font-size: 16.5px; font-weight: 700; margin: 0; }
-  .stack-tag { font-size: 11px; font-weight: 600; color: var(--text-dimmer); background: var(--bg-elev-2); border: 1px solid var(--border); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
-  .project-desc { color: var(--text-dim); font-size: 14px; margin: 0 0 14px; flex-grow: 1; }
-  .project-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-  .chip { font-size: 11.5px; color: var(--accent-2); background: rgba(124,224,195,0.08); border: 1px solid rgba(124,224,195,0.25); padding: 3px 9px; border-radius: 999px; }
-  .project-links { display: flex; gap: 14px; font-size: 13.5px; font-weight: 600; margin-top: auto; }
-  .project-links a::after { content: " →"; }
+/* ---------- projects ---------- */
+.proj-lede{color:var(--text-dim);font-size:15px;max-width:640px;margin:-18px 0 34px;}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.proj-card{
+  border:1px solid var(--line);background:var(--bg-card);border-radius:12px;padding:24px;
+  transition:border-color .2s ease, transform .2s ease, background .2s ease;
+}
+.proj-card:hover{border-color:var(--accent-dim);transform:translateY(-2px);background:var(--bg-card-hover);}
+.proj-card.wide{grid-column:1 / -1;}
+.proj-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.proj-title{font-family:var(--font-display);font-size:17px;font-weight:600;margin:0;}
+.stack-tag{font-family:var(--font-mono);font-size:11px;color:var(--accent);border:1px solid rgba(94,234,212,0.25);padding:3px 8px;border-radius:5px;white-space:nowrap;}
+.proj-desc{color:var(--text-dim);font-size:14.5px;margin:0 0 16px;}
+.proj-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.chip{font-family:var(--font-mono);font-size:11px;color:var(--text-dimmer);border:1px solid var(--line);padding:3px 9px;border-radius:20px;}
+.proj-links a{font-family:var(--font-mono);font-size:12.5px;margin-right:16px;}
+.proj-links a::before{content:"→ ";}
+.chart-panel{background:var(--bg-panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:2px;}
+.chart-cap{margin:10px 2px 0;font-size:11.5px;color:var(--text-dimmer);}
 
-  .also-built { margin-top: 22px; }
-  .also-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-  .mini-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
-  .mini-card h4 { margin: 0 0 4px; font-size: 14.5px; }
-  .mini-card p { margin: 0; font-size: 13px; color: var(--text-dim); }
-  .mini-card a { font-size: 12.5px; font-weight: 600; }
+.also-built{margin-top:24px;}
+.also-label{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.1em;}
+.also-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.mini-card{border:1px solid var(--line-soft);border-radius:10px;padding:18px;}
+.mini-card h4{font-family:var(--font-display);font-size:15px;margin:0 0 6px;font-weight:600;}
+.mini-card p{font-size:13.5px;color:var(--text-dim);margin:0 0 10px;}
+.mini-card a{font-family:var(--font-mono);font-size:12px;}
+.mini-card a::before{content:"→ ";}
 
-  /* ---------- Skills ---------- */
-  .skills-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
-  .skill-group { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
-  .skill-group h4 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-2); }
-  .skill-group p { margin: 0; color: var(--text-dim); font-size: 14px; }
+/* ---------- skills ---------- */
+.skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;}
+.skill-group{background:var(--bg-card);padding:22px 24px;}
+.skill-group h4{font-family:var(--font-mono);font-size:12.5px;color:var(--accent);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.08em;}
+.skill-group p{margin:0;font-size:14px;color:var(--text-dim);}
 
-  /* ---------- Education / Certs ---------- */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-  .edu-item { margin-bottom: 18px; }
-  .edu-item h4 { margin: 0 0 2px; font-size: 15px; }
-  .edu-item .meta { font-size: 13px; color: var(--text-dimmer); }
-  .cert-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  .cert-list li { font-size: 14.5px; color: var(--text-dim); display: flex; gap: 10px; align-items: baseline; }
-  .cert-list li::before { content: "✓"; color: var(--accent-2); font-weight: 700; }
+/* ---------- education / certs ---------- */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+.edu-item{margin-bottom:18px;}
+.edu-item h4{font-family:var(--font-display);font-size:15.5px;margin:0 0 4px;font-weight:600;}
+.edu-item .meta{font-size:13px;color:var(--text-dimmer);}
+.cert-list{list-style:none;margin:0;padding:0;}
+.cert-list li{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:11px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px;color:var(--text);
+}
+.cert-list li:last-child{border-bottom:none;}
+.cert-proof{font-family:var(--font-mono);font-size:11.5px;color:var(--accent-dim);white-space:nowrap;}
+.cert-proof:hover{color:var(--accent);}
 
-  /* ---------- Contact / Footer ---------- */
-  footer { padding: 56px 0 70px; text-align: center; }
-  footer h2 { margin-bottom: 10px; }
-  .contact-links { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 22px; }
-  .contact-links a { color: var(--text); font-weight: 600; font-size: 14.5px; border: 1px solid var(--border); padding: 9px 16px; border-radius: 10px; }
-  .contact-links a:hover { border-color: var(--accent); text-decoration: none; }
-  .fine-print { margin-top: 40px; color: var(--text-dimmer); font-size: 12.5px; }
+/* ---------- contact ---------- */
+footer{padding:70px 0 40px;}
+footer .wrap{text-align:center;}
+footer .eyebrow{justify-content:center;}
+footer h2{font-family:var(--font-display);font-size:clamp(26px,4vw,38px);margin:0 0 14px;}
+footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
+.contact-links{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;margin-bottom:36px;font-family:var(--font-mono);font-size:14px;}
+.fine-print{font-size:12px;color:var(--text-dimmer);}
 
-  @media (max-width: 720px) {
-    h1 { font-size: 32px; }
-    .job { grid-template-columns: 1fr; gap: 4px; }
-    .project-grid, .also-grid, .skills-grid, .two-col { grid-template-columns: 1fr; }
-    .project-card.featured { grid-template-columns: 1fr; }
-  }
+@media (max-width:760px){
+  .nav-links{display:none;}
+  .about-grid,.proj-grid,.also-grid,.skills-grid,.two-col{grid-template-columns:1fr;}
+  .proj-card.wide{grid-column:auto;}
+}
 </style>
 </head>
 <body>
 
-<header class="site-nav">
+<header class="nav">
   <div class="nav-inner">
-    <div class="brand">Hans <span>Sai</span></div>
-    <nav class="links">
+    <div class="nav-brand"><span class="status-dot"></span> hans@sysadmin<span style="color:var(--text-dimmer)">:~$</span></div>
+    <nav class="nav-links">
       <a href="#experience">Experience</a>
       <a href="#projects">Projects</a>
       <a href="#skills">Skills</a>
       <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
     </nav>
-    <a class="nav-cta" href="#contact">Contact</a>
   </div>
 </header>
 
-<div class="wrap hero">
-  <div class="badge-row">
-    <span class="badge accent">🔒 Active Secret Clearance</span>
-    <span class="badge">CompTIA Security+</span>
-    <span class="badge">B.S. Computer Science – Cybersecurity, 2026</span>
+<section class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="wrap hero-inner">
+    <div class="badges">
+      <span class="badge">Active Secret Clearance</span>
+      <span class="badge">CompTIA Security+</span>
+      <span class="badge amber">B.S. Computer Science, Cybersecurity, 2026</span>
+    </div>
+    <h1>Systems Administrator,<br>building toward <span class="accent">security engineering.</span></h1>
+    <p class="hero-sub">Active Directory &amp; Endpoint Management · IT Operations · Applied Security</p>
+    <p class="lede">Five-plus years of hands-on IT operations across military healthcare and civilian environments: Active Directory administration, endpoint imaging for 150+ systems, and 1,000+ resolved tickets a year. I build and document real automation and detection tooling outside of work to turn that operations experience into applied security skill.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="resume/Hans_Sai_Resume.pdf" target="_blank" rel="noopener">View Resume</a>
+      <a class="btn btn-ghost" href="https://github.com/Spairkie" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn btn-ghost" href="https://www.linkedin.com/in/8pairkie/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn btn-ghost" href="mailto:saihanswissle@gmail.com">Email Me</a>
+    </div>
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+        <span class="terminal-title">whoami.sh</span>
+      </div>
+      <div class="terminal-body" id="termBody"></div>
+    </div>
   </div>
-  <h1>Systems Administrator,<br>building toward <span class="accent">security engineering</span>.</h1>
-  <p class="role-line">Active Directory &amp; Endpoint Management · IT Operations · Applied Security</p>
-  <p class="lede">
-    Five-plus years of hands-on IT operations across military healthcare and civilian environments —
-    Active Directory administration, endpoint imaging for 150+ systems, and 1,000+ resolved tickets a year.
-    I build and document real automation and detection tooling outside of work to turn that operations
-    experience into applied security skill.
-  </p>
-  <div class="hero-actions">
-    <a class="btn btn-primary" href="https://github.com/Spairkie" target="_blank" rel="noopener">View GitHub</a>
-    <a class="btn btn-ghost" href="https://www.linkedin.com/in/8pairkie/" target="_blank" rel="noopener">Connect on LinkedIn</a>
-    <a class="btn btn-ghost" href="mailto:saihanswissle@gmail.com">Email Me</a>
+</section>
+
+<section id="about">
+  <div class="wrap reveal">
+    <div class="section-head">
+      <p class="eyebrow">About</p>
+      <h2>Where I've been, where I'm headed</h2>
+    </div>
+    <div class="about-grid">
+      <div>
+        <p>I administer Active Directory for a secure medical network: user provisioning, account unlocks, and Group Policy enforcement. I reimage and deploy fleets of endpoints with SmartDeploy and PXE Boot, and resolve 12 to 15 Level 2 support tickets a day.</p>
+        <p>Outside of work, I build the tools I wish existed on the job: an AD and endpoint automation toolkit, a Windows event log threat hunter, a helpdesk analytics engine. Each one is real, tested, and documented, built to turn infrastructure experience into applied security skill rather than certificates alone.</p>
+        <p>I finish a B.S. in Computer Science with a Cybersecurity focus in May 2026 and I'm looking to grow from systems administration into security-adjacent infrastructure or junior security engineering roles, based in the Philadelphia and South Jersey metro or fully remote.</p>
+      </div>
+      <div class="stat-list">
+        <div class="stat"><div class="num">150+</div><div class="label">Endpoints imaged &amp; deployed</div></div>
+        <div class="stat"><div class="num">1,000+</div><div class="label">Support tickets resolved / yr</div></div>
+        <div class="stat"><div class="num">5+ yrs</div><div class="label">IT operations experience</div></div>
+        <div class="stat"><div class="num">4</div><div class="label">Real tools built &amp; shipped</div></div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
 <section id="experience">
-  <div class="wrap">
+  <div class="wrap reveal">
     <div class="section-head">
       <p class="eyebrow">Experience</p>
       <h2>Where I've worked</h2>
     </div>
     <div class="timeline">
 
-      <div class="job">
-        <div class="job-dates">Jul 2026 — Present</div>
-        <div class="job-body">
-          <h3>IT Support Associate II — Operations Technology</h3>
-          <div class="job-org">Amazon · South Jersey, NJ</div>
-          <ul>
-            <li>Tier 1/2 support for operations technology (scanners, workstations, network printers, kiosks) across a high-volume fulfillment/operations site</li>
-            <li>Troubleshoot hardware, OS, and connectivity issues to minimize downtime on the operations floor</li>
-          </ul>
-        </div>
+      <div class="tl-item current">
+        <span class="tl-dot"></span>
+        <div class="tl-date">Jul 2026 to Present</div>
+        <h3 class="tl-role">IT Support Associate II, Operations Technology</h3>
+        <div class="tl-org">Amazon · South Jersey, NJ</div>
+        <ul>
+          <li>Tier 1/2 support for operations technology (scanners, workstations, network printers, kiosks) across a high-volume fulfillment site</li>
+          <li>Own allocation and troubleshooting for 300+ operations technology endpoints spanning multiple buildings</li>
+        </ul>
       </div>
 
-      <div class="job">
-        <div class="job-dates">Mar 2025 — Aug 2026</div>
-        <div class="job-body">
-          <h3>IT Support Technician</h3>
-          <div class="job-org">Shoppers World &amp; Forman Mills · South Jersey, NJ</div>
-          <ul>
-            <li>On-site IT support across multiple retail locations — POS systems, networking equipment, back-office hardware</li>
-            <li>Supported equipment rollouts and vendor coordination for store IT infrastructure</li>
-          </ul>
-        </div>
+      <div class="tl-item">
+        <span class="tl-dot"></span>
+        <div class="tl-date">Mar 2025 to Aug 2026</div>
+        <h3 class="tl-role">IT Support Technician</h3>
+        <div class="tl-org">Shoppers World &amp; Forman Mills · South Jersey, NJ</div>
+        <ul>
+          <li>On-site IT support across multiple retail locations: POS systems, networking equipment, back-office hardware</li>
+          <li>Closed 500+ tickets through corporate ticketing workflows; maintained a loaner equipment pool to cut store downtime</li>
+        </ul>
       </div>
 
-      <div class="job">
-        <div class="job-dates">Jan 2021 — Present</div>
-        <div class="job-body">
-          <h3>IT Systems Administrator | Health Services Administrator</h3>
-          <div class="job-org">U.S. Air Force Reserve · 87 MDG / 514 AMDS, JBMDL McGuire, NJ (AFSC 4A0X1S)</div>
-          <ul>
-            <li>Reimaged and deployed 150+ computers via SmartDeploy/PXE Boot; decommissioned 150+ legacy systems for compliance</li>
-            <li>Resolve 12–15 Level 2 tickets/day (1,000+ annually) — AD access, network connectivity, printer and system issues</li>
-            <li>Administer Active Directory for provisioning, account unlocks, and Group Policy enforcement on a secure medical network</li>
-            <li>Built a QR-code clinic tracking system and an encrypted HIPAA-compliant records workflow</li>
-            <li>Trained 80+ personnel on emergency response and readiness-tracking procedures</li>
-          </ul>
-        </div>
+      <div class="tl-item current">
+        <span class="tl-dot"></span>
+        <div class="tl-date">Jan 2021 to Present</div>
+        <h3 class="tl-role">IT Systems Administrator | Health Services Administrator</h3>
+        <div class="tl-org">U.S. Air Force Reserve · 87 MDG / 514 AMDS, JBMDL McGuire, NJ (AFSC 4A0X1S)</div>
+        <ul>
+          <li>Reimaged and deployed 150+ computers via SmartDeploy/PXE Boot; decommissioned 150+ legacy systems for compliance</li>
+          <li>Resolve 12 to 15 Level 2 tickets a day (1,000+ annually): AD access, network connectivity, printer and system issues</li>
+          <li>Administer Active Directory for provisioning, account unlocks, and Group Policy enforcement on a secure medical network</li>
+          <li>Prepare, file, and safeguard patient health records, including admission/discharge/transfer documentation and TRICARE enrollment, in full HIPAA and Privacy Act compliance</li>
+          <li>Compile statistical and workload reports (staffing, bed occupancy) to support quarterly budget planning</li>
+          <li>Built a QR-code clinic tracking system and an encrypted HIPAA-compliant records workflow</li>
+        </ul>
       </div>
 
-      <div class="job">
-        <div class="job-dates">Sep 2019 — Mar 2025</div>
-        <div class="job-body">
-          <h3>Organization Technology Pro | Department Manager</h3>
-          <div class="job-org">McDonald's · Fredericksburg, VA &amp; Medford, NJ</div>
-          <ul>
-            <li>Frontline IT support for POS systems, kiosks, printers, and back-office hardware across two locations</li>
-            <li>Reduced technology downtime 25% through proactive maintenance and rapid hardware replacement</li>
-          </ul>
-        </div>
+      <div class="tl-item">
+        <span class="tl-dot"></span>
+        <div class="tl-date">Sep 2019 to Mar 2025</div>
+        <h3 class="tl-role">Organization Technology Pro | Department Manager</h3>
+        <div class="tl-org">McDonald's · Fredericksburg, VA &amp; Medford, NJ</div>
+        <ul>
+          <li>Frontline IT support for POS systems, kiosks, printers, and back-office hardware across two locations</li>
+          <li>Reduced technology downtime 25% through proactive maintenance; managed scheduling and inventory for a 15-plus person crew</li>
+        </ul>
       </div>
 
     </div>
@@ -252,103 +387,88 @@
 </section>
 
 <section id="projects">
-  <div class="wrap">
+  <div class="wrap reveal">
     <div class="section-head">
       <p class="eyebrow">Projects</p>
       <h2>Security &amp; infrastructure tooling</h2>
-      <p class="section-sub">Four projects, each real, working, tested, and documented — built to extend real
-        AD/sysadmin/ticketing experience into applied automation and detection, not tutorial clones.</p>
     </div>
+    <p class="proj-lede">Four projects, real, working, tested, and documented. Built to extend actual AD, sysadmin, and ticketing experience into applied automation and detection, not tutorial clones.</p>
 
-    <div class="project-grid">
+    <div class="proj-grid">
 
-      <div class="project-card featured">
-        <div>
-          <div class="project-top">
-            <h3 class="project-title">Helpdesk Ticket Analytics</h3>
-            <span class="stack-tag">Python</span>
-          </div>
-          <p class="project-desc">Turns a raw ticket export into SLA compliance, resolution-time, and volume
-            metrics — built to mirror real high-volume ticket queue work (1,000+ tickets/year). Zero
-            dependencies; renders its own charts as inline SVG, no matplotlib needed.</p>
-          <div class="project-meta">
-            <span class="chip">14 tests passing</span>
-            <span class="chip">Zero dependencies</span>
-            <span class="chip">HTML + CSV reports</span>
-          </div>
-          <div class="project-links">
-            <a href="https://github.com/Spairkie/helpdesk-ticket-analytics" target="_blank" rel="noopener">Source on GitHub</a>
-          </div>
+      <div class="proj-card wide">
+        <div class="proj-top">
+          <h3 class="proj-title">Helpdesk Ticket Analytics</h3>
+          <span class="stack-tag">Python</span>
         </div>
-        <div style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:16px;">
-          <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:16px;">
-            <svg viewBox="0 0 640 180" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" style="width:100%;height:auto;display:block;">
-              <text x="0" y="20" font-size="15" font-weight="600" fill="#111827">SLA compliance by priority</text>
-              <text x="0" y="54" font-size="13" fill="#374151">Low</text>
-              <rect x="180" y="36" width="400.0" height="26" rx="4" fill="#2563eb" />
-              <text x="588.0" y="54" font-size="12" fill="#111827">100%</text>
-              <text x="0" y="90" font-size="13" fill="#374151">High</text>
-              <rect x="180" y="72" width="324.8" height="26" rx="4" fill="#7c3aed" />
-              <text x="512.8" y="90" font-size="12" fill="#111827">81.2%</text>
-              <text x="0" y="126" font-size="13" fill="#374151">Medium</text>
-              <rect x="180" y="108" width="400.0" height="26" rx="4" fill="#059669" />
-              <text x="588.0" y="126" font-size="12" fill="#111827">100%</text>
-              <text x="0" y="162" font-size="13" fill="#374151">Critical</text>
-              <rect x="180" y="144" width="371.6" height="26" rx="4" fill="#d97706" />
-              <text x="559.6" y="162" font-size="12" fill="#111827">92.9%</text>
-            </svg>
-          </div>
-          <p style="margin:10px 2px 2px;font-size:12px;color:var(--text-dimmer);">Live chart from the tool's own inline-SVG report generator — rendered from the 620-ticket sample dataset, no image file.</p>
+        <p class="proj-desc">Turns a raw ticket export into SLA compliance, resolution-time, and volume metrics, mirroring real high-volume ticket queue work (1,000+ tickets/year). Zero dependencies; renders its own charts as inline SVG.</p>
+        <div class="proj-meta">
+          <span class="chip">14 tests passing</span>
+          <span class="chip">Zero dependencies</span>
+          <span class="chip">HTML + CSV reports</span>
+        </div>
+        <div class="proj-links"><a href="https://github.com/Spairkie/helpdesk-ticket-analytics" target="_blank" rel="noopener">Source on GitHub</a></div>
+        <div class="chart-panel">
+          <svg viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" style="width:100%;height:auto;display:block;">
+            <text x="0" y="18" font-size="13" font-weight="600" fill="#e7edf5">SLA compliance by priority</text>
+            <text x="0" y="50" font-size="12" fill="#93a1b4">Low</text>
+            <rect x="140" y="34" width="440" height="22" rx="3" fill="#1c2634" />
+            <rect x="140" y="34" width="440" height="22" rx="3" fill="#5eead4" />
+            <text x="590" y="50" font-size="11" fill="#e7edf5">100%</text>
+            <text x="0" y="82" font-size="12" fill="#93a1b4">High</text>
+            <rect x="140" y="66" width="440" height="22" rx="3" fill="#1c2634" />
+            <rect x="140" y="66" width="357" height="22" rx="3" fill="#5eead4" />
+            <text x="590" y="82" font-size="11" fill="#e7edf5">81.2%</text>
+            <text x="0" y="114" font-size="12" fill="#93a1b4">Medium</text>
+            <rect x="140" y="98" width="440" height="22" rx="3" fill="#1c2634" />
+            <rect x="140" y="98" width="440" height="22" rx="3" fill="#5eead4" />
+            <text x="590" y="114" font-size="11" fill="#e7edf5">100%</text>
+            <text x="0" y="146" font-size="12" fill="#93a1b4">Critical</text>
+            <rect x="140" y="130" width="440" height="22" rx="3" fill="#1c2634" />
+            <rect x="140" y="130" width="409" height="22" rx="3" fill="#5eead4" />
+            <text x="590" y="146" font-size="11" fill="#e7edf5">92.9%</text>
+          </svg>
+          <p class="chart-cap">Live chart from the tool's own inline-SVG report generator, rendered from a 620-ticket sample dataset. No image file.</p>
         </div>
       </div>
 
-      <div class="project-card">
-        <div class="project-top">
-          <h3 class="project-title">AD &amp; Endpoint Automation Toolkit</h3>
+      <div class="proj-card">
+        <div class="proj-top">
+          <h3 class="proj-title">AD &amp; Endpoint Automation Toolkit</h3>
           <span class="stack-tag">PowerShell</span>
         </div>
-        <p class="project-desc">Scripts for AD user provisioning/offboarding, stale-account cleanup, account
-          hygiene reporting, and endpoint compliance audits — every write action supports <code>-WhatIf</code>,
-          every run produces a log and a CSV report.</p>
-        <div class="project-meta">
+        <p class="proj-desc">Scripts for AD user provisioning/offboarding, stale-account cleanup, hygiene reporting, and endpoint compliance audits. Every write action supports -WhatIf; every run produces a log and CSV report.</p>
+        <div class="proj-meta">
           <span class="chip">SupportsShouldProcess</span>
           <span class="chip">PS 5.1 compatible</span>
         </div>
-        <div class="project-links">
-          <a href="https://github.com/Spairkie/ad-automation-toolkit" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
+        <div class="proj-links"><a href="https://github.com/Spairkie/ad-automation-toolkit" target="_blank" rel="noopener">Source on GitHub</a></div>
       </div>
 
-      <div class="project-card">
-        <div class="project-top">
-          <h3 class="project-title">WinLog Threat Hunter</h3>
+      <div class="proj-card">
+        <div class="proj-top">
+          <h3 class="proj-title">WinLog Threat Hunter</h3>
           <span class="stack-tag">Python</span>
         </div>
-        <p class="project-desc">Parses exported Windows Security/Sysmon events and flags brute-force logons,
-          privilege escalation, suspicious process command lines, and admin-persistence patterns — each mapped
-          to a MITRE ATT&amp;CK technique.</p>
-        <div class="project-meta">
+        <p class="proj-desc">Parses exported Windows Security/Sysmon events and flags brute-force logons, privilege escalation, suspicious command lines, and admin-persistence patterns, each mapped to a MITRE ATT&amp;CK technique.</p>
+        <div class="proj-meta">
           <span class="chip">25 tests passing</span>
           <span class="chip">MITRE ATT&amp;CK mapped</span>
         </div>
-        <div class="project-links">
-          <a href="https://github.com/Spairkie/winlog-threat-hunter" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
+        <div class="proj-links"><a href="https://github.com/Spairkie/winlog-threat-hunter" target="_blank" rel="noopener">Source on GitHub</a></div>
       </div>
 
-      <div class="project-card">
-        <div class="project-top">
-          <h3 class="project-title">JotRelay</h3>
+      <div class="proj-card wide">
+        <div class="proj-top">
+          <h3 class="proj-title">JotRelay</h3>
           <span class="stack-tag">JavaScript / Supabase</span>
         </div>
-        <p class="project-desc">Real-time encrypted collaborative notepad — shareable editable/read-only links,
-          QR codes, presence and typing indicators, offline drafts, and a PWA install with an OS-level share
-          target. Vanilla JS, no framework or build step.</p>
-        <div class="project-meta">
+        <p class="proj-desc">Real-time encrypted collaborative notepad: shareable editable or read-only links, QR codes, presence and typing indicators, offline drafts, and a PWA install with an OS-level share target. Vanilla JS, no framework or build step.</p>
+        <div class="proj-meta">
           <span class="chip">Live demo</span>
           <span class="chip">Encryption option</span>
         </div>
-        <div class="project-links">
+        <div class="proj-links">
           <a href="https://spairkie.github.io/JotRelay/" target="_blank" rel="noopener">Live demo</a>
           <a href="https://github.com/Spairkie/JotRelay" target="_blank" rel="noopener">Source on GitHub</a>
         </div>
@@ -357,22 +477,17 @@
     </div>
 
     <div class="also-built">
-      <p class="section-sub" style="margin-bottom:14px;">Also built</p>
+      <p class="also-label">Also built</p>
       <div class="also-grid">
         <div class="mini-card">
           <h4>Interactive Diploma</h4>
-          <p>A 3D, browser-based recreation of my Liberty University diploma — Three.js, procedural
-            materials, studio lighting. A creative technical showcase.</p>
-          <div class="project-links" style="margin-top:10px;">
-            <a href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Live demo</a>
-          </div>
+          <p>A 3D, browser-based recreation of my Liberty University diploma. Three.js, procedural materials, studio lighting.</p>
+          <a href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Live demo</a>
         </div>
         <div class="mini-card">
           <h4>This portfolio site</h4>
-          <p>Static, single-file, no framework — the page you're on right now.</p>
-          <div class="project-links" style="margin-top:10px;">
-            <a href="https://github.com/Spairkie/spairkie.github.io" target="_blank" rel="noopener">Source on GitHub</a>
-          </div>
+          <p>Static, single-file, hand-built. The WebGL network in the hero above is the same three.js engine as the diploma project.</p>
+          <a href="https://github.com/Spairkie/spairkie.github.io" target="_blank" rel="noopener">Source on GitHub</a>
         </div>
       </div>
     </div>
@@ -380,7 +495,7 @@
 </section>
 
 <section id="skills">
-  <div class="wrap">
+  <div class="wrap reveal">
     <div class="section-head">
       <p class="eyebrow">Skills</p>
       <h2>Technical toolbox</h2>
@@ -415,7 +530,7 @@
 </section>
 
 <section id="education">
-  <div class="wrap">
+  <div class="wrap reveal">
     <div class="section-head">
       <p class="eyebrow">Education &amp; Certifications</p>
       <h2>Background</h2>
@@ -423,21 +538,21 @@
     <div class="two-col">
       <div>
         <div class="edu-item">
-          <h4>B.S., Computer Science – Cybersecurity</h4>
-          <div class="meta">Liberty University — Lynchburg, VA · May 2026</div>
+          <h4>B.S., Computer Science, Cybersecurity Focus</h4>
+          <div class="meta">Liberty University, Lynchburg, VA · May 2026</div>
         </div>
         <div class="edu-item">
           <h4>CCAF A.A.S., Health Information Technology &amp; Services Management</h4>
-          <div class="meta">Community College of the Air Force — San Antonio, TX · 2021</div>
+          <div class="meta">Community College of the Air Force, San Antonio, TX · 2021</div>
         </div>
       </div>
       <ul class="cert-list">
-        <li>CompTIA Security+ — Active</li>
-        <li>Secret Security Clearance — Active (U.S. Air Force Reserve)</li>
-        <li>CompTIA IT Fundamentals+</li>
-        <li>Microsoft Technology Associate (MTA)</li>
+        <li>CompTIA Security+ (Active) <a class="cert-proof" href="certs/CompTIA%20Security%2B%20ce%20certificate.pdf" target="_blank" rel="noopener">view certificate →</a></li>
+        <li>Secret Security Clearance (Active), U.S. Air Force Reserve</li>
+        <li>CompTIA IT Fundamentals+ <a class="cert-proof" href="certs/CompTIA%20IT%20Fundamentals%2B%20(FC0-U61).pdf" target="_blank" rel="noopener">view certificate →</a></li>
+        <li>Microsoft Technology Associate (MTA) <a class="cert-proof" href="certs/Microsoft%20Technology%20Associate.pdf" target="_blank" rel="noopener">view certificate →</a></li>
         <li>Basic Life Support (BLS) &amp; CPR Certified</li>
-        <li>Air Force Continuous Process Improvement &amp; Six Sigma Green Belt</li>
+        <li>AF Continuous Process Improvement &amp; Six Sigma Green Belt</li>
       </ul>
     </div>
   </div>
@@ -447,15 +562,198 @@
   <div class="wrap">
     <p class="eyebrow">Contact</p>
     <h2>Let's talk.</h2>
-    <p class="body-text" style="margin:0 auto;">Lindenwold, NJ — open to South Jersey / Philadelphia-area and fully remote roles.</p>
+    <p>Lindenwold, NJ. Open to South Jersey / Philadelphia-area and fully remote roles.</p>
     <div class="contact-links">
       <a href="mailto:saihanswissle@gmail.com">saihanswissle@gmail.com</a>
       <a href="https://www.linkedin.com/in/8pairkie/" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://github.com/Spairkie" target="_blank" rel="noopener">GitHub</a>
     </div>
-    <p class="fine-print">© 2026 Hans Sai. Built with plain HTML/CSS — no framework, no build step.</p>
+    <p class="fine-print">© 2026 Hans Sai. Built by hand: HTML, CSS, and three.js. No framework, no build step.</p>
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ---------- terminal typewriter ---------- */
+(function(){
+  var lines = [
+    {p:true, t:"whoami"},
+    {p:false, t:"hans.sai  ·  systems administrator  ·  87 MDG / 514 AMDS"},
+    {p:true, t:"clearance --status"},
+    {p:false, t:"[active]  DoD SECRET"},
+    {p:true, t:"cert --list | grep active"},
+    {p:false, t:"CompTIA Security+ .......... active"},
+    {p:true, t:"echo $NEXT_ROLE"},
+    {p:false, t:"security engineering, applied"}
+  ];
+  var el = document.getElementById('termBody');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){
+    lines.forEach(function(l){
+      var d = document.createElement('div');
+      d.className = 'terminal-line';
+      d.innerHTML = (l.p ? '<span class="prompt">$</span> ' : '') + (l.p ? l.t : '<span class="terminal-out">'+l.t+'</span>');
+      el.appendChild(d);
+    });
+    return;
+  }
+  var li = 0, ci = 0, cur = null;
+  function step(){
+    if(li >= lines.length){
+      var c = document.createElement('span');
+      c.className = 'terminal-cursor';
+      el.appendChild(c);
+      return;
+    }
+    var line = lines[li];
+    if(ci === 0){
+      cur = document.createElement('div');
+      cur.className = 'terminal-line';
+      if(line.p){
+        var pr = document.createElement('span');
+        pr.className = 'prompt';
+        pr.textContent = '$ ';
+        cur.appendChild(pr);
+      }
+      var span = document.createElement('span');
+      if(!line.p) span.className = 'terminal-out';
+      cur.appendChild(span);
+      el.appendChild(cur);
+    }
+    var span = cur.lastChild;
+    if(ci < line.t.length){
+      span.textContent += line.t[ci];
+      ci++;
+      setTimeout(step, line.p ? 34 : 14);
+    } else {
+      li++; ci = 0;
+      setTimeout(step, line.p ? 260 : 420);
+    }
+  }
+  step();
+})();
+
+/* ---------- scroll reveal ---------- */
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){ els.forEach(function(e){e.classList.add('in');}); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, {threshold:0.12});
+  els.forEach(function(e){ io.observe(e); });
+})();
+
+/* ---------- hero network (three.js) ---------- */
+(function(){
+  var canvas = document.getElementById('hero-canvas');
+  var heroSection = document.querySelector('.hero');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!window.THREE || reduce){ return; }
+
+  var renderer, scene, camera, points, lineSegments, raf;
+  var W = heroSection.clientWidth, H = heroSection.clientHeight;
+  var mouseX = 0, mouseY = 0;
+
+  try{
+    renderer = new THREE.WebGLRenderer({canvas:canvas, alpha:true, antialias:true});
+  }catch(e){ return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 1.75));
+  renderer.setSize(W, H);
+
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(55, W/H, 1, 2000);
+  camera.position.z = 480;
+
+  var COUNT = window.innerWidth < 760 ? 46 : 90;
+  var RANGE = 520;
+  var positions = new Float32Array(COUNT*3);
+  var velocities = [];
+  for(var i=0;i<COUNT;i++){
+    positions[i*3]   = (Math.random()-0.5)*RANGE*2;
+    positions[i*3+1] = (Math.random()-0.5)*RANGE*1.1;
+    positions[i*3+2] = (Math.random()-0.5)*300;
+    velocities.push({
+      x:(Math.random()-0.5)*0.16,
+      y:(Math.random()-0.5)*0.16,
+      z:(Math.random()-0.5)*0.10
+    });
+  }
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  var mat = new THREE.PointsMaterial({color:0x5eead4, size:3.2, transparent:true, opacity:0.85});
+  points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  var lineGeo = new THREE.BufferGeometry();
+  var maxLines = COUNT*COUNT;
+  var linePositions = new Float32Array(maxLines*2*3);
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+  var lineMat = new THREE.LineBasicMaterial({color:0x2f5f5a, transparent:true, opacity:0.35});
+  lineSegments = new THREE.LineSegments(lineGeo, lineMat);
+  scene.add(lineSegments);
+
+  var LINK_DIST = 130;
+
+  function updateLines(){
+    var idx = 0;
+    var p = geo.attributes.position.array;
+    for(var a=0; a<COUNT; a++){
+      for(var b=a+1; b<COUNT; b++){
+        var dx = p[a*3]-p[b*3], dy = p[a*3+1]-p[b*3+1], dz = p[a*3+2]-p[b*3+2];
+        var d = Math.sqrt(dx*dx+dy*dy+dz*dz);
+        if(d < LINK_DIST){
+          linePositions[idx++] = p[a*3]; linePositions[idx++] = p[a*3+1]; linePositions[idx++] = p[a*3+2];
+          linePositions[idx++] = p[b*3]; linePositions[idx++] = p[b*3+1]; linePositions[idx++] = p[b*3+2];
+        }
+      }
+    }
+    lineGeo.setDrawRange(0, idx/3);
+    lineGeo.attributes.position.needsUpdate = true;
+  }
+
+  function animate(){
+    var p = geo.attributes.position.array;
+    for(var i=0;i<COUNT;i++){
+      p[i*3]   += velocities[i].x;
+      p[i*3+1] += velocities[i].y;
+      p[i*3+2] += velocities[i].z;
+      if(Math.abs(p[i*3])   > RANGE) velocities[i].x *= -1;
+      if(Math.abs(p[i*3+1]) > RANGE*0.6) velocities[i].y *= -1;
+      if(Math.abs(p[i*3+2]) > 160) velocities[i].z *= -1;
+    }
+    geo.attributes.position.needsUpdate = true;
+    updateLines();
+
+    camera.position.x += (mouseX*40 - camera.position.x) * 0.02;
+    camera.position.y += (-mouseY*30 - camera.position.y) * 0.02;
+    camera.lookAt(scene.position);
+
+    renderer.render(scene, camera);
+    raf = requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('mousemove', function(e){
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+  }, {passive:true});
+
+  window.addEventListener('resize', function(){
+    W = heroSection.clientWidth; H = heroSection.clientHeight;
+    camera.aspect = W/H; camera.updateProjectionMatrix();
+    renderer.setSize(W, H);
+  });
+
+  var visible = true;
+  document.addEventListener('visibilitychange', function(){
+    visible = !document.hidden;
+    if(visible && !raf) animate();
+    if(!visible && raf){ cancelAnimationFrame(raf); raf = null; }
+  });
+
+  animate();
+})();
+</script>
 </body>
 </html>
