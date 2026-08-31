@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>404 – Not Found</title>
+  <title>404 - Not Found</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     html {
-      background: #2c3e50;
+      background: #0a0e14;
     }
     html, body {
       margin: 0;
@@ -14,7 +14,7 @@
       height: 100%;
       overflow: hidden;
       font-family: "Courier New", monospace;
-      color: #00ff9f;
+      color: #5eead4;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -39,14 +39,14 @@
       font-weight: bold;
       margin-bottom: 1rem;
       letter-spacing: 0em;
-      text-shadow: 0 0 10px #00ff9f, 0 0 30px #00ff9f;
+      text-shadow: 0 0 10px #5eead4, 0 0 30px #5eead4;
     }
 
     .digit {
       display: inline-block;
       opacity: 0;
       animation: fadeIn 0.6s forwards ease-out;
-      text-shadow: 0 0 10px #00ff9f, 0 0 30px #00ff9f;
+      text-shadow: 0 0 10px #5eead4, 0 0 30px #5eead4;
     }
 
     .digit.left   { transform: translateX(-50px); animation-delay: 0.2s; }
@@ -83,7 +83,7 @@
     }
 
     a {
-      color: #00ff9f;
+      color: #5eead4;
       text-decoration: underline;
     }
 
@@ -190,8 +190,8 @@
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
         ctx.font = `${this.size}px monospace`;
-        ctx.fillStyle = `rgba(0, 255, 159, ${this.opacity})`;
-        ctx.shadowColor = "#00ff9f";
+        ctx.fillStyle = `rgba(94, 234, 212, ${this.opacity})`;
+        ctx.shadowColor = "#5eead4";
         ctx.shadowBlur = 8;
         ctx.fillText(this.char, 0, 0);
         ctx.restore();
@@ -213,7 +213,7 @@
 
     // === Scramble Typing Animation ===
     const scrambleEl = document.getElementById("scrambleText");
-    const targetText = "> You’ve reached an undefined node in the matrix.";
+    const targetText = "> You've reached an undefined node in the matrix.";
     const scrambleChars = "01<>/#$%&*ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     let frame = 0;
     const delay = 40;
@@ -246,7 +246,6 @@
       countdownEl.textContent = seconds;
       if (seconds <= 0) {
         clearInterval(timer);
-        localStorage.removeItem("seenIntro");
         window.location.href = "/";
       }
     }, 1000);
