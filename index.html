@@ -84,6 +84,8 @@ header.nav{
 }
 .nav-links a:hover{color:var(--accent);text-decoration:none;}
 .nav-links a:hover::after{width:100%;}
+.nav-links a.active{color:var(--accent);}
+.nav-links a.active::after{width:100%;}
 .nav-toggle{display:none;background:none;border:1px solid var(--line);color:var(--text);width:36px;height:36px;border-radius:6px;font-family:var(--font-mono);}
 
 /* ---------- hero ---------- */
@@ -91,7 +93,6 @@ header.nav{
   position:relative;
   overflow:hidden;
   padding:96px 0 80px;
-  border-bottom:1px solid var(--line-soft);
 }
 #hero-canvas{
   position:absolute;inset:0;width:100%;height:100%;
@@ -112,8 +113,42 @@ header.nav{
 .hero-inner > .lede{animation-delay:.40s;}
 .hero-inner > .hero-cta{animation-delay:.52s;}
 .hero-inner > .terminal{animation-delay:.64s;}
+.hero-inner > h1{opacity:1;animation:none;}
 @media (prefers-reduced-motion: reduce){
   .hero-inner > *{animation:none;opacity:1;}
+  .line{transform:none !important;animation:none !important;}
+}
+
+/* ---------- kinetic hero headline (line-mask reveal) ---------- */
+.line-wrap{display:block;overflow:hidden;}
+.line{display:block;transform:translateY(112%);}
+.line-wrap:nth-child(1) .line{animation:lineUp .85s var(--ease) forwards;animation-delay:.14s;}
+.line-wrap:nth-child(2) .line{animation:lineUp .85s var(--ease) forwards;animation-delay:.26s;}
+@keyframes lineUp{to{transform:translateY(0);}}
+
+/* ---------- scroll cue ---------- */
+.scroll-cue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:2;width:22px;height:34px;border:1px solid var(--line);border-radius:12px;opacity:0.55;}
+.scroll-cue span{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:3px;height:7px;border-radius:2px;background:var(--accent);animation:scrollCue 1.8s ease-in-out infinite;}
+@keyframes scrollCue{0%{opacity:1;top:6px;}70%{opacity:0;top:18px;}100%{opacity:0;top:18px;}}
+@media (prefers-reduced-motion: reduce){.scroll-cue span{animation:none;top:6px;opacity:1;}}
+@media (max-width:760px){.scroll-cue{display:none;}}
+
+/* ---------- custom cursor ---------- */
+.cursor-dot,.cursor-ring{display:none;}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion: no-preference){
+  body{cursor:none;}
+  .cursor-dot,.cursor-ring{
+    display:block;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;
+    transform:translate(-50%,-50%);opacity:0;transition:opacity .25s ease;
+  }
+  body.cursor-active .cursor-dot,body.cursor-active .cursor-ring{opacity:1;}
+  .cursor-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  .cursor-ring{
+    width:34px;height:34px;border-radius:50%;border:1px solid var(--accent-dim);
+    transition:width .25s var(--ease),height .25s var(--ease),border-color .25s ease,background .25s ease,opacity .25s ease;
+  }
+  .cursor-ring.hover{width:60px;height:60px;border-color:var(--accent);background:var(--accent-glow);}
+  a,button,.btn{cursor:none;}
 }
 .badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px;}
 .badge{
@@ -187,8 +222,13 @@ header.nav{
 @keyframes blink{50%{opacity:0;}}
 
 /* ---------- sections ---------- */
-section{padding:76px 0;border-bottom:1px solid var(--line-soft);}
-section:last-of-type{border-bottom:none;}
+section{padding:76px 0;border-bottom:none;position:relative;}
+section:not(:last-of-type)::after{
+  content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+  width:min(100%,1040px);height:1px;
+  background:linear-gradient(90deg,transparent,var(--line-soft) 18%,var(--line-soft) 82%,transparent);
+}
+#about,#skills{background:var(--bg-panel);}
 .section-head{margin-bottom:40px;}
 .eyebrow{
   font-family:var(--font-mono);font-size:12.5px;color:var(--accent);
@@ -249,7 +289,7 @@ section:last-of-type{border-bottom:none;}
 
 /* ---------- projects ---------- */
 .proj-lede{color:var(--text-dim);font-size:15px;max-width:640px;margin:-18px 0 34px;}
-.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;counter-reset:proj;}
 .proj-card{
   position:relative;overflow:hidden;
   border:1px solid var(--line);background:var(--bg-card);border-radius:12px;padding:24px;
@@ -262,6 +302,14 @@ section:last-of-type{border-bottom:none;}
   transition:opacity .35s ease;
 }
 .proj-card:hover::before{opacity:1;}
+.proj-card{counter-increment:proj;}
+.proj-card::after{
+  content:counter(proj,decimal-leading-zero);
+  position:absolute;top:-10px;right:10px;z-index:0;pointer-events:none;
+  font-family:var(--font-display);font-size:76px;font-weight:700;line-height:1;
+  color:var(--accent);opacity:0.05;transition:opacity .35s ease,transform .35s var(--ease);
+}
+.proj-card:hover::after{opacity:0.14;transform:translateY(4px);}
 .proj-card > *{position:relative;z-index:1;}
 .proj-card:hover{border-color:var(--accent-dim);background:var(--bg-card-hover);box-shadow:0 24px 50px -24px rgba(0,0,0,0.55);}
 .proj-card.wide{grid-column:1 / -1;}
@@ -347,7 +395,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
       <span class="badge">CompTIA Security+</span>
       <span class="badge amber">B.S. Computer Science, Cybersecurity, 2026</span>
     </div>
-    <h1>Systems Administrator,<br>building toward <span class="accent">security engineering.</span></h1>
+    <h1><span class="line-wrap"><span class="line">Systems Administrator,</span></span><span class="line-wrap"><span class="line">building toward <span class="accent">security engineering.</span></span></span></h1>
     <p class="hero-sub">Active Directory &amp; Endpoint Management · IT Operations · Applied Security</p>
     <p class="lede">Five-plus years of hands-on IT operations across military healthcare and civilian environments: Active Directory administration, endpoint imaging for 150+ systems, and 1,000+ resolved tickets a year. I build and document real automation and detection tooling outside of work to turn that operations experience into applied security skill.</p>
     <div class="hero-cta">
@@ -364,6 +412,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
       <div class="terminal-body" id="termBody"></div>
     </div>
   </div>
+  <div class="scroll-cue" aria-hidden="true"><span></span></div>
 </section>
 
 <section id="about">
@@ -828,6 +877,67 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
       el.style.removeProperty('--my');
     });
   });
+})();
+
+/* ---------- custom magnetic cursor ---------- */
+(function(){
+  var mq = window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!mq || !mq.matches || reduce) return;
+
+  var dot = document.createElement('div'); dot.className = 'cursor-dot';
+  var ring = document.createElement('div'); ring.className = 'cursor-ring';
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+
+  var mx = window.innerWidth/2, my = window.innerHeight/2, rx = mx, ry = my;
+  var started = false;
+
+  window.addEventListener('mousemove', function(e){
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+    if(!started){ started = true; document.body.classList.add('cursor-active'); }
+  }, {passive:true});
+
+  document.addEventListener('mouseleave', function(){ document.body.classList.remove('cursor-active'); });
+  document.addEventListener('mouseenter', function(){ if(started) document.body.classList.add('cursor-active'); });
+
+  function raf(){
+    rx += (mx - rx) * 0.18;
+    ry += (my - ry) * 0.18;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    window.requestAnimationFrame(raf);
+  }
+  raf();
+
+  var hoverSel = 'a, button, .btn, .proj-card, .stat, .mini-card, .cert-proof, .tl-item';
+  document.addEventListener('mouseover', function(e){
+    if(e.target.closest && e.target.closest(hoverSel)) ring.classList.add('hover');
+  });
+  document.addEventListener('mouseout', function(e){
+    if(e.target.closest && e.target.closest(hoverSel)) ring.classList.remove('hover');
+  });
+})();
+
+/* ---------- nav scrollspy ---------- */
+(function(){
+  var links = document.querySelectorAll('.nav-links a[href^="#"]');
+  if(!links.length || !('IntersectionObserver' in window)) return;
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var sections = Object.keys(map).map(function(id){ return document.getElementById(id); }).filter(Boolean);
+  if(!sections.length) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      var a = map[en.target.id];
+      if(!a) return;
+      if(en.isIntersecting) {
+        links.forEach(function(l){ l.classList.remove('active'); });
+        a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-45% 0px -50% 0px', threshold:0});
+  sections.forEach(function(s){ io.observe(s); });
 })();
 
 /* ---------- hero network (three.js) ---------- */
