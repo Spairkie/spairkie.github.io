@@ -10,6 +10,7 @@
     var saved = localStorage.getItem('hs_theme');
     var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
     if(theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    window.hsInitialTheme = theme;
   }catch(e){}
 })();
 </script>
@@ -17,9 +18,22 @@
 <meta name="description" content="Hans Sai. Systems Administrator building toward security engineering. Active Directory, endpoint management, applied security tooling.">
 <link rel="canonical" href="https://spairkie.github.io/">
 
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" href="icons/icon-32.png" type="image/png" sizes="32x32">
-<link rel="icon" href="icons/icon-16.png" type="image/png" sizes="16x16">
+<link rel="icon" href="favicon.ico" sizes="any" id="faviconIco">
+<link rel="icon" href="icons/icon-32.png" type="image/png" sizes="32x32" id="favicon32">
+<link rel="icon" href="icons/icon-16.png" type="image/png" sizes="16x16" id="favicon16">
+<script>
+/* swap the tab favicon to match the active theme, kept in one place so both the
+   initial load and the theme-toggle button share the same logic */
+function hsSetFavicon(light){
+  var ico = document.getElementById('faviconIco');
+  var i32 = document.getElementById('favicon32');
+  var i16 = document.getElementById('favicon16');
+  if(ico) ico.href = light ? 'favicon-light.ico' : 'favicon.ico';
+  if(i32) i32.href = light ? 'icons/icon-32-light.png' : 'icons/icon-32.png';
+  if(i16) i16.href = light ? 'icons/icon-16-light.png' : 'icons/icon-16.png';
+}
+hsSetFavicon(window.hsInitialTheme === 'light');
+</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a0e14" id="themeColorMeta">
@@ -111,6 +125,9 @@ a{color:var(--accent);text-decoration:none;}
 a:hover{text-decoration:underline;}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
 img{max-width:100%;}
+
+/* ---------- ambient depth field (fixed, drifts behind every section) ---------- */
+#ambientFX{position:fixed;inset:0;z-index:-1;pointer-events:none;}
 
 /* ---------- film grain / vignette (premium material layer) ---------- */
 #grain-overlay{
@@ -257,7 +274,15 @@ header.nav{
 @media (prefers-reduced-motion: reduce){.marquee-track{animation-duration:120s;}}
 
 /* ---------- manifesto ---------- */
-.manifesto{padding:88px 0;}
+.manifesto{padding:88px 0;position:relative;overflow:hidden;}
+.manifesto-texture{
+  position:absolute;inset:-15% -10%;z-index:0;pointer-events:none;will-change:transform;
+  background-image:radial-gradient(circle, var(--line) 1px, transparent 1px);
+  background-size:30px 30px;opacity:0.6;
+  mask-image:radial-gradient(ellipse 65% 60% at 50% 45%, #000 30%, transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse 65% 60% at 50% 45%, #000 30%, transparent 78%);
+}
+.manifesto .wrap{position:relative;z-index:1;}
 .manifesto-text{
   font-family:var(--font-display);font-weight:600;
   font-size:clamp(21px,3.1vw,34px);line-height:1.5;letter-spacing:-0.01em;
@@ -375,6 +400,11 @@ section:not(:last-of-type)::after{
   background:linear-gradient(90deg,transparent,var(--line-soft) 18%,var(--line-soft) 82%,transparent);
 }
 #about,#skills{background:var(--bg-panel);}
+#skills::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:radial-gradient(circle, var(--line-soft) 1px, transparent 1px);
+  background-size:26px 26px;opacity:0.6;
+}
 .section-head{margin-bottom:40px;}
 .eyebrow{
   font-family:var(--font-mono);font-size:12.5px;color:var(--accent);
@@ -471,6 +501,29 @@ section:not(:last-of-type)::after{
 
 /* ---------- projects ---------- */
 .proj-lede{color:var(--text-dim);font-size:15px;max-width:640px;margin:-18px 0 34px;}
+
+/* ---------- project quick-nav: a second, horizontal way to move through this section ---------- */
+.proj-nav-wrap{
+  position:sticky;top:63px;z-index:15;
+  margin:0 -28px 30px;padding:12px 28px;
+  background:rgba(10,14,20,0.88);backdrop-filter:blur(8px);
+  border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+  transition:background-color .4s ease,border-color .4s ease;
+}
+:root[data-theme="light"] .proj-nav-wrap{background:rgba(244,241,234,0.92);}
+.proj-nav{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.proj-nav::-webkit-scrollbar{display:none;}
+.proj-nav-item{
+  flex:0 0 auto;font-family:var(--font-mono);font-size:12px;color:var(--text-dim);
+  border:1px solid var(--line);border-radius:20px;padding:7px 14px 7px 12px;white-space:nowrap;
+  display:flex;align-items:center;gap:7px;
+  transition:border-color .2s ease,color .2s ease,background-color .2s ease;
+}
+.proj-nav-item:hover{border-color:var(--accent-dim);color:var(--accent);text-decoration:none;}
+.proj-nav-item.active{border-color:var(--accent);color:var(--accent);background:var(--accent-glow);}
+.proj-nav-num{color:var(--accent-dim);font-size:10.5px;}
+.proj-nav-item.active .proj-nav-num{color:var(--accent);}
+
 .proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;counter-reset:proj;}
 .proj-card{
   position:relative;overflow:hidden;
@@ -643,7 +696,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
   border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
   background:var(--bg-panel);transition:background-color .4s ease,border-color .4s ease;
 }
-#circuitCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+#circuitCanvas{position:absolute;left:0;right:0;top:-24px;bottom:-24px;width:100%;height:calc(100% + 48px);display:block;will-change:transform;}
 @media (max-width:600px){.circuit-divider{height:90px;}}
 
 /* ---------- boot sequence ---------- */
@@ -753,6 +806,7 @@ body.boot-lock{overflow:hidden;}
 </style>
 </head>
 <body>
+<canvas id="ambientFX" aria-hidden="true"></canvas>
 <div id="grain-overlay" aria-hidden="true"></div>
 <div id="boot-screen" aria-hidden="true">
   <div class="boot-inner" id="bootInner"></div>
@@ -820,6 +874,7 @@ body.boot-lock{overflow:hidden;}
 </div>
 
 <section class="manifesto">
+  <div class="manifesto-texture" aria-hidden="true" id="manifestoTexture"></div>
   <div class="wrap reveal">
     <p class="manifesto-text">
       I didn't learn security from a classroom first.<br>
@@ -927,7 +982,19 @@ body.boot-lock{overflow:hidden;}
     </div>
     <p class="proj-lede">Seven projects, real, working, tested, and documented. Built to extend actual AD, sysadmin, and ticketing experience into applied automation and detection, not tutorial clones.</p>
 
-    <div class="feature-panel stagger-item">
+    <div class="proj-nav-wrap">
+      <div class="proj-nav" id="projNav">
+        <a href="#proj-siem" class="proj-nav-item"><span class="proj-nav-num">01</span>Log Correlator SIEM</a>
+        <a href="#proj-helpdesk" class="proj-nav-item"><span class="proj-nav-num">02</span>Helpdesk Analytics</a>
+        <a href="#proj-ad-auditor" class="proj-nav-item"><span class="proj-nav-num">03</span>AD Security Auditor</a>
+        <a href="#proj-phishing" class="proj-nav-item"><span class="proj-nav-num">04</span>Phishing Analyzer</a>
+        <a href="#proj-jotrelay" class="proj-nav-item"><span class="proj-nav-num">05</span>JotRelay</a>
+        <a href="#proj-toolkit" class="proj-nav-item"><span class="proj-nav-num">06</span>Endpoint Toolkit</a>
+        <a href="#proj-winlog" class="proj-nav-item"><span class="proj-nav-num">07</span>WinLog Threat Hunter</a>
+      </div>
+    </div>
+
+    <div class="feature-panel stagger-item" id="proj-siem">
       <span class="feature-tag">Featured build</span>
       <h3 class="feature-title">Log Correlator SIEM</h3>
       <div class="feature-shot">
@@ -964,7 +1031,7 @@ body.boot-lock{overflow:hidden;}
 
     <div class="proj-grid">
 
-      <div class="proj-card wide stagger-item">
+      <div class="proj-card wide stagger-item" id="proj-helpdesk">
         <div class="proj-top">
           <h3 class="proj-title">Helpdesk Ticket Analytics</h3>
           <span class="stack-tag">Python</span>
@@ -1004,7 +1071,7 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card stagger-item">
+      <div class="proj-card stagger-item" id="proj-ad-auditor">
         <div class="proj-top">
           <h3 class="proj-title">AD Security Auditor</h3>
           <span class="stack-tag">PowerShell</span>
@@ -1023,7 +1090,7 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card stagger-item">
+      <div class="proj-card stagger-item" id="proj-phishing">
         <div class="proj-top">
           <h3 class="proj-title">Phishing Email Analyzer</h3>
           <span class="stack-tag">Python</span>
@@ -1042,7 +1109,7 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card wide stagger-item">
+      <div class="proj-card wide stagger-item" id="proj-jotrelay">
         <div class="proj-top">
           <h3 class="proj-title">JotRelay</h3>
           <span class="stack-tag">JavaScript / Supabase</span>
@@ -1062,7 +1129,7 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card stagger-item">
+      <div class="proj-card stagger-item" id="proj-toolkit">
         <div class="proj-top">
           <h3 class="proj-title">AD &amp; Endpoint Automation Toolkit</h3>
           <span class="stack-tag">PowerShell</span>
@@ -1079,7 +1146,7 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card stagger-item">
+      <div class="proj-card stagger-item" id="proj-winlog">
         <div class="proj-top">
           <h3 class="proj-title">WinLog Threat Hunter</h3>
           <span class="stack-tag">Python</span>
@@ -1247,6 +1314,7 @@ body.boot-lock{overflow:hidden;}
     else{ document.documentElement.removeAttribute('data-theme'); }
     try{ localStorage.setItem('hs_theme', next); }catch(e){}
     sync();
+    if(window.hsSetFavicon) window.hsSetFavicon(next === 'light');
     if(window.hsRedrawCircuit) window.hsRedrawCircuit();
   });
 })();
@@ -1310,16 +1378,84 @@ var hsLenis = null;
   }
   requestAnimationFrame(raf);
 
-  /* header nav: route anchor jumps through Lenis so they share its easing */
-  document.querySelectorAll('.nav-links a[href^="#"]').forEach(function(a){
+  /* header nav + project quick-nav: route anchor jumps through Lenis so they share its easing */
+  document.querySelectorAll('.nav-links a[href^="#"], .proj-nav-item[href^="#"]').forEach(function(a){
     a.addEventListener('click', function(e){
       var id = a.getAttribute('href').slice(1);
       var target = document.getElementById(id);
       if(!target) return;
       e.preventDefault();
-      hsLenis.scrollTo(target, {offset: -10});
+      var offset = a.classList.contains('proj-nav-item') ? -118 : -10;
+      hsLenis.scrollTo(target, {offset: offset});
       history.pushState(null, '', '#' + id);
     });
+  });
+})();
+
+/* ---------- ambient depth field: sparse drifting motes behind every section, tying the whole page into one atmosphere ---------- */
+(function(){
+  var canvas = document.getElementById('ambientFX');
+  if(!canvas) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+  var W, H, particles;
+
+  function makeParticles(){
+    var count = window.innerWidth < 760 ? 22 : 46;
+    particles = [];
+    for(var i = 0; i < count; i++){
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 0.6 + Math.random() * 1.4,
+        vx: (Math.random() - 0.5) * 0.045,
+        vy: (Math.random() - 0.5) * 0.045,
+        baseA: 0.12 + Math.random() * 0.28,
+        phase: Math.random() * Math.PI * 2,
+        big: Math.random() < 0.16
+      });
+    }
+  }
+  function resize(){
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    makeParticles();
+  }
+  resize();
+
+  var t = 0;
+  var visible = true;
+  var raf = null;
+  function draw(){
+    t += 1;
+    ctx.clearRect(0, 0, W, H);
+    for(var i = 0; i < particles.length; i++){
+      var p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if(p.x < -10) p.x = W + 10; if(p.x > W + 10) p.x = -10;
+      if(p.y < -10) p.y = H + 10; if(p.y > H + 10) p.y = -10;
+      var twinkle = 0.7 + 0.3 * Math.sin(t * 0.012 + p.phase);
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(94,234,212,' + (p.baseA * twinkle).toFixed(3) + ')';
+      ctx.arc(p.x, p.y, p.big ? p.r * 1.8 : p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    raf = requestAnimationFrame(draw);
+  }
+  raf = requestAnimationFrame(draw);
+
+  var resizeTimer;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 200);
+  });
+  document.addEventListener('visibilitychange', function(){
+    visible = !document.hidden;
+    if(visible && !raf) raf = requestAnimationFrame(draw);
+    if(!visible && raf){ cancelAnimationFrame(raf); raf = null; }
   });
 })();
 
@@ -1402,21 +1538,44 @@ var hsLenis = null;
   });
 })();
 
-/* ---------- hero parallax depth (background canvas + watermark drift at different rates than content) ---------- */
+/* ---------- scroll-linked parallax depth: several independent layers drifting at different rates ---------- */
 (function(){
-  var heroSection = document.querySelector('.hero');
-  var canvas = document.getElementById('hero-canvas');
-  var mark = document.querySelector('.hero-mark');
-  if(!heroSection || (!canvas && !mark)) return;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduce) return;
+
+  var layers = [];
+  function addLayer(sectionEl, el, fn){
+    if(sectionEl && el) layers.push({section: sectionEl, el: el, fn: fn});
+  }
+
+  var heroSection = document.querySelector('.hero');
+  addLayer(heroSection, document.getElementById('hero-canvas'), function(el, p){
+    el.style.transform = 'translate3d(0,' + (p * 70).toFixed(1) + 'px,0)';
+  });
+  addLayer(heroSection, document.querySelector('.hero-mark'), function(el, p){
+    el.style.transform = 'translateY(calc(-50% + ' + (p * -100).toFixed(1) + 'px))';
+  });
+
+  var manifestoSection = document.querySelector('.manifesto');
+  addLayer(manifestoSection, document.getElementById('manifestoTexture'), function(el, p){
+    el.style.transform = 'translate3d(0,' + (p * -50).toFixed(1) + 'px,0)';
+  });
+
+  var circuitSection = document.querySelector('.circuit-divider');
+  addLayer(circuitSection, document.getElementById('circuitCanvas'), function(el, p){
+    el.style.transform = 'translate3d(0,' + (p * 26).toFixed(1) + 'px,0)';
+  });
+
+  if(!layers.length) return;
   var ticking = false;
   function apply(){
-    var rect = heroSection.getBoundingClientRect();
-    if(rect.bottom < 0 || rect.top > window.innerHeight){ ticking = false; return; }
-    var progress = Math.min(1, Math.max(0, -rect.top / (rect.height || 1)));
-    if(canvas) canvas.style.transform = 'translate3d(0,' + (progress * 70).toFixed(1) + 'px,0)';
-    if(mark) mark.style.transform = 'translateY(calc(-50% + ' + (progress * -100).toFixed(1) + 'px))';
+    for(var i = 0; i < layers.length; i++){
+      var L = layers[i];
+      var rect = L.section.getBoundingClientRect();
+      if(rect.bottom < -200 || rect.top > window.innerHeight + 200) continue;
+      var progress = Math.min(1, Math.max(0, -rect.top / (rect.height || 1)));
+      L.fn(L.el, progress);
+    }
     ticking = false;
   }
   function onScroll(){
@@ -1973,6 +2132,34 @@ var hsLenis = null;
     });
   }, {rootMargin:'-45% 0px -50% 0px', threshold:0});
   sections.forEach(function(s){ io.observe(s); });
+})();
+
+/* ---------- project quick-nav scrollspy ---------- */
+(function(){
+  var items = document.querySelectorAll('.proj-nav-item[href^="#"]');
+  if(!items.length || !('IntersectionObserver' in window)) return;
+  var map = {};
+  items.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var targets = Object.keys(map).map(function(id){ return document.getElementById(id); }).filter(Boolean);
+  if(!targets.length) return;
+  var nav = document.getElementById('projNav');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      var a = map[en.target.id];
+      if(!a) return;
+      if(en.isIntersecting){
+        items.forEach(function(l){ l.classList.remove('active'); });
+        a.classList.add('active');
+        if(nav && a.scrollIntoView){
+          var r = a.getBoundingClientRect(), nr = nav.getBoundingClientRect();
+          if(r.left < nr.left || r.right > nr.right){
+            nav.scrollTo({left: a.offsetLeft - 24, behavior: 'smooth'});
+          }
+        }
+      }
+    });
+  }, {rootMargin:'-30% 0px -55% 0px', threshold:0});
+  targets.forEach(function(t){ io.observe(t); });
 })();
 
 /* ---------- hero network (three.js) ---------- */
