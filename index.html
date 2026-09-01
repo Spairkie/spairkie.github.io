@@ -465,7 +465,14 @@ section:not(:last-of-type)::after{
 .also-built{margin-top:24px;}
 .also-label{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.1em;}
 .also-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.mini-card{border:1px solid var(--line-soft);border-radius:10px;padding:18px;transition:transform .3s var(--ease), border-color .3s ease;transform-style:preserve-3d;will-change:transform;}
+.mini-card{position:relative;overflow:hidden;border:1px solid var(--line-soft);border-radius:10px;padding:18px;transition:transform .3s var(--ease), border-color .3s ease;transform-style:preserve-3d;will-change:transform;}
+.mini-card::before{
+  content:"";position:absolute;inset:0;opacity:0;pointer-events:none;
+  background:radial-gradient(200px circle at var(--mx,50%) var(--my,50%), var(--accent-glow), transparent 65%);
+  transition:opacity .3s ease;
+}
+.mini-card:hover::before{opacity:1;}
+.mini-card > *{position:relative;z-index:1;}
 .mini-card:hover{border-color:var(--accent-dim);}
 .mini-card h4{font-family:var(--font-display);font-size:15px;margin:0 0 6px;font-weight:600;}
 .mini-card p{font-size:13.5px;color:var(--text-dim);margin:0 0 10px;}
@@ -474,10 +481,20 @@ section:not(:last-of-type)::after{
 
 /* ---------- skills ---------- */
 .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;}
-.skill-group{background:var(--bg-card);padding:22px 24px;transition:background .3s ease;}
+.skill-group{position:relative;overflow:hidden;background:var(--bg-card);padding:22px 24px;transition:background .3s ease;}
+.skill-group::before{
+  content:"";position:absolute;inset:0;opacity:0;pointer-events:none;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%), var(--accent-glow), transparent 65%);
+  transition:opacity .3s ease;
+}
+.skill-group:hover::before{opacity:1;}
 .skill-group:hover{background:var(--bg-card-hover);}
-.skill-group h4{font-family:var(--font-mono);font-size:12.5px;color:var(--accent);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.08em;}
-.skill-group p{margin:0;font-size:14px;color:var(--text-dim);}
+.skill-head{display:flex;align-items:baseline;gap:10px;margin:0 0 12px;position:relative;z-index:1;}
+.skill-num{font-family:var(--font-mono);font-size:11px;color:var(--accent-dim);}
+.skill-group h4{font-family:var(--font-mono);font-size:12.5px;color:var(--accent);margin:0;text-transform:uppercase;letter-spacing:0.08em;}
+.skill-tags{display:flex;flex-wrap:wrap;gap:7px;position:relative;z-index:1;}
+.skill-tags .chip{transition:border-color .25s ease,color .25s ease;}
+.skill-group:hover .skill-tags .chip{border-color:rgba(94,234,212,0.22);}
 
 /* ---------- education / certs ---------- */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
@@ -494,13 +511,37 @@ section:not(:last-of-type)::after{
 .cert-proof:hover{color:var(--accent);}
 
 /* ---------- contact ---------- */
-footer{padding:70px 0 40px;}
+footer{padding:96px 0 40px;}
 footer .wrap{text-align:center;}
 footer .eyebrow{justify-content:center;}
 footer h2{font-family:var(--font-display);font-size:clamp(26px,4vw,38px);margin:0 0 14px;}
+.footer-headline{
+  font-size:clamp(32px,5.6vw,58px);font-weight:700;line-height:1.08;letter-spacing:-0.02em;margin:0 0 20px;
+}
+.footer-headline .accent{color:var(--accent);}
 footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
+.email-cta{font-size:16px;padding:14px 26px;gap:12px;}
+.email-cta .email-arrow{transition:transform .3s var(--ease);}
+.email-cta:hover .email-arrow{transform:translateX(4px);}
+.quick-facts{max-width:660px;margin:56px auto 44px;text-align:left;border-top:1px solid var(--line-soft);}
+.qf-row{
+  display:flex;align-items:baseline;gap:18px;padding:17px 4px;
+  border-bottom:1px solid var(--line-soft);
+  transition:padding-left .3s var(--ease),border-color .3s ease;
+}
+.qf-row:hover{padding-left:12px;border-color:var(--accent-dim);}
+.qf-num{font-family:var(--font-mono);font-size:12px;color:var(--accent-dim);flex-shrink:0;width:22px;}
+.qf-label{
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text-dimmer);flex-shrink:0;width:104px;
+}
+.qf-val{color:var(--text);font-size:14.5px;flex:1;line-height:1.5;}
 .contact-links{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;margin-bottom:36px;font-family:var(--font-mono);font-size:14px;}
 .fine-print{font-size:12px;color:var(--text-dimmer);}
+@media (max-width:600px){
+  .qf-row{flex-wrap:wrap;gap:4px 18px;}
+  .qf-label{width:auto;}
+}
 
 @media (max-width:760px){
   .nav-links{display:none;}
@@ -977,28 +1018,40 @@ body.boot-lock{overflow:hidden;}
     </div>
     <div class="skills-grid">
       <div class="skill-group stagger-item">
-        <h4>Identity &amp; Systems Administration</h4>
-        <p>Active Directory, AD Domain Services, Group Policy, Windows Server, RSAT, user provisioning/offboarding, print server administration</p>
+        <div class="skill-head"><span class="skill-num">01</span><h4>Identity &amp; Systems Administration</h4></div>
+        <div class="skill-tags">
+          <span class="chip">Active Directory</span><span class="chip">AD Domain Services</span><span class="chip">Group Policy</span><span class="chip">Windows Server</span><span class="chip">RSAT</span><span class="chip">User provisioning / offboarding</span><span class="chip">Print server administration</span>
+        </div>
       </div>
       <div class="skill-group stagger-item">
-        <h4>Endpoint &amp; Infrastructure</h4>
-        <p>SmartDeploy imaging, PXE Boot, SCCM/MECM, workstation/laptop/thin-client deployment, asset inventory, patching</p>
+        <div class="skill-head"><span class="skill-num">02</span><h4>Endpoint &amp; Infrastructure</h4></div>
+        <div class="skill-tags">
+          <span class="chip">SmartDeploy imaging</span><span class="chip">PXE Boot</span><span class="chip">SCCM / MECM</span><span class="chip">Workstation deployment</span><span class="chip">Laptop / thin-client deployment</span><span class="chip">Asset inventory</span><span class="chip">Patching</span>
+        </div>
       </div>
       <div class="skill-group stagger-item">
-        <h4>Security &amp; Compliance</h4>
-        <p>Endpoint protection, least-privilege enforcement, access control, HIPAA-aligned data handling, VLANs, basic firewall/switch troubleshooting</p>
+        <div class="skill-head"><span class="skill-num">03</span><h4>Security &amp; Compliance</h4></div>
+        <div class="skill-tags">
+          <span class="chip">Endpoint protection</span><span class="chip">Least-privilege enforcement</span><span class="chip">Access control</span><span class="chip">HIPAA-aligned data handling</span><span class="chip">VLANs</span><span class="chip">Firewall / switch troubleshooting</span>
+        </div>
       </div>
       <div class="skill-group stagger-item">
-        <h4>Scripting &amp; Automation</h4>
-        <p>PowerShell, Python, Bash, SQL, C++, Java, JavaScript</p>
+        <div class="skill-head"><span class="skill-num">04</span><h4>Scripting &amp; Automation</h4></div>
+        <div class="skill-tags">
+          <span class="chip">PowerShell</span><span class="chip">Python</span><span class="chip">Bash</span><span class="chip">SQL</span><span class="chip">C++</span><span class="chip">Java</span><span class="chip">JavaScript</span>
+        </div>
       </div>
       <div class="skill-group stagger-item">
-        <h4>Virtualization</h4>
-        <p>VMware, VirtualBox, VM deployment and snapshot management</p>
+        <div class="skill-head"><span class="skill-num">05</span><h4>Virtualization</h4></div>
+        <div class="skill-tags">
+          <span class="chip">VMware</span><span class="chip">VirtualBox</span><span class="chip">VM deployment</span><span class="chip">Snapshot management</span>
+        </div>
       </div>
       <div class="skill-group stagger-item">
-        <h4>ITSM &amp; Tools</h4>
-        <p>ServiceNow, Remedy, ITOM/ITSM/ITBM, HRSD platforms, BeyondTrust/Bomgar, Power BI, Microsoft 365</p>
+        <div class="skill-head"><span class="skill-num">06</span><h4>ITSM &amp; Tools</h4></div>
+        <div class="skill-tags">
+          <span class="chip">ServiceNow</span><span class="chip">Remedy</span><span class="chip">ITOM / ITSM / ITBM</span><span class="chip">HRSD platforms</span><span class="chip">BeyondTrust / Bomgar</span><span class="chip">Power BI</span><span class="chip">Microsoft 365</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1036,10 +1089,18 @@ body.boot-lock{overflow:hidden;}
 <footer id="contact">
   <div class="wrap">
     <p class="eyebrow">Contact</p>
-    <h2>Let's talk.</h2>
+    <h2 class="footer-headline">Let's build something<br>worth <span class="accent">deploying.</span></h2>
     <p>Lindenwold, NJ. Open to South Jersey / Philadelphia-area and fully remote roles.</p>
+    <a class="btn btn-primary email-cta" href="mailto:saihanswissle@gmail.com">saihanswissle@gmail.com <span aria-hidden="true" class="email-arrow">&rarr;</span></a>
+
+    <div class="quick-facts">
+      <div class="qf-row"><span class="qf-num">01</span><span class="qf-label">Looking for</span><span class="qf-val">Systems/IT Admin &middot; Help Desk Lead &middot; Cleared IT/Security roles</span></div>
+      <div class="qf-row"><span class="qf-num">02</span><span class="qf-label">Location</span><span class="qf-val">Philadelphia / South Jersey metro &mdash; open to fully remote</span></div>
+      <div class="qf-row"><span class="qf-num">03</span><span class="qf-label">Clearance</span><span class="qf-val">Active Secret, U.S. Air Force Reserve</span></div>
+      <div class="qf-row"><span class="qf-num">04</span><span class="qf-label">Available</span><span class="qf-val">Now &mdash; open to new opportunities</span></div>
+    </div>
+
     <div class="contact-links">
-      <a href="mailto:saihanswissle@gmail.com">saihanswissle@gmail.com</a>
       <a href="https://www.linkedin.com/in/8pairkie/" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://github.com/Spairkie" target="_blank" rel="noopener">GitHub</a>
       <a href="files/Hans_Sai_Business_Card.vcf" download>Save Contact</a>
@@ -1464,7 +1525,7 @@ var hsLenis = null;
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduce) return;
-  var targets = document.querySelectorAll('.proj-card, .stat, .mini-card');
+  var targets = document.querySelectorAll('.proj-card, .stat, .mini-card, .skill-group');
   var TILT = 5; /* max degrees */
   targets.forEach(function(el){
     el.addEventListener('mousemove', function(e){
@@ -1577,7 +1638,7 @@ var hsLenis = null;
   }
   raf();
 
-  var hoverSel = 'a, button, .btn, .proj-card, .stat, .mini-card, .cert-proof, .tl-item';
+  var hoverSel = 'a, button, .btn, .proj-card, .stat, .mini-card, .skill-group, .cert-proof, .tl-item';
   document.addEventListener('mouseover', function(e){
     if(e.target.closest && e.target.closest(hoverSel)) ring.classList.add('hover');
   });
