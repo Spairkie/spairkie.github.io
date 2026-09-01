@@ -3,6 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+/* set theme before first paint to avoid a flash of the wrong palette */
+(function(){
+  try{
+    var saved = localStorage.getItem('hs_theme');
+    var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    if(theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  }catch(e){}
+})();
+</script>
 <title>Hans Sai | Systems Administrator</title>
 <meta name="description" content="Hans Sai. Systems Administrator building toward security engineering. Active Directory, endpoint management, applied security tooling.">
 <link rel="canonical" href="https://spairkie.github.io/">
@@ -67,6 +77,23 @@
   --maxw:1040px;
   --ease:cubic-bezier(.16,1,.3,1);
 }
+:root[data-theme="light"]{
+  --bg:#f4f1ea;
+  --bg-panel:#ece7db;
+  --bg-card:#fbfaf6;
+  --bg-card-hover:#f1eee4;
+  --line:#ddd6c4;
+  --line-soft:#e6e0d1;
+  --text:#181c22;
+  --text-dim:#4b5563;
+  --text-dimmer:#78716c;
+  --accent-glow:rgba(20,140,124,0.14);
+  --amber:#b4780f;
+}
+:root[data-theme="light"] #grain-overlay{opacity:0.03;}
+:root[data-theme="light"] #grain-overlay::after{background:radial-gradient(ellipse 80% 65% at 50% 40%, transparent 55%, rgba(0,0,0,0.16) 100%);}
+:root[data-theme="light"] ::selection{background:var(--accent-dim);color:#f4f1ea;}
+:root[data-theme="light"] .hero::after{background:radial-gradient(ellipse 60% 50% at 50% 0%, transparent 0%, var(--bg) 78%);}
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
@@ -77,6 +104,7 @@ body{
   font-size:16px;
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  transition:background-color .4s ease,color .4s ease;
 }
 ::selection{background:var(--accent);color:#04120f;}
 a{color:var(--accent);text-decoration:none;}
@@ -118,7 +146,9 @@ header.nav{
   background:rgba(10,14,20,0.72);
   backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line-soft);
+  transition:background-color .4s ease,border-color .4s ease;
 }
+:root[data-theme="light"] header.nav{background:rgba(244,241,234,0.78);}
 .nav-inner{
   max-width:var(--maxw);margin:0 auto;padding:14px 28px;
   display:flex;align-items:center;justify-content:space-between;gap:20px;
@@ -143,7 +173,18 @@ header.nav{
 .nav-links a:hover::after{width:100%;}
 .nav-links a.active{color:var(--accent);}
 .nav-links a.active::after{width:100%;}
-.nav-toggle{display:none;background:none;border:1px solid var(--line);color:var(--text);width:36px;height:36px;border-radius:6px;font-family:var(--font-mono);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.theme-toggle,.nav-toggle{
+  display:flex;align-items:center;justify-content:center;
+  background:none;border:1px solid var(--line);color:var(--text-dim);
+  width:34px;height:34px;border-radius:7px;cursor:pointer;
+  transition:border-color .2s ease,color .2s ease;
+}
+.theme-toggle:hover,.nav-toggle:hover{border-color:var(--accent-dim);color:var(--accent);}
+.theme-toggle .icon-moon{display:none;}
+:root[data-theme="light"] .theme-toggle .icon-sun{display:none;}
+:root[data-theme="light"] .theme-toggle .icon-moon{display:block;}
+.nav-toggle{display:none;}
 
 /* ---------- hero ---------- */
 .hero{
@@ -544,7 +585,18 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
 }
 
 @media (max-width:760px){
-  .nav-links{display:none;}
+  .nav-toggle{display:flex;}
+  .nav-links{
+    display:flex;flex-direction:column;gap:0;
+    position:absolute;top:100%;left:0;right:0;
+    background:var(--bg-panel);border-bottom:1px solid var(--line-soft);
+    padding:6px 28px 16px;
+    max-height:0;overflow:hidden;opacity:0;
+    transition:max-height .35s var(--ease),opacity .25s ease;
+  }
+  .nav-links.open{max-height:320px;opacity:1;}
+  .nav-links a{padding:11px 0;border-bottom:1px solid var(--line-soft);}
+  .nav-links a:last-child{border-bottom:none;}
   .about-grid,.proj-grid,.also-grid,.skills-grid,.two-col{grid-template-columns:1fr;}
   .proj-card.wide{grid-column:auto;}
   .about-photo{max-width:220px;transform:none !important;}
@@ -666,13 +718,22 @@ body.boot-lock{overflow:hidden;}
 <header class="nav">
   <div class="nav-inner">
     <div class="nav-brand"><span class="status-dot"></span> hans@sysadmin<span style="color:var(--text-dimmer)">:~$</span></div>
-    <nav class="nav-links">
+    <nav class="nav-links" id="navLinks">
       <a href="#experience">Experience</a>
       <a href="#projects">Projects</a>
       <a href="#skills">Skills</a>
       <a href="#education">Education</a>
       <a href="#contact">Contact</a>
     </nav>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="1.5" x2="12" y2="4.2"/><line x1="12" y1="19.8" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="4.2" y2="12"/><line x1="19.8" y1="12" x2="22.5" y2="12"/><line x1="4.4" y1="4.4" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.6" y2="19.6"/><line x1="4.4" y1="19.6" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.6" y2="4.4"/></g></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M20.5 14.4A8.5 8.5 0 1 1 9.6 3.5a7 7 0 0 0 10.9 10.9Z"/></svg>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="3" y1="6" x2="17" y2="6"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="14" x2="17" y2="14"/></g></svg>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -1112,6 +1173,41 @@ body.boot-lock{overflow:hidden;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
 <script>
+/* ---------- theme toggle (light/dark) ---------- */
+(function(){
+  var btn = document.getElementById('themeToggle');
+  if(!btn) return;
+  function isLight(){ return document.documentElement.getAttribute('data-theme') === 'light'; }
+  function sync(){ btn.setAttribute('aria-label', isLight() ? 'Switch to dark theme' : 'Switch to light theme'); }
+  sync();
+  btn.addEventListener('click', function(){
+    var next = isLight() ? 'dark' : 'light';
+    if(next === 'light'){ document.documentElement.setAttribute('data-theme', 'light'); }
+    else{ document.documentElement.removeAttribute('data-theme'); }
+    try{ localStorage.setItem('hs_theme', next); }catch(e){}
+    sync();
+  });
+})();
+
+/* ---------- mobile nav toggle ---------- */
+(function(){
+  var btn = document.getElementById('navToggle');
+  var links = document.getElementById('navLinks');
+  if(!btn || !links) return;
+  function setOpen(open){
+    links.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+  btn.addEventListener('click', function(){ setOpen(!links.classList.contains('open')); });
+  links.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ setOpen(false); });
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') setOpen(false);
+  });
+})();
+
 /* ---------- smooth (inertia) scroll ---------- */
 var hsLenis = null;
 (function(){
