@@ -22,7 +22,7 @@
 <link rel="icon" href="icons/icon-16.png" type="image/png" sizes="16x16">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a0e14">
+<meta name="theme-color" content="#0a0e14" id="themeColorMeta">
 
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="Hans Sai">
@@ -196,6 +196,7 @@ header.nav{
   position:absolute;inset:0;width:100%;height:100%;
   opacity:0.55;
   pointer-events:none;
+  will-change:transform;
 }
 .hero::after{
   content:"";position:absolute;inset:0;
@@ -276,9 +277,10 @@ header.nav{
   .cursor-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
   .cursor-ring{
     width:34px;height:34px;border-radius:50%;border:1px solid var(--accent-dim);
-    transition:width .25s var(--ease),height .25s var(--ease),border-color .25s ease,background .25s ease,opacity .25s ease;
+    transition:width .25s var(--ease),height .25s var(--ease),border-color .25s ease,background .25s ease,opacity .25s ease,transform .15s var(--ease);
   }
   .cursor-ring.hover{width:60px;height:60px;border-color:var(--accent);background:var(--accent-glow);}
+  .cursor-ring.press{transform:translate(-50%,-50%) scale(0.72);}
   a,button,.btn{cursor:none;}
 }
 .badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px;}
@@ -331,6 +333,7 @@ header.nav{
 }
 .btn:hover::before{left:140%;}
 .btn:hover{text-decoration:none;transform:translateY(-2px);}
+.btn:active{transform:translateY(0) scale(.96);transition-duration:.1s;}
 .btn-primary{background:var(--accent);color:#04120f;}
 .btn-primary:hover{background:#7ff2df;box-shadow:0 10px 30px -8px var(--accent-glow);}
 .btn-ghost{border:1px solid var(--line);color:var(--text);}
@@ -497,16 +500,48 @@ section:not(:last-of-type)::after{
 .stack-tag{font-family:var(--font-mono);font-size:11px;color:var(--accent);border:1px solid rgba(94,234,212,0.25);padding:3px 8px;border-radius:5px;white-space:nowrap;}
 .proj-desc{color:var(--text-dim);font-size:14.5px;margin:0 0 16px;}
 .proj-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
-.chip{font-family:var(--font-mono);font-size:11px;color:var(--text-dimmer);border:1px solid var(--line);padding:3px 9px;border-radius:20px;}
+.chip{
+  font-family:var(--font-mono);font-size:11px;color:var(--text-dimmer);border:1px solid var(--line);
+  padding:3px 9px;border-radius:20px;display:inline-block;
+  transition:transform .2s var(--ease),border-color .25s ease,color .25s ease;
+}
+/* micro-imperfection: chips sit at tiny, deliberately uneven angles, like hand-placed labels */
+.chip:nth-child(5n+1){transform:rotate(-0.7deg);}
+.chip:nth-child(5n+2){transform:rotate(0.5deg);}
+.chip:nth-child(5n+3){transform:rotate(-0.3deg);}
+.chip:nth-child(5n+4){transform:rotate(0.8deg);}
+.chip:hover{transform:rotate(0deg) translateY(-1px);}
 .proj-links a{font-family:var(--font-mono);font-size:12.5px;margin-right:16px;}
 .proj-links a::before{content:"→ ";}
 .chart-panel{background:var(--bg-panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:2px;}
 .chart-cap{margin:10px 2px 0;font-size:11.5px;color:var(--text-dimmer);}
 
-.also-built{margin-top:24px;}
-.also-label{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.1em;}
-.also-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.mini-card{position:relative;overflow:hidden;border:1px solid var(--line-soft);border-radius:10px;padding:18px;transition:transform .3s var(--ease), border-color .3s ease;transform-style:preserve-3d;will-change:transform;}
+.also-built{margin-top:24px;position:relative;}
+.also-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
+.also-label{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);text-transform:uppercase;letter-spacing:0.1em;margin:0;}
+.also-hint{font-family:var(--font-mono);font-size:11px;color:var(--text-dimmer);opacity:0.75;transform:translateX(0);animation:alsoNudge 2.2s ease-in-out infinite;}
+@keyframes alsoNudge{0%,100%{transform:translateX(0);}50%{transform:translateX(4px);}}
+@media (prefers-reduced-motion: reduce){.also-hint{animation:none;}}
+.also-grid{
+  display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x proximity;
+  padding:2px 2px 14px;margin:0 -2px;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+}
+.also-grid::-webkit-scrollbar{height:6px;}
+.also-grid::-webkit-scrollbar-track{background:transparent;}
+.also-grid::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
+.also-grid::-webkit-scrollbar-thumb:hover{background:var(--accent-dim);}
+.also-built::after{
+  content:"";position:absolute;top:34px;bottom:14px;right:0;width:56px;
+  background:linear-gradient(90deg, transparent, var(--bg) 88%);
+  pointer-events:none;opacity:1;transition:opacity .3s ease;
+}
+.also-built.at-end::after{opacity:0;}
+.mini-card{
+  position:relative;overflow:hidden;border:1px solid var(--line-soft);border-radius:10px;padding:18px;
+  transition:transform .3s var(--ease), border-color .3s ease;transform-style:preserve-3d;will-change:transform;
+  flex:0 0 auto;width:min(340px,78vw);scroll-snap-align:start;
+}
 .mini-card::before{
   content:"";position:absolute;inset:0;opacity:0;pointer-events:none;
   background:radial-gradient(200px circle at var(--mx,50%) var(--my,50%), var(--accent-glow), transparent 65%);
@@ -534,7 +569,6 @@ section:not(:last-of-type)::after{
 .skill-num{font-family:var(--font-mono);font-size:11px;color:var(--accent-dim);}
 .skill-group h4{font-family:var(--font-mono);font-size:12.5px;color:var(--accent);margin:0;text-transform:uppercase;letter-spacing:0.08em;}
 .skill-tags{display:flex;flex-wrap:wrap;gap:7px;position:relative;z-index:1;}
-.skill-tags .chip{transition:border-color .25s ease,color .25s ease;}
 .skill-group:hover .skill-tags .chip{border-color:rgba(94,234,212,0.22);}
 
 /* ---------- education / certs ---------- */
@@ -597,10 +631,20 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
   .nav-links.open{max-height:320px;opacity:1;}
   .nav-links a{padding:11px 0;border-bottom:1px solid var(--line-soft);}
   .nav-links a:last-child{border-bottom:none;}
-  .about-grid,.proj-grid,.also-grid,.skills-grid,.two-col{grid-template-columns:1fr;}
+  .about-grid,.proj-grid,.skills-grid,.two-col{grid-template-columns:1fr;}
+  .mini-card{width:82vw;}
   .proj-card.wide{grid-column:auto;}
   .about-photo{max-width:220px;transform:none !important;}
 }
+
+/* ---------- generative circuit-trace divider ---------- */
+.circuit-divider{
+  position:relative;height:130px;overflow:hidden;
+  border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+  background:var(--bg-panel);transition:background-color .4s ease,border-color .4s ease;
+}
+#circuitCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+@media (max-width:600px){.circuit-divider{height:90px;}}
 
 /* ---------- boot sequence ---------- */
 #boot-screen{
@@ -622,6 +666,7 @@ body.boot-lock{overflow:hidden;}
   font-family:var(--font-mono);font-weight:700;font-size:min(30vw,360px);
   color:transparent;-webkit-text-stroke:1px var(--line);line-height:1;
   pointer-events:none;user-select:none;letter-spacing:-0.04em;
+  will-change:transform;
 }
 @media (max-width:900px){.hero-mark{display:none;}}
 
@@ -1054,8 +1099,11 @@ body.boot-lock{overflow:hidden;}
     </div>
 
     <div class="also-built">
-      <p class="also-label">Also built</p>
-      <div class="also-grid">
+      <div class="also-head">
+        <p class="also-label">Also built</p>
+        <p class="also-hint" aria-hidden="true">scroll →</p>
+      </div>
+      <div class="also-grid" id="alsoGrid" tabindex="0" aria-label="Also built, scrolls horizontally">
         <div class="mini-card stagger-item">
           <h4>Interactive Diploma</h4>
           <p>A 3D, browser-based recreation of my Liberty University diploma. Three.js, procedural materials, studio lighting.</p>
@@ -1065,6 +1113,11 @@ body.boot-lock{overflow:hidden;}
           <h4>This portfolio site</h4>
           <p>Static, single-file, hand-built. The WebGL network in the hero above is the same three.js engine as the diploma project.</p>
           <a href="https://github.com/Spairkie/spairkie.github.io" target="_blank" rel="noopener">Source on GitHub</a>
+        </div>
+        <div class="mini-card stagger-item">
+          <h4>Icon system</h4>
+          <p>Even the favicon is on-brand: a hand-drawn terminal prompt glyph, vector, generated at every size from one SVG source.</p>
+          <a href="favicon.ico" target="_blank" rel="noopener">View favicon.ico</a>
         </div>
       </div>
     </div>
@@ -1147,6 +1200,10 @@ body.boot-lock{overflow:hidden;}
   </div>
 </section>
 
+<div class="circuit-divider" aria-hidden="true">
+  <canvas id="circuitCanvas"></canvas>
+</div>
+
 <footer id="contact">
   <div class="wrap">
     <p class="eyebrow">Contact</p>
@@ -1177,8 +1234,12 @@ body.boot-lock{overflow:hidden;}
 (function(){
   var btn = document.getElementById('themeToggle');
   if(!btn) return;
+  var metaColor = document.getElementById('themeColorMeta');
   function isLight(){ return document.documentElement.getAttribute('data-theme') === 'light'; }
-  function sync(){ btn.setAttribute('aria-label', isLight() ? 'Switch to dark theme' : 'Switch to light theme'); }
+  function sync(){
+    btn.setAttribute('aria-label', isLight() ? 'Switch to dark theme' : 'Switch to light theme');
+    if(metaColor) metaColor.setAttribute('content', isLight() ? '#f4f1ea' : '#0a0e14');
+  }
   sync();
   btn.addEventListener('click', function(){
     var next = isLight() ? 'dark' : 'light';
@@ -1186,7 +1247,30 @@ body.boot-lock{overflow:hidden;}
     else{ document.documentElement.removeAttribute('data-theme'); }
     try{ localStorage.setItem('hs_theme', next); }catch(e){}
     sync();
+    if(window.hsRedrawCircuit) window.hsRedrawCircuit();
   });
+})();
+
+/* ---------- horizontal "also built" gallery ---------- */
+(function(){
+  var grid = document.getElementById('alsoGrid');
+  if(!grid) return;
+  var wrap = grid.closest('.also-built');
+  function updateFade(){
+    if(!wrap) return;
+    var atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 4;
+    wrap.classList.toggle('at-end', atEnd);
+  }
+  grid.addEventListener('scroll', updateFade, {passive:true});
+  updateFade();
+  grid.addEventListener('wheel', function(e){
+    if(Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    var atStart = grid.scrollLeft <= 0;
+    var atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1;
+    if((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) return;
+    grid.scrollLeft += e.deltaY;
+    e.preventDefault();
+  }, {passive:false});
 })();
 
 /* ---------- mobile nav toggle ---------- */
@@ -1237,6 +1321,115 @@ var hsLenis = null;
       history.pushState(null, '', '#' + id);
     });
   });
+})();
+
+/* ---------- generative circuit-trace divider (deterministic seeded art) ---------- */
+(function(){
+  var canvas = document.getElementById('circuitCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  function hashSeed(str){
+    var h = 1779033703 ^ str.length;
+    for(var i = 0; i < str.length; i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822519);
+      h = Math.imul(h ^ (h >>> 13), 3266489917);
+      h = (h ^= h >>> 16) >>> 0;
+      return h / 4294967296;
+    };
+  }
+
+  function draw(){
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    if(!w || !h) return;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    var cs = getComputedStyle(document.documentElement);
+    var lineColor = cs.getPropertyValue('--line').trim() || '#1c2634';
+    var accentColor = cs.getPropertyValue('--accent').trim() || '#5eead4';
+
+    var rand = hashSeed('hans-sai-circuit-v1-' + Math.round(w / 40));
+    var count = Math.max(9, Math.min(24, Math.round(w / 62)));
+
+    for(var i = 0; i < count; i++){
+      var accent = rand() < 0.22;
+      var x = -20;
+      var y = 12 + rand() * (h - 24);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.strokeStyle = accent ? accentColor : lineColor;
+      ctx.globalAlpha = accent ? 0.55 : 0.4;
+      ctx.lineWidth = accent ? 1.6 : 1;
+      var vias = [];
+      while(x < w + 20){
+        var run = 26 + rand() * 60;
+        x += run;
+        ctx.lineTo(x, y);
+        if(x < w + 20 && rand() < 0.7){
+          var jog = (rand() < 0.5 ? -1 : 1) * (14 + rand() * 26);
+          var ny = Math.max(8, Math.min(h - 8, y + jog));
+          ctx.lineTo(x, ny);
+          vias.push([x, ny]);
+          y = ny;
+        }
+      }
+      ctx.stroke();
+      ctx.globalAlpha = accent ? 0.8 : 0.5;
+      ctx.fillStyle = accent ? accentColor : lineColor;
+      for(var v = 0; v < vias.length; v++){
+        ctx.beginPath();
+        ctx.arc(vias[v][0], vias[v][1], accent ? 2.1 : 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  window.hsRedrawCircuit = draw;
+  draw();
+  var resizeTimer;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(draw, 200);
+  });
+})();
+
+/* ---------- hero parallax depth (background canvas + watermark drift at different rates than content) ---------- */
+(function(){
+  var heroSection = document.querySelector('.hero');
+  var canvas = document.getElementById('hero-canvas');
+  var mark = document.querySelector('.hero-mark');
+  if(!heroSection || (!canvas && !mark)) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return;
+  var ticking = false;
+  function apply(){
+    var rect = heroSection.getBoundingClientRect();
+    if(rect.bottom < 0 || rect.top > window.innerHeight){ ticking = false; return; }
+    var progress = Math.min(1, Math.max(0, -rect.top / (rect.height || 1)));
+    if(canvas) canvas.style.transform = 'translate3d(0,' + (progress * 70).toFixed(1) + 'px,0)';
+    if(mark) mark.style.transform = 'translateY(calc(-50% + ' + (progress * -100).toFixed(1) + 'px))';
+    ticking = false;
+  }
+  function onScroll(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(apply);
+  }
+  if(hsLenis && typeof hsLenis.on === 'function'){
+    hsLenis.on('scroll', onScroll);
+  }else{
+    window.addEventListener('scroll', onScroll, {passive:true});
+  }
+  apply();
 })();
 
 /* ---------- boot sequence ---------- */
@@ -1376,7 +1569,7 @@ var hsLenis = null;
     if(!cmd) return {text:''};
     switch(cmd){
       case 'help':
-        return {text:"available: help, ls, cd <section>, whoami, cat resume, sudo hire-me, matrix, clear, github, linkedin, email"};
+        return {text:"available: help, ls, cd <section>, whoami, cat resume, sudo hire-me, sysinfo, theme, matrix, clear, github, linkedin, email"};
       case 'ls':
         return {text: SECTIONS.join('  ')};
       case 'pwd':
@@ -1400,6 +1593,22 @@ var hsLenis = null;
           return {text:"[sudo] password for hans: ********\naccess granted. redirecting to #contact ..."};
         }
         return {text:"sudo: " + arg + ": command not found", isErr:true};
+      case 'sysinfo':
+      case 'neofetch':
+        return {text:
+          "OS: HansOS 26.09 LTS (Lindenwold, NJ)\n" +
+          "Host: spairkie.github.io\n" +
+          "Uptime: 5+ yrs IT operations\n" +
+          "Shell: security-engineering.sh\n" +
+          "Clearance: ACTIVE (DoD SECRET)\n" +
+          "Packages: AD, GPO, SCCM, PowerShell, Python, Sysmon (2,847)\n" +
+          "Endpoints: 150+ imaged & deployed\n" +
+          "Tickets/yr: 1,000+ resolved"};
+      case 'theme':
+        var themeBtn = document.getElementById('themeToggle');
+        if(themeBtn) themeBtn.click();
+        var nowLight = document.documentElement.getAttribute('data-theme') === 'light';
+        return {text:"theme set to " + (nowLight ? "light" : "dark")};
       case 'github':
         window.open('https://github.com/Spairkie', '_blank', 'noopener');
         return {text:"opening github.com/Spairkie ..."};
@@ -1741,6 +1950,8 @@ var hsLenis = null;
   document.addEventListener('mouseout', function(e){
     if(e.target.closest && e.target.closest(hoverSel)) ring.classList.remove('hover');
   });
+  document.addEventListener('mousedown', function(){ ring.classList.add('press'); });
+  document.addEventListener('mouseup', function(){ ring.classList.remove('press'); });
 })();
 
 /* ---------- nav scrollspy ---------- */
