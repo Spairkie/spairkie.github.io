@@ -84,6 +84,19 @@ a:hover{text-decoration:underline;}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
 img{max-width:100%;}
 
+/* ---------- film grain / vignette (premium material layer) ---------- */
+#grain-overlay{
+  position:fixed;inset:0;z-index:9990;pointer-events:none;
+  opacity:0.045;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+#grain-overlay::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 65% at 50% 40%, transparent 45%, rgba(0,0,0,0.5) 100%);
+  mix-blend-mode:normal;
+}
+@media (prefers-reduced-motion: reduce){#grain-overlay{opacity:0.03;}}
+
 /* ---------- scroll progress ---------- */
 #scroll-progress{
   position:fixed;top:0;left:0;height:2px;width:0%;z-index:100;
@@ -170,6 +183,29 @@ header.nav{
 @media (prefers-reduced-motion: reduce){.scroll-cue span{animation:none;top:6px;opacity:1;}}
 @media (max-width:760px){.scroll-cue{display:none;}}
 
+/* ---------- marquee ticker ---------- */
+.marquee{
+  position:relative;overflow:hidden;
+  border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
+  background:var(--bg-panel);padding:18px 0;
+}
+.marquee-track{
+  display:flex;align-items:center;width:max-content;white-space:nowrap;
+  animation:marqueeScroll 32s linear infinite;
+}
+.marquee-track span{
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(20px,3.4vw,34px);letter-spacing:-0.01em;
+  color:transparent;-webkit-text-stroke:1px var(--line);
+  padding:0 18px;
+}
+.marquee-track span.dot{
+  -webkit-text-stroke:0;color:var(--accent);font-size:14px;padding:0 4px;vertical-align:middle;
+}
+.marquee:hover .marquee-track{animation-play-state:paused;}
+@keyframes marqueeScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@media (prefers-reduced-motion: reduce){.marquee-track{animation-duration:120s;}}
+
 /* ---------- custom cursor ---------- */
 .cursor-dot,.cursor-ring{display:none;}
 @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion: no-preference){
@@ -196,12 +232,12 @@ header.nav{
 .badge.amber{color:var(--amber);border-color:rgba(240,180,41,0.28);background:rgba(240,180,41,0.06);}
 .hero h1{
   font-family:var(--font-display);
-  font-size:clamp(38px,7vw,76px);
-  line-height:1.03;
+  font-size:clamp(40px,8vw,92px);
+  line-height:1.01;
   font-weight:700;
   margin:0 0 18px;
-  letter-spacing:-0.02em;
-  max-width:900px;
+  letter-spacing:-0.03em;
+  max-width:960px;
 }
 .hero h1 .accent{color:var(--accent);}
 .hero-sub{
@@ -284,10 +320,43 @@ section:not(:last-of-type)::after{
 }
 
 /* ---------- about ---------- */
-.about-grid{display:grid;grid-template-columns:172px 1.05fr 1fr;gap:32px;align-items:start;}
-.about-photo{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--bg-card);}
+.about-grid{display:grid;grid-template-columns:216px 1.05fr 1fr;gap:32px;align-items:start;}
+.about-photo{
+  position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--bg-card);
+  transform-style:preserve-3d;will-change:transform;transition:transform .4s var(--ease);
+}
 .about-photo img{display:block;width:100%;height:auto;filter:saturate(0.92) contrast(1.04);}
 .about-photo::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(94,234,212,0.08);pointer-events:none;}
+
+/* ---------- HUD scan card (headshot 3D treatment) ---------- */
+.hud-frame{position:absolute;inset:0;pointer-events:none;}
+.hud-frame::before{
+  content:"";position:absolute;inset:0;opacity:0;transition:opacity .3s ease;
+  background:radial-gradient(220px circle at var(--mx,50%) var(--my,50%), rgba(94,234,212,0.22), transparent 65%);
+}
+.about-photo:hover .hud-frame::before{opacity:1;}
+.hud-corner{position:absolute;width:20px;height:20px;border:2px solid var(--accent);opacity:0.85;filter:drop-shadow(0 0 4px var(--accent-glow));}
+.hud-corner.tl{top:8px;left:8px;border-right:none;border-bottom:none;}
+.hud-corner.tr{top:8px;right:8px;border-left:none;border-bottom:none;}
+.hud-corner.bl{bottom:8px;left:8px;border-right:none;border-top:none;}
+.hud-corner.br{bottom:8px;right:8px;border-left:none;border-top:none;}
+.hud-scan{
+  position:absolute;left:0;right:0;height:2px;top:0;
+  background:linear-gradient(90deg,transparent,var(--accent) 20%,var(--accent) 80%,transparent);
+  box-shadow:0 0 12px 2px var(--accent-glow);
+  animation:hudScan 3.6s ease-in-out infinite;
+}
+@keyframes hudScan{0%{top:6%;opacity:0;}8%{opacity:1;}50%{top:94%;opacity:1;}58%{opacity:0;}100%{opacity:0;top:94%;}}
+.hud-tag{
+  position:absolute;left:8px;bottom:8px;right:8px;
+  font-family:var(--font-mono);font-size:9.5px;line-height:1.5;letter-spacing:0.04em;
+  color:var(--accent);background:rgba(10,14,20,0.72);backdrop-filter:blur(3px);
+  border:1px solid rgba(94,234,212,0.25);border-radius:4px;padding:5px 7px;
+}
+@media (prefers-reduced-motion: reduce){
+  .about-photo{transform:none !important;}
+  .hud-scan{animation:none;opacity:0;}
+}
 .about-grid p{color:var(--text-dim);margin:0 0 16px;font-size:15.5px;}
 .stat-list{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
 .stat{
@@ -408,7 +477,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
   .nav-links{display:none;}
   .about-grid,.proj-grid,.also-grid,.skills-grid,.two-col{grid-template-columns:1fr;}
   .proj-card.wide{grid-column:auto;}
-  .about-photo{max-width:180px;}
+  .about-photo{max-width:220px;transform:none !important;}
 }
 
 /* ---------- boot sequence ---------- */
@@ -481,12 +550,19 @@ body.boot-lock{overflow:hidden;}
 @media (max-width:760px){.feature-flow{display:none;}}
 .feature-shot{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:22px;position:relative;z-index:1;box-shadow:0 20px 50px -24px rgba(0,0,0,0.6);}
 .feature-shot img{display:block;width:100%;height:auto;}
-.proj-shot{border:1px solid var(--line-soft);border-radius:8px;overflow:hidden;margin:2px 0 14px;}
-.proj-shot img{display:block;width:100%;height:auto;transition:transform .4s var(--ease);}
-.proj-card:hover .proj-shot img{transform:scale(1.02);}
+.proj-shot{position:relative;border:1px solid var(--line-soft);border-radius:8px;overflow:hidden;margin:2px 0 14px;}
+.proj-shot img{display:block;width:100%;height:auto;transition:transform .5s var(--ease),filter .5s ease;}
+.proj-card:hover .proj-shot img{transform:scale(1.045);filter:saturate(1.08);}
+.proj-shot::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 55%,rgba(94,234,212,0.14) 100%);
+  opacity:0;transition:opacity .4s ease;
+}
+.proj-card:hover .proj-shot::after{opacity:1;}
 </style>
 </head>
 <body>
+<div id="grain-overlay" aria-hidden="true"></div>
 <div id="boot-screen" aria-hidden="true">
   <div class="boot-inner" id="bootInner"></div>
 </div>
@@ -535,6 +611,13 @@ body.boot-lock{overflow:hidden;}
   <div class="scroll-cue" aria-hidden="true"><span></span></div>
 </section>
 
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>ACTIVE DIRECTORY</span><span class="dot">&bull;</span><span>ENDPOINT SECURITY</span><span class="dot">&bull;</span><span>THREAT HUNTING</span><span class="dot">&bull;</span><span>INCIDENT RESPONSE</span><span class="dot">&bull;</span><span>AUTOMATION</span><span class="dot">&bull;</span><span>SYSTEMS ADMINISTRATION</span><span class="dot">&bull;</span>
+    <span>ACTIVE DIRECTORY</span><span class="dot">&bull;</span><span>ENDPOINT SECURITY</span><span class="dot">&bull;</span><span>THREAT HUNTING</span><span class="dot">&bull;</span><span>INCIDENT RESPONSE</span><span class="dot">&bull;</span><span>AUTOMATION</span><span class="dot">&bull;</span><span>SYSTEMS ADMINISTRATION</span><span class="dot">&bull;</span>
+  </div>
+</div>
+
 <section id="about">
   <div class="wrap reveal">
     <div class="section-head">
@@ -542,8 +625,13 @@ body.boot-lock{overflow:hidden;}
       <h2>Where I've been, where I'm headed</h2>
     </div>
     <div class="about-grid">
-      <div class="about-photo stagger-item">
+      <div class="about-photo stagger-item" id="hudPhoto">
         <img src="headshot-web.webp" alt="Hans Sai, U.S. Air Force Reserve" width="640" height="800" loading="lazy">
+        <div class="hud-frame" aria-hidden="true">
+          <span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span>
+          <div class="hud-scan"></div>
+          <div class="hud-tag">OPERATOR: H. SAI<br>CLEARANCE: SECRET &bull; ACTIVE</div>
+        </div>
       </div>
       <div>
         <p>I administer Active Directory for a secure medical network: user provisioning, account unlocks, and Group Policy enforcement. I reimage and deploy fleets of endpoints with SmartDeploy and PXE Boot, and resolve 12 to 15 Level 2 support tickets a day.</p>
@@ -1253,6 +1341,29 @@ var hsLenis = null;
       el.style.removeProperty('--mx');
       el.style.removeProperty('--my');
     });
+  });
+})();
+
+/* ---------- HUD photo tilt (headshot "3D" scan card) ---------- */
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var el = document.getElementById('hudPhoto');
+  if(reduce || !el) return;
+  var TILT = 11;
+  el.addEventListener('mousemove', function(e){
+    var r = el.getBoundingClientRect();
+    var x = e.clientX - r.left, y = e.clientY - r.top;
+    var px = (x / r.width) * 100, py = (y / r.height) * 100;
+    el.style.setProperty('--mx', px + '%');
+    el.style.setProperty('--my', py + '%');
+    var rx = ((y / r.height) - 0.5) * -2 * TILT;
+    var ry = ((x / r.width) - 0.5) * 2 * TILT;
+    el.style.transform = 'perspective(600px) scale(1.03) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
+  });
+  el.addEventListener('mouseleave', function(){
+    el.style.transform = '';
+    el.style.removeProperty('--mx');
+    el.style.removeProperty('--my');
   });
 })();
 
