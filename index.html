@@ -727,6 +727,22 @@ body.boot-lock{overflow:hidden;}
         <div class="proj-links"><a href="https://github.com/Spairkie/phishing-email-analyzer" target="_blank" rel="noopener">Source on GitHub</a></div>
       </div>
 
+      <div class="proj-card wide stagger-item">
+        <div class="proj-top">
+          <h3 class="proj-title">JotRelay</h3>
+          <span class="stack-tag">JavaScript / Supabase</span>
+        </div>
+        <p class="proj-desc">Real-time encrypted collaborative notepad: shareable editable or read-only links, QR codes, presence and typing indicators, offline drafts, and a PWA install with an OS-level share target. Vanilla JS, no framework or build step.</p>
+        <div class="proj-meta">
+          <span class="chip">Live demo</span>
+          <span class="chip">Encryption option</span>
+        </div>
+        <div class="proj-links">
+          <a href="https://spairkie.github.io/JotRelay/" target="_blank" rel="noopener">Live demo</a>
+          <a href="https://github.com/Spairkie/JotRelay" target="_blank" rel="noopener">Source on GitHub</a>
+        </div>
+      </div>
+
       <div class="proj-card stagger-item">
         <div class="proj-top">
           <h3 class="proj-title">AD &amp; Endpoint Automation Toolkit</h3>
@@ -751,22 +767,6 @@ body.boot-lock{overflow:hidden;}
           <span class="chip">MITRE ATT&amp;CK mapped</span>
         </div>
         <div class="proj-links"><a href="https://github.com/Spairkie/winlog-threat-hunter" target="_blank" rel="noopener">Source on GitHub</a></div>
-      </div>
-
-      <div class="proj-card wide stagger-item">
-        <div class="proj-top">
-          <h3 class="proj-title">JotRelay</h3>
-          <span class="stack-tag">JavaScript / Supabase</span>
-        </div>
-        <p class="proj-desc">Real-time encrypted collaborative notepad: shareable editable or read-only links, QR codes, presence and typing indicators, offline drafts, and a PWA install with an OS-level share target. Vanilla JS, no framework or build step.</p>
-        <div class="proj-meta">
-          <span class="chip">Live demo</span>
-          <span class="chip">Encryption option</span>
-        </div>
-        <div class="proj-links">
-          <a href="https://spairkie.github.io/JotRelay/" target="_blank" rel="noopener">Live demo</a>
-          <a href="https://github.com/Spairkie/JotRelay" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
       </div>
 
     </div>
@@ -869,7 +869,39 @@ body.boot-lock{overflow:hidden;}
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
 <script>
+/* ---------- smooth (inertia) scroll ---------- */
+var hsLenis = null;
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce || typeof Lenis === 'undefined') return;
+  document.documentElement.style.scrollBehavior = 'auto';
+  hsLenis = new Lenis({
+    duration: 1.05,
+    easing: function(t){ return Math.min(1, 1 - Math.pow(2, -10 * t)); },
+    smoothWheel: true,
+    wheelMultiplier: 1
+  });
+  function raf(time){
+    hsLenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+
+  /* header nav: route anchor jumps through Lenis so they share its easing */
+  document.querySelectorAll('.nav-links a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href').slice(1);
+      var target = document.getElementById(id);
+      if(!target) return;
+      e.preventDefault();
+      hsLenis.scrollTo(target, {offset: -10});
+      history.pushState(null, '', '#' + id);
+    });
+  });
+})();
+
 /* ---------- boot sequence ---------- */
 (function(){
   var screen = document.getElementById('boot-screen');
@@ -947,9 +979,14 @@ body.boot-lock{overflow:hidden;}
     return null;
   }
   function scrollTo(id){
-    if(id === 'top'){ window.scrollTo({top:0, behavior: reduce ? 'auto' : 'smooth'}); return; }
+    if(id === 'top'){
+      if(hsLenis){ hsLenis.scrollTo(0); return; }
+      window.scrollTo({top:0, behavior: reduce ? 'auto' : 'smooth'}); return;
+    }
     var target = document.getElementById(id);
-    if(target) target.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'start'});
+    if(!target) return;
+    if(hsLenis){ hsLenis.scrollTo(target, {offset:-10}); return; }
+    target.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'start'});
   }
 
   function runCommand(raw){
