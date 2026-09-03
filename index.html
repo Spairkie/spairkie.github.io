@@ -126,6 +126,22 @@ a:hover{text-decoration:underline;}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
 img{max-width:100%;}
 
+/* ---------- keyboard focus: a real ring, on-brand, only for keyboard navigation ---------- */
+:focus{outline:none;}
+a:focus-visible, button:focus-visible, .btn:focus-visible, summary:focus-visible,
+input:focus-visible, [tabindex]:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+  border-radius:4px;
+}
+.chip:focus-visible, .badge:focus-visible, .proj-nav-item:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  border-radius:20px;
+}
+#termInput:focus-visible{outline:none;}
+.terminal:focus-within{border-color:var(--accent-dim);box-shadow:0 0 0 3px var(--accent-glow);}
+
 /* ---------- ambient depth field (fixed, drifts behind every section) ---------- */
 #ambientFX{position:fixed;inset:0;z-index:-1;pointer-events:none;}
 
@@ -2263,10 +2279,24 @@ var hsLenis = null;
   });
 
   var visible = true;
+  var inView = true;
+  function syncRaf(){
+    var shouldRun = visible && inView;
+    if(shouldRun && !raf) animate();
+    if(!shouldRun && raf){ cancelAnimationFrame(raf); raf = null; }
+  }
+  /* pause the WebGL render loop entirely once the hero has scrolled out of view --
+     no point spending a frame budget animating a network nobody can see */
+  if('IntersectionObserver' in window){
+    var heroIO = new IntersectionObserver(function(entries){
+      inView = entries[0].isIntersecting;
+      syncRaf();
+    }, {threshold:0});
+    heroIO.observe(heroSection);
+  }
   document.addEventListener('visibilitychange', function(){
     visible = !document.hidden;
-    if(visible && !raf) animate();
-    if(!visible && raf){ cancelAnimationFrame(raf); raf = null; }
+    syncRaf();
   });
 
   animate();
