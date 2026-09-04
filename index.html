@@ -603,7 +603,8 @@ section:not(:last-of-type)::after{
 .live-embed .lf-bar .terminal-dot{width:8px;height:8px;}
 .live-embed .lf-title{font-family:var(--font-mono);font-size:11px;color:var(--text-dimmer);margin-left:6px;}
 .live-embed .lf-hint{margin-left:auto;font-family:var(--font-mono);font-size:10.5px;color:var(--text-dimmer);opacity:0.8;}
-.live-embed iframe{display:block;width:100%;border:0;background:#0b0f14;}
+.live-embed iframe{display:block;width:100%;border:0;background:#0b0f14;pointer-events:none;}
+.live-embed.active iframe{pointer-events:auto;}
 .live-embed.diploma iframe{height:460px;}
 .live-embed.jotrelay iframe{height:280px;}
 @media (max-width:760px){
@@ -611,6 +612,21 @@ section:not(:last-of-type)::after{
   .live-embed.jotrelay iframe{height:220px;}
   .live-embed .lf-hint{display:none;}
 }
+/* click-to-activate: keeps page scroll from getting trapped by the embedded demo's own
+   scroll/zoom handling until the visitor deliberately opts in to interact with it */
+.live-embed .lf-overlay{
+  position:absolute;inset:0;z-index:2;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(6,10,14,0.28);opacity:1;transition:opacity .3s ease;
+}
+.live-embed.active .lf-overlay{opacity:0;pointer-events:none;}
+.lf-overlay-badge{
+  font-family:var(--font-mono);font-size:12px;color:#f4f7fb;
+  background:rgba(10,14,20,0.72);border:1px solid rgba(255,255,255,0.22);
+  padding:9px 16px;border-radius:20px;backdrop-filter:blur(3px);
+  display:flex;align-items:center;gap:8px;
+}
+.lf-overlay-badge svg{width:14px;height:14px;flex-shrink:0;}
 
 .also-built{margin-top:24px;position:relative;}
 .also-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
@@ -1170,6 +1186,9 @@ body.boot-lock{overflow:hidden;}
             <span class="lf-hint">real app, not a screenshot</span>
           </div>
           <iframe src="https://spairkie.github.io/JotRelay/" title="JotRelay — live app preview" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live JotRelay preview">
+            <span class="lf-overlay-badge">Click to interact</span>
+          </div>
         </div>
         <div class="proj-links">
           <a href="https://spairkie.github.io/JotRelay/" target="_blank" rel="noopener">Open live demo</a>
@@ -1258,6 +1277,12 @@ body.boot-lock{overflow:hidden;}
           <span class="lf-hint">drag to rotate · scroll to zoom</span>
         </div>
         <iframe src="https://spairkie.github.io/interactive-diploma/" title="Interactive Diploma — live 3D demo, drag to rotate" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live 3D diploma — click to drag and zoom">
+          <span class="lf-overlay-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
+            Click to drag &amp; zoom
+          </span>
+        </div>
       </div>
       <div class="feature-stats">
         <span class="chip">Three.js</span>
@@ -1421,6 +1446,18 @@ body.boot-lock{overflow:hidden;}
 
 /* ---------- horizontal "also built" gallery ---------- */
 (function(){
+  /* live-embed activation: iframes start inert so the page can still be scrolled
+     over them; a click/tap or keyboard activation hands control to the embed */
+  document.querySelectorAll('.live-embed').forEach(function(embed){
+    var overlay = embed.querySelector('.lf-overlay');
+    if(!overlay) return;
+    function activate(){ embed.classList.add('active'); }
+    overlay.addEventListener('click', activate);
+    overlay.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); activate(); }
+    });
+  });
+
   var grid = document.getElementById('alsoGrid');
   if(!grid) return;
   var wrap = grid.closest('.also-built');
