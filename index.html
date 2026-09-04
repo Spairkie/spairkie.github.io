@@ -2356,12 +2356,17 @@ var hsLenis = null;
 /* ---------- live local-time status ---------- */
 (function(){
   var el = document.getElementById('statusTime');
-  if(!el) return;
+  var menuEl = document.getElementById('menuStatusTime');
+  if(!el && !menuEl) return;
   function tick(){
     try{
       var t = new Date().toLocaleTimeString('en-US', {timeZone:'America/New_York', hour:'numeric', minute:'2-digit'});
-      el.textContent = t + ' ET';
-    }catch(e){ el.textContent = ''; }
+      if(el) el.textContent = t + ' ET';
+      if(menuEl) menuEl.textContent = t + ' ET';
+    }catch(e){
+      if(el) el.textContent = '';
+      if(menuEl) menuEl.textContent = '';
+    }
   }
   tick();
   setInterval(tick, 30000);
