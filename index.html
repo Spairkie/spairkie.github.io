@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
+/* Capture and strip the URL's hash before the browser gets a chance to act on it, then
+   restore it later once the Projects engine has positioned the page itself. This has to be
+   the very first thing that runs: every project-scene <article> below has a real element id
+   (id="proj-siem" etc, kept for backwards-compatible deep links), so the browser's own native
+   "scroll the fragment's target into view" behaviour fires independently of -- and can
+   override -- our own scroll-scrub positioning, including re-firing later as images/fonts
+   finish loading and layout settles, well after our own JS already positioned things
+   correctly. Since the browser only does this when it can resolve the hash to a real element,
+   removing the hash from the URL immediately (before that element even exists in the DOM, at
+   the very top of <head>) means there is nothing for it to act on; window.hsInitialHash keeps
+   the original value for the Projects engine to read once it initializes further down. */
+(function(){
+  window.hsInitialHash = location.hash;
+  if(location.hash){
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+  }
+})();
 /* set theme before first paint to avoid a flash of the wrong palette */
 (function(){
   try{
@@ -2644,26 +2661,20 @@ var hsLenis = null;
 
   window.hsProjects = { goToProject: goToProject, getProjectsMetrics: getProjectsMetrics, indexToScrollY: indexToScrollY, scrollYToVirtualIndex: scrollYToVirtualIndex, openProjectDetail: openProjectDetail, closeProjectDetail: closeProjectDetail };
 
-  /* land on whatever the URL's original hash pointed to (if any) BEFORE the very first paint,
-     and land there AGAIN once the page has actually settled. Two things can otherwise break a
-     deep link on a real, slow-loading page (neither reproduces in a fast/offline test):
-
-     1) the default render(OVERVIEW, 0) call below always resolves to project 0 and calls
-        setActiveProject(0), which replaceState's the hash to that project's id -- landing
-        purely on a deferred window-'load' handler risks reading an already-clobbered hash.
-     2) content loading in above the pinned section (web fonts swapping, the hero's async
-        assets) reflows the page after this script has already run; the browser's own native
-        scroll-anchoring then nudges window.scrollY to compensate, which fires a real 'scroll'
-        event that our own onScroll handler reads as "the user is near project 0" and calls
-        setActiveProject(0) all over again -- silently clobbering an already-correct landing.
-
-     The fix for both: capture the ORIGINAL requested index once, right now, and re-assert
-     goToProject with that same captured index (never by re-reading location.hash, which may
-     have drifted) at three points -- synchronously now, after window 'load' once images have
-     definitely finished, and after document.fonts.ready once webfont swapping is done -- and
-     disable scroll-anchoring on the pinned range below so the browser never nudges our own
-     precisely-managed scroll position in the first place (see .pc-scrollrange). */
-  var initialId = location.hash.slice(1).replace(/-detail$/, '');
+  /* land on whatever the URL's original hash pointed to, if any -- read from
+     window.hsInitialHash (captured and stripped from the URL by the very first script in
+     <head>), NOT from location.hash, which is empty at this point by design. Every
+     project-scene <article> has a real element id (id="proj-siem" etc, for backwards-
+     compatible deep links), so if the hash were left on the URL the browser's OWN native
+     "scroll the fragment's target into view" would fire independently of -- and can override,
+     including re-firing later as images/fonts finish loading -- our own scroll-scrub
+     positioning below. Stripping the hash before that element even exists in the DOM (see
+     <head>) removes the browser's ability to do that at all; restoring it is left to
+     setActiveProject's own replaceState once we've positioned things ourselves. A second
+     landing after window 'load' is kept as a safety net for any other post-load reflow above
+     the pinned section, and scroll anchoring is disabled document-wide (see html{} rule) so
+     the browser never nudges this scroll position on its own regardless of the cause. */
+  var initialId = (window.hsInitialHash || '').slice(1).replace(/-detail$/, '');
   var initialIdx = initialId ? projectIndexForId(initialId) : null;
   function landInitial(){
     if(initialIdx !== null){ goToProject(initialIdx, {instant: true, noHistory: true}); }
@@ -2671,7 +2682,6 @@ var hsLenis = null;
   if(initialIdx !== null){
     landInitial();
     window.addEventListener('load', function(){ setTimeout(landInitial, 60); });
-    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(landInitial, 30); }); }
   } else {
     render(OVERVIEW, 0);
   }
