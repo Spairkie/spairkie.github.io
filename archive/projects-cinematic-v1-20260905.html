@@ -4,24 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
-/* Capture and strip the URL's hash before the browser gets a chance to act on it, then
-   restore it later once the Projects engine has positioned the page itself. This has to be
-   the very first thing that runs: every project-scene <article> below has a real element id
-   (id="proj-siem" etc, kept for backwards-compatible deep links), so the browser's own native
-   "scroll the fragment's target into view" behaviour fires independently of -- and can
-   override -- our own scroll-scrub positioning, including re-firing later as images/fonts
-   finish loading and layout settles, well after our own JS already positioned things
-   correctly. Since the browser only does this when it can resolve the hash to a real element,
-   removing the hash from the URL immediately (before that element even exists in the DOM, at
-   the very top of <head>) means there is nothing for it to act on; window.hsInitialHash keeps
-   the original value for the Projects engine to read once it initializes further down. */
+
+
+
+
+
+
+
+
+
+
+
 (function(){
   window.hsInitialHash = location.hash;
   if(location.hash){
     try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
   }
 })();
-/* set theme before first paint to avoid a flash of the wrong palette */
+ 
 (function(){
   try{
     var saved = localStorage.getItem('hs_theme');
@@ -39,8 +39,8 @@
 <link rel="icon" href="icons/icon-32.png" type="image/png" sizes="32x32" id="favicon32">
 <link rel="icon" href="icons/icon-16.png" type="image/png" sizes="16x16" id="favicon16">
 <script>
-/* swap the tab favicon to match the active theme, kept in one place so both the
-   initial load and the theme-toggle button share the same logic */
+
+
 function hsSetFavicon(light){
   var ico = document.getElementById('faviconIco');
   var i32 = document.getElementById('favicon32');
@@ -143,7 +143,7 @@ a:hover{text-decoration:underline;}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
 img{max-width:100%;}
 
-/* ---------- keyboard focus: a real ring, on-brand, only for keyboard navigation ---------- */
+ 
 :focus{outline:none;}
 a:focus-visible, button:focus-visible, .btn:focus-visible, summary:focus-visible,
 input:focus-visible, [tabindex]:focus-visible{
@@ -159,10 +159,10 @@ input:focus-visible, [tabindex]:focus-visible{
 #termInput:focus-visible{outline:none;}
 .terminal:focus-within{border-color:var(--accent-dim);box-shadow:0 0 0 3px var(--accent-glow);}
 
-/* ---------- ambient depth field (fixed, drifts behind every section) ---------- */
+ 
 #ambientFX{position:fixed;inset:0;z-index:-1;pointer-events:none;}
 
-/* ---------- film grain / vignette (premium material layer) ---------- */
+ 
 #grain-overlay{
   position:fixed;inset:0;z-index:9990;pointer-events:none;
   opacity:0.045;mix-blend-mode:overlay;
@@ -175,14 +175,14 @@ input:focus-visible, [tabindex]:focus-visible{
 }
 @media (prefers-reduced-motion: reduce){#grain-overlay{opacity:0.03;}}
 
-/* ---------- terminal easter egg: matrix rain ---------- */
+ 
 #matrixFX{
   position:fixed;inset:0;z-index:9995;cursor:pointer;
   opacity:1;transition:opacity .5s ease;background:var(--bg);
 }
 #matrixFX.fade-out{opacity:0;}
 
-/* ---------- scroll progress ---------- */
+ 
 #scroll-progress{
   position:fixed;top:0;left:0;height:2px;width:0%;z-index:100;
   background:linear-gradient(90deg,var(--accent-dim),var(--accent));
@@ -190,7 +190,7 @@ input:focus-visible, [tabindex]:focus-visible{
   transition:width .1s linear;
 }
 
-/* ---------- nav ---------- */
+ 
 header.nav{
   position:sticky;top:0;z-index:50;
   background:rgba(10,14,20,0.72);
@@ -226,7 +226,7 @@ header.nav{
 :root[data-theme="light"] .theme-toggle .icon-sun{display:none;}
 :root[data-theme="light"] .theme-toggle .icon-moon{display:block;}
 
-/* ---------- menu trigger: replaces the old link row entirely, on every screen size ---------- */
+ 
 .nav-toggle{
   display:flex;align-items:center;gap:9px;
   background:none;border:1px solid var(--line);color:var(--text);
@@ -245,7 +245,7 @@ header.nav{
 .nav-toggle[aria-expanded="true"] .nav-toggle-line::before{transform:translateY(5px) rotate(45deg);}
 .nav-toggle[aria-expanded="true"] .nav-toggle-line::after{transform:translateY(-5px) rotate(-45deg);}
 
-/* ---------- section dock: persistent right-edge wayfinding, desktop only ---------- */
+ 
 .section-dock{
   position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:45;
   display:flex;flex-direction:column;gap:16px;align-items:center;
@@ -262,7 +262,7 @@ header.nav{
 .section-dock a:hover::before{opacity:1;transform:translateY(-50%) translateX(0);}
 @media (max-width:1080px){.section-dock{display:none;}}
 
-/* ---------- full-screen menu overlay ---------- */
+ 
 .menu-overlay{
   position:fixed;inset:0;z-index:200;background:var(--bg);
   visibility:hidden;opacity:0;transition:opacity .4s var(--ease),visibility 0s linear .4s;
@@ -310,7 +310,7 @@ body.pc-detail-lock{overflow:hidden;}
   .menu-close{right:20px;}
 }
 
-/* ---------- hero ---------- */
+ 
 .hero{
   position:relative;
   overflow:hidden;
@@ -342,10 +342,10 @@ body.pc-detail-lock{overflow:hidden;}
   .hero-copy > *,.hero-inner > .terminal{animation:none;opacity:1;}
   .line{transform:none !important;animation:none !important;}
 }
-/* ---------- hero: terminal sits beside the copy on desktop instead of stacked below it,
-   so both are visible together without scrolling. Below the breakpoint it drops back to a
-   single column (terminal after the CTA row) -- the exact stacked layout this shipped with
-   for years, so mobile/tablet get no behavior change. ---------- */
+
+
+
+
 @media (min-width:1100px){
   .hero-inner{
     max-width:1300px;
@@ -357,7 +357,7 @@ body.pc-detail-lock{overflow:hidden;}
   .hero-inner .terminal{max-width:none;width:100%;margin-top:6px;}
 }
 
-/* ---------- kinetic hero headline (line-mask reveal) ---------- */
+ 
 .line-wrap{display:block;overflow:hidden;}
 .line{display:block;transform:translateY(112%);}
 .line-wrap:nth-child(1) .line{animation:lineUp .85s var(--ease) forwards;animation-delay:.14s;}
@@ -365,14 +365,14 @@ body.pc-detail-lock{overflow:hidden;}
 .line-wrap:nth-child(3) .line{animation:lineUp .85s var(--ease) forwards;animation-delay:.34s;}
 @keyframes lineUp{to{transform:translateY(0);}}
 
-/* ---------- scroll cue ---------- */
+ 
 .scroll-cue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:2;width:22px;height:34px;border:1px solid var(--line);border-radius:12px;opacity:0.55;}
 .scroll-cue span{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:3px;height:7px;border-radius:2px;background:var(--accent);animation:scrollCue 1.8s ease-in-out infinite;}
 @keyframes scrollCue{0%{opacity:1;top:6px;}70%{opacity:0;top:18px;}100%{opacity:0;top:18px;}}
 @media (prefers-reduced-motion: reduce){.scroll-cue span{animation:none;top:6px;opacity:1;}}
 @media (max-width:760px){.scroll-cue{display:none;}}
 
-/* ---------- marquee ticker ---------- */
+ 
 .marquee{
   position:relative;overflow:hidden;
   border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
@@ -395,7 +395,7 @@ body.pc-detail-lock{overflow:hidden;}
 @keyframes marqueeScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 @media (prefers-reduced-motion: reduce){.marquee-track{animation-duration:120s;}}
 
-/* ---------- manifesto ---------- */
+ 
 .manifesto{padding:88px 0;position:relative;overflow:hidden;}
 .manifesto-texture{
   position:absolute;inset:-15% -10%;z-index:0;pointer-events:none;will-change:transform;
@@ -415,7 +415,7 @@ body.pc-detail-lock{overflow:hidden;}
 .mf-line + .mf-line{margin-top:.35em;}
 @media (prefers-reduced-motion: reduce){.mf-line{opacity:1;filter:none;font-weight:600;transition:none;}}
 
-/* ---------- featured-work teaser: quick visual proof right after the hero, before the résumé narrative ---------- */
+ 
 .teaser{padding:8px 0 64px;}
 .teaser-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px;gap:16px;flex-wrap:wrap;}
 .teaser-all{font-family:var(--font-mono);font-size:13px;}
@@ -438,9 +438,9 @@ body.pc-detail-lock{overflow:hidden;}
 .teaser-pitch{font-size:13.5px;color:var(--text-dim);line-height:1.6;flex:1;}
 .teaser-go{font-family:var(--font-mono);font-size:12px;color:var(--accent-dim);transition:color .2s ease,transform .2s var(--ease);}
 .teaser-item:hover .teaser-go{color:var(--accent);transform:translateX(3px);}
-/* each teaser card borrows its accent from the real project it links to, so this quick-proof
-   strip already hints at the showcase's color-coding before the reader ever reaches the
-   Projects section */
+
+
+
 .teaser-item.hue-amber{--t-accent:var(--amber);--t-glow:rgba(240,180,41,0.16);}
 .teaser-item.hue-rose{--t-accent:#e8748c;--t-glow:rgba(232,116,140,0.16);}
 :root[data-theme="light"] .teaser-item.hue-amber{--t-accent:#8a5a09;}
@@ -450,7 +450,7 @@ body.pc-detail-lock{overflow:hidden;}
 .teaser-item.hue-amber .teaser-go,.teaser-item.hue-amber:hover .teaser-go,.teaser-item.hue-rose .teaser-go,.teaser-item.hue-rose:hover .teaser-go{color:var(--t-accent);}
 @media (max-width:820px){.teaser-grid{grid-template-columns:1fr;}}
 
-/* ---------- custom cursor ---------- */
+ 
 .cursor-dot,.cursor-ring{display:none;}
 @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion: no-preference){
   body{cursor:none;}
@@ -489,11 +489,11 @@ body.pc-detail-lock{overflow:hidden;}
 @media (prefers-reduced-motion: reduce){.status-dot{animation:none;}}
 .hero h1{
   font-family:var(--font-display);
-  /* the old clamp(46px,10vw,124px) had a flat 46px floor reached at any viewport
-     under 460px -- but the box keeps shrinking below that, so "Systems
-     Administrator" and "security engineering." literally overflowed their
-     line-mask and got clipped mid-letter on most real phones (confirmed at
-     360-414px). This curve keeps shrinking all the way down instead of going flat. */
+  
+
+
+
+
   font-size:clamp(30px,10.5vw,124px);
   line-height:0.97;
   font-weight:700;
@@ -504,11 +504,11 @@ body.pc-detail-lock{overflow:hidden;}
 .hero h1 .line-wrap:nth-child(2) .line{font-weight:500;color:var(--text-dim);}
 .hero h1 .accent{color:var(--accent);font-weight:700;}
 :root[data-theme="light"] .hero h1 .line-wrap:nth-child(2) .line{color:var(--text-dimmer);}
-/* the flagship 124px headline was sized assuming the full ~1040px wrap width; halving that
-   width for the side-by-side hero layout at the same size would clip mid-word, so it steps
-   down here and is allowed to wrap each phrase onto two lines where needed (still one
-   slide-up reveal per phrase -- see .line-wrap -- since the whole block, however many lines,
-   animates as one unit) rather than trying to force one line at a shrunken size. */
+
+
+
+
+
 @media (min-width:1100px){
   .hero h1{font-size:clamp(46px,5.6vw,84px);max-width:none;}
   .hero p.lede{max-width:none;}
@@ -540,7 +540,7 @@ body.pc-detail-lock{overflow:hidden;}
 .btn-ghost{border:1px solid var(--line);color:var(--text);}
 .btn-ghost:hover{border-color:var(--accent-dim);color:var(--accent);}
 
-/* terminal */
+ 
 .terminal{
   max-width:560px;
   background:var(--bg-card);
@@ -568,7 +568,7 @@ body.pc-detail-lock{overflow:hidden;}
 .terminal-cursor{display:inline-block;width:7px;height:14px;background:var(--accent);vertical-align:middle;animation:blink 1s step-end infinite;margin-left:2px;}
 @keyframes blink{50%{opacity:0;}}
 
-/* ---------- sections ---------- */
+ 
 section{padding:76px 0;border-bottom:none;position:relative;}
 section:not(:last-of-type)::after{
   content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);
@@ -581,9 +581,9 @@ section:not(:last-of-type)::after{
   background-image:radial-gradient(circle, var(--line-soft) 1px, transparent 1px);
   background-size:26px 26px;opacity:0.6;
 }
-/* ---------- about: a faint HUD scan sweep behind the whole section, echoing the same
-   scan-line/corner-bracket language already on the headshot's hover state, so the section
-   reads as "live telemetry" rather than a flat panel ---------- */
+
+
+
 .about-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
 .about-bg canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0.5;}
 #about .wrap{position:relative;z-index:1;}
@@ -597,9 +597,9 @@ section:not(:last-of-type)::after{
   font-family:var(--font-display);font-size:clamp(24px,3vw,32px);font-weight:600;
   margin:0;color:var(--text);letter-spacing:-0.01em;
 }
-/* ---------- kinetic type: headings ride the variable-font weight axis as they enter the
-   viewport, from a light draft weight up to full display weight -- makes typography feel
-   like it's arriving rather than just fading in ---------- */
+
+
+
 .kinetic-h{font-weight:340;will-change:font-weight;}
 @media (prefers-reduced-motion: reduce){.kinetic-h{font-weight:700 !important;}}
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease), transform .8s var(--ease);}
@@ -610,7 +610,7 @@ section:not(:last-of-type)::after{
   .reveal,.stagger-item{opacity:1;transform:none;transition:none;}
 }
 
-/* ---------- about ---------- */
+ 
 .about-grid{display:grid;grid-template-columns:216px 1.05fr 1fr;gap:32px;align-items:start;}
 .about-photo{
   position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--bg-card);
@@ -619,7 +619,7 @@ section:not(:last-of-type)::after{
 .about-photo img{display:block;width:100%;height:auto;filter:saturate(0.92) contrast(1.04);}
 .about-photo::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(94,234,212,0.08);pointer-events:none;}
 
-/* ---------- HUD scan card (headshot 3D treatment) ---------- */
+ 
 .hud-frame{position:absolute;inset:0;pointer-events:none;}
 .hud-frame::before{
   content:"";position:absolute;inset:0;opacity:0;transition:opacity .3s ease;
@@ -666,20 +666,20 @@ section:not(:last-of-type)::after{
 .stat .num{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--accent);}
 .stat .label{font-size:12.5px;color:var(--text-dimmer);margin-top:2px;}
 
-/* ---------- experience (and education, which echoes this same track+dot language) ---------- */
+ 
 .timeline{position:relative;padding-left:26px;}
 .timeline::before{
   content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:var(--line);
 }
-/* a literal read-progress rail: fills downward in the accent color as the reader scrolls
-   past each item, rather than sitting there as pure decoration */
+
+
 .timeline-fill{
   position:absolute;left:5px;top:6px;width:1px;height:0%;
   background:linear-gradient(180deg,var(--accent),var(--accent-dim));
   box-shadow:0 0 6px var(--accent-glow);will-change:height;pointer-events:none;
 }
-/* a small glowing "comet head" rides the fill's growing tip -- one quiet extra signal that
-   this is a live read-position, not a texture or a pattern, so it adds presence without noise */
+
+
 .timeline-fill::after{
   content:"";position:absolute;left:50%;bottom:0;width:7px;height:7px;border-radius:50%;
   transform:translate(-50%,50%);background:var(--accent);
@@ -711,11 +711,11 @@ section:not(:last-of-type)::after{
 .tl-item ul{margin:0;padding-left:18px;color:var(--text-dim);font-size:14.5px;}
 .tl-item li{margin-bottom:5px;}
 
-/* ---------- projects: cinematic exhibition (Round 15) ----------
-   Flat per-project color fields, giant condensed typography, a segmented tick counter,
-   and a fullscreen detail overlay -- replaces the old rounded-card carousel entirely.
-   Shared building blocks below (.chip, .chart-panel, .term-panel, .live-embed, sub-projects
-   grid) are kept because project detail content still uses them verbatim. ---------- */
+
+
+
+
+
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
 .chip{
@@ -723,7 +723,7 @@ section:not(:last-of-type)::after{
   padding:3px 9px;border-radius:20px;display:inline-block;
   transition:transform .2s var(--ease),border-color .25s ease,color .25s ease;
 }
-/* micro-imperfection: chips sit at tiny, deliberately uneven angles, like hand-placed labels */
+ 
 .chip:nth-child(5n+1){transform:rotate(-0.7deg);}
 .chip:nth-child(5n+2){transform:rotate(0.5deg);}
 .chip:nth-child(5n+3){transform:rotate(-0.3deg);}
@@ -732,7 +732,7 @@ section:not(:last-of-type)::after{
 .chart-panel{background:var(--bg-panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:2px;}
 .chart-cap{margin:10px 2px 0;font-size:11.5px;color:var(--text-dimmer);}
 
-/* ---------- terminal-output panels (real / representative CLI output inside a project) ---------- */
+ 
 .term-panel{background:var(--bg-panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:2px 0 14px;}
 .term-panel .term-topbar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);}
 .term-panel .term-topbar .terminal-dot{width:8px;height:8px;}
@@ -744,7 +744,7 @@ section:not(:last-of-type)::after{
 .term-panel .term-dim{color:var(--text-dimmer);}
 .term-panel .term-accent{color:var(--accent);}
 
-/* ---------- live embeds (same-origin project demos, framed like a window) ---------- */
+ 
 .live-embed{position:relative;z-index:1;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
 .live-embed .lf-bar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--bg-panel);}
 .live-embed .lf-bar .terminal-dot{width:8px;height:8px;}
@@ -759,8 +759,8 @@ section:not(:last-of-type)::after{
   .live-embed.jotrelay iframe{height:200px;}
   .live-embed .lf-hint{display:none;}
 }
-/* click-to-activate: keeps page scroll from getting trapped by the embedded demo's own
-   scroll/zoom handling until the visitor deliberately opts in to interact with it */
+
+
 .live-embed .lf-overlay{
   position:absolute;inset:0;z-index:2;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
@@ -775,8 +775,8 @@ section:not(:last-of-type)::after{
 }
 .lf-overlay-badge svg{width:14px;height:14px;flex-shrink:0;}
 
-/* ---------- sub-projects: the non-highlight builds, reached by continuing to scroll past the
-   main exhibition. A plain grid on purpose -- these are the "also" items, not the showcase. ---------- */
+
+
 .sub-projects-wrap{margin-top:8px;position:relative;z-index:1;background:var(--bg);padding-top:64px;}
 .also-built{margin-top:24px;position:relative;}
 .also-head{margin-bottom:20px;}
@@ -810,13 +810,13 @@ section:not(:last-of-type)::after{
 .also-detail.open{max-height:220px;opacity:1;}
 @media (max-width:640px){.also-grid{grid-template-columns:1fr;}}
 
-/* ====================================================================
-   cinematic Projects exhibition: overview contact-sheet, full-bleed
-   per-project stage, and a fullscreen detail overlay. All chrome below
-   (ticks, giant titles, meta bar, overview strips) is generated from the
-   PROJECTS data array in JS; real project copy/media stays in the HTML
-   above (.scene-media / .scene-detail-copy) as the single source of truth.
-   ==================================================================== */
+
+
+
+
+
+
+
 .projects-cinematic{
   position:relative;background:var(--pc-bg,#05070a);color:var(--pc-ink,#e7edf5);isolation:isolate;
   transition:background-color .5s ease,color .5s ease;
@@ -842,7 +842,7 @@ section:not(:last-of-type)::after{
 .pc-scrollrange{position:relative;height:calc((var(--pc-count,9)) * 100vh);}
 .pc-viewport{position:sticky;top:0;height:100vh;overflow:hidden;touch-action:pan-y;}
 
-/* ---------- overview / contact sheet ---------- */
+ 
 .pc-overview{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;
 }
@@ -858,7 +858,7 @@ section:not(:last-of-type)::after{
 .pc-strip:hover,.pc-strip:focus-visible{filter:grayscale(0) brightness(0.95);}
 .pc-strip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
-/* ---------- stage ---------- */
+ 
 .pc-stage{position:absolute;inset:0;z-index:2;}
 .project-scene{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -888,7 +888,7 @@ section:not(:last-of-type)::after{
 .project-scene.is-active .title-line .letter{transform:translateY(0);opacity:1;}
 .scene-detail-copy{display:none;}
 
-/* ---------- bottom metadata + explore ---------- */
+ 
 .pc-metabar{
   position:absolute;left:0;right:0;bottom:0;z-index:5;padding:0 32px 34px;
   display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;
@@ -911,7 +911,7 @@ section:not(:last-of-type)::after{
 .pc-explore:hover .pc-explore-plus{transform:rotate(90deg);}
 .pc-explore:focus-visible{outline:2px solid var(--accent);outline-offset:4px;}
 
-/* ---------- detail overlay ---------- */
+ 
 .pc-detail{
   position:fixed;inset:0;z-index:200;background:var(--pc-bg,#05070a);color:var(--pc-ink,#f4f1ea);
   opacity:0;transform:scale(0.97);display:flex;flex-direction:column;
@@ -947,12 +947,12 @@ section:not(:last-of-type)::after{
 .pc-detail-thumb.is-active{opacity:1;border-color:var(--pc-accent,#5eead4);}
 .pc-detail-thumb:hover{opacity:0.8;}
 .pc-detail-footer{padding:22px 40px 34px;}
-/* .scene-detail-copy is display:none where it normally lives (inert markup inside the hidden
-   cinematic scene -- see the note above .scene-detail-copy's rule), but openProjectDetail()
-   relocates that exact node into #pcDetailFooter as the detail overlay's real description
-   content, and it needs to actually render there. Scoping the override to this container (kept
-   in sync with .pc-detail-desc-wrap's own display:flex below) means the same node goes back to
-   being invisible automatically once closeProjectDetail() returns it to the scene. */
+
+
+
+
+
+
 #pcDetailFooter .scene-detail-copy{display:block;}
 .pc-detail-desc-wrap{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;}
 .pc-detail-desc-wrap .feature-stats{margin:0 0 10px;}
@@ -995,7 +995,7 @@ section:not(:last-of-type)::after{
   .pc-strip{transition:filter .05s linear;}
   .pc-detail{transition:opacity .2s ease;transform:none !important;}
 }
-/* ---------- skills ---------- */
+ 
 .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;}
 .skill-group{position:relative;overflow:hidden;background:var(--bg-card);padding:22px 24px;transition:background .3s ease;}
 .skill-group::before{
@@ -1022,9 +1022,9 @@ section:not(:last-of-type)::after{
 }
 @media (prefers-reduced-motion: reduce){.skill-group.scan::after{animation:none;display:none;}}
 
-/* ---------- education / certs ---------- */
-/* a faint, slowly-turning concentric "seal" watermark -- a nod to the certificate/diploma
-   theme of this section without literally drawing a badge; pure CSS, no canvas needed */
+ 
+
+
 .edu-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
 #education .wrap{position:relative;z-index:1;}
 .edu-seal{
@@ -1062,7 +1062,7 @@ section:not(:last-of-type)::after{
 }
 @media (prefers-reduced-motion: reduce){.live-dot::after{animation:none;display:none;}}
 
-/* ---------- contact ---------- */
+ 
 footer{padding:96px 0 40px;}
 footer .wrap{text-align:center;}
 footer .eyebrow{justify-content:center;}
@@ -1073,10 +1073,10 @@ footer h2{font-family:var(--font-display);font-size:clamp(26px,4vw,38px);margin:
 .footer-headline .accent{color:var(--accent);}
 footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
 .email-cta{font-size:16px;padding:14px 26px;gap:12px;animation:ctaBreathe 3.4s ease-in-out infinite;max-width:100%;}
-/* the raw email string is one unbreakable "word" -- flex items default to min-width:auto, which
-   ignores the parent's width and lets long unbreakable text overflow the button (and, on the
-   narrowest phones, the page itself) instead of wrapping. min-width:0 lets it shrink, and
-   overflow-wrap lets it actually break if it still doesn't fit. */
+
+
+
+
 .email-cta .email-text{min-width:0;overflow-wrap:anywhere;}
 .email-cta:hover{animation-play-state:paused;}
 .email-cta .email-arrow{transition:transform .3s var(--ease);}
@@ -1114,7 +1114,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
   .about-photo{max-width:220px;transform:none !important;}
 }
 
-/* ---------- generative circuit-trace divider ---------- */
+ 
 .circuit-divider{
   position:relative;height:130px;overflow:hidden;
   border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);
@@ -1123,7 +1123,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
 #circuitCanvas{position:absolute;left:0;right:0;top:-24px;bottom:-24px;width:100%;height:calc(100% + 48px);display:block;will-change:transform;}
 @media (max-width:600px){.circuit-divider{height:90px;}}
 
-/* ---------- boot sequence ---------- */
+ 
 #boot-screen{
   position:fixed;inset:0;z-index:9998;background:var(--bg);
   display:flex;align-items:center;justify-content:center;
@@ -1135,7 +1135,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
 .boot-line.ok{color:var(--accent);}
 .boot-skip{position:fixed;bottom:22px;right:26px;font-family:var(--font-mono);font-size:11.5px;color:var(--text-dimmer);opacity:0.7;z-index:9998;}
 body.boot-lock{overflow:hidden;}
-/* real-progress readout: a literal percentage tied to actual page/asset readiness, not a fixed timer */
+ 
 .boot-bar-row{display:flex;align-items:center;gap:12px;margin-top:6px;opacity:0;transition:opacity .3s ease;}
 .boot-bar-row.show{opacity:1;}
 .boot-bar{position:relative;flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden;}
@@ -1143,7 +1143,7 @@ body.boot-lock{overflow:hidden;}
 .boot-pct{font-family:var(--font-mono);font-size:12.5px;color:var(--accent);min-width:38px;text-align:right;font-variant-numeric:tabular-nums;}
 @media (prefers-reduced-motion: reduce){#boot-screen{display:none;}}
 
-/* ---------- hero watermark ---------- */
+ 
 .hero-mark{
   position:absolute;top:50%;right:-2vw;transform:translateY(-50%);z-index:0;
   font-family:var(--font-mono);font-weight:700;font-size:min(30vw,360px);
@@ -1153,7 +1153,7 @@ body.boot-lock{overflow:hidden;}
 }
 @media (max-width:900px){.hero-mark{display:none;}}
 
-/* ---------- terminal (interactive) ---------- */
+ 
 .terminal-body{max-height:260px;overflow-y:auto;scrollbar-width:thin;}
 .terminal-body::-webkit-scrollbar{width:6px;}
 .terminal-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
@@ -1168,7 +1168,7 @@ body.boot-lock{overflow:hidden;}
 .terminal-echo{color:var(--text-dim);}
 .terminal-err{color:#ff8f8f;}
 
-/* ---------- project detail copy (shared by all eight scene-detail-copy blocks) ---------- */
+ 
 .feature-desc{color:var(--text-dim);font-size:15px;max-width:680px;margin:0 0 16px;line-height:1.75;}
 .feature-flow{
   display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:26px;position:relative;z-index:1;
@@ -1185,8 +1185,8 @@ body.boot-lock{overflow:hidden;}
 .feature-links a::before{content:"→ ";}
 @media (max-width:760px){.feature-flow{display:none;}}
 
-/* SIEM feature-flow: a slow left-to-right pulse through the pipeline arrows, so the diagram
-   reads as data actually moving through the correlation chain rather than a static label row */
+
+
 @keyframes flowPulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
 .feature-flow > *:nth-child(2n){animation:flowPulse 2.2s ease-in-out infinite;}
 .feature-flow > *:nth-child(2){animation-delay:0s;}
@@ -1195,7 +1195,7 @@ body.boot-lock{overflow:hidden;}
 .feature-flow > *:nth-child(8){animation-delay:0.9s;}
 @media (prefers-reduced-motion: reduce){.feature-flow > *{animation:none !important;}}
 
-/* ---------- project "why" disclosure ---------- */
+ 
 .why{margin-top:14px;}
 .why summary{
   cursor:pointer;list-style:none;user-select:none;
@@ -1917,7 +1917,7 @@ body.boot-lock{overflow:hidden;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
 <script>
-/* ---------- theme toggle (light/dark) ---------- */
+ 
 (function(){
   var btn = document.getElementById('themeToggle');
   if(!btn) return;
@@ -1939,10 +1939,10 @@ body.boot-lock{overflow:hidden;}
   });
 })();
 
-/* ---------- horizontal "also built" gallery ---------- */
+ 
 (function(){
-  /* live-embed activation: iframes start inert so the page can still be scrolled
-     over them; a click/tap or keyboard activation hands control to the embed */
+  
+
   document.querySelectorAll('.live-embed').forEach(function(embed){
     var overlay = embed.querySelector('.lf-overlay');
     if(!overlay) return;
@@ -1953,7 +1953,7 @@ body.boot-lock{overflow:hidden;}
     });
   });
 
-  /* sub-projects "view more" toggle -- each mini-card can expand one extra paragraph in place */
+   
   document.querySelectorAll('.also-more').forEach(function(btn){
     btn.addEventListener('click', function(){
       var open = btn.getAttribute('aria-expanded') === 'true';
@@ -1966,7 +1966,7 @@ body.boot-lock{overflow:hidden;}
   });
 })();
 
-/* ---------- full-screen menu overlay ---------- */
+ 
 (function(){
   var btn = document.getElementById('navToggle');
   var overlay = document.getElementById('menuOverlay');
@@ -1997,7 +1997,7 @@ body.boot-lock{overflow:hidden;}
   });
 })();
 
-/* ---------- smooth (inertia) scroll ---------- */
+ 
 var hsLenis = null;
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2015,7 +2015,7 @@ var hsLenis = null;
   }
   requestAnimationFrame(raf);
 
-  /* section dock + menu overlay + project quick-nav: route anchor jumps through Lenis so they share its easing */
+   
   document.querySelectorAll('.section-dock a[href^="#"], .menu-links a[href^="#"], .nav-brand[href^="#"], .teaser-item[href^="#"], .teaser-all[href^="#"]').forEach(function(a){
     a.addEventListener('click', function(e){
       var id = a.getAttribute('href').slice(1);
@@ -2033,7 +2033,7 @@ var hsLenis = null;
   });
 })();
 
-/* ---------- ambient depth field: sparse drifting motes behind every section, tying the whole page into one atmosphere ---------- */
+ 
 (function(){
   var canvas = document.getElementById('ambientFX');
   if(!canvas) return;
@@ -2100,7 +2100,7 @@ var hsLenis = null;
   });
 })();
 
-/* ---------- generative circuit-trace divider (deterministic seeded art) ---------- */
+ 
 (function(){
   var canvas = document.getElementById('circuitCanvas');
   if(!canvas) return;
@@ -2179,22 +2179,22 @@ var hsLenis = null;
   });
 })();
 
-/* ====================================================================
-   PROJECTS: cinematic exhibition engine (Round 15)
-   One data array drives all generated chrome (ticks, overview strips,
-   giant titles, meta bar, detail overlay). Real per-project copy/media
-   lives in the HTML above (.scene-media / .scene-detail-copy) and is
-   moved (not cloned) into the detail overlay when opened, so a live
-   embed's activated state survives open/close.
 
-   Public API (kept intentionally small, single source of truth):
-     window.hsProjects.goToProject(index, opts)
-     window.hsProjects.getProjectsMetrics()
-     window.hsProjects.indexToScrollY(index)
-     window.hsProjects.scrollYToVirtualIndex(scrollY)
-     window.hsScrollToProjSlide(el)  -- back-compat shim used by the
-       shared anchor-click handler and the terminal's "cd" routing.
-   ==================================================================== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (function(){
   var PROJECTS = [
     { id:'craft', num:1, title:'Interactive Diploma', displayLines:['INTERACTIVE','DIPLOMA'], short:'ID',
@@ -2206,8 +2206,8 @@ var hsLenis = null;
       type:'Security tool', stack:'Python', status:'25 tests passing',
       short_desc:"Correlates sequences of events across two log sources into one incident, not two unrelated alerts." },
     { id:'proj-helpdesk', num:3, title:'Helpdesk Ticket Analytics', displayLines:['HELP','DESK'], short:'HD',
-      /* accent darkened from #2f6fa8 (4.51:1 on bg, right at the WCAG AA floor with no margin
-         for small text like the detail view's links) to #285f8f (5.71:1), same hue/saturation. */
+      
+
       bg:'#e9edf1', ink:'#141b24', accent:'#285f8f',
       type:'Analytics tool', stack:'Python', status:'14 tests passing',
       short_desc:"Turns a raw ticket export into SLA compliance, resolution-time, and volume metrics." },
@@ -2220,8 +2220,8 @@ var hsLenis = null;
       type:'Security tool', stack:'Python', status:'46 tests passing',
       short_desc:"Statically analyzes raw .eml files for phishing indicators, fully offline." },
     { id:'proj-jotrelay', num:6, title:'JotRelay', displayLines:['JOT','RELAY'], short:'JR',
-      /* accent darkened from #2f8f5f (3.68:1 on bg -- fails WCAG AA's 4.5:1 for the small
-         link/disclosure text it colors in the detail view) to #256f4a (5.57:1), same hue/sat. */
+      
+
       bg:'#eef7f1', ink:'#0c1f15', accent:'#256f4a',
       type:'Web app', stack:'JS / Supabase', status:'Live demo',
       short_desc:"Real-time encrypted collaborative notepad with shareable links and an installable PWA." },
@@ -2326,7 +2326,7 @@ var hsLenis = null;
     s.strip = strip;
   });
 
-  /* ---------- scroll <-> virtual index mapping ---------- */
+   
   function getProjectsMetrics(){
     var rect = scrollRange.getBoundingClientRect();
     var total = rect.height - window.innerHeight;
@@ -2345,28 +2345,28 @@ var hsLenis = null;
     return OVERVIEW + p * N;
   }
 
-  /* activeIndex starts at an impossible value (never a real project index) rather than 0, so the
-     very first render() call always runs setActiveProject once -- even when the very first
-     project the user lands on happens to BE index 0, e.g. a fresh visit to "#craft" or the
-     bare page with no hash at all. Starting this at 0 would make the "nearest !== activeIndex"
-     check below a no-op on that first call, silently skipping the initial --pc-bg/--pc-ink/
-     --pc-accent vars, meta bar text, and .is-active class entirely. */
+  
+
+
+
+
+
   var activeIndex = -99, lastVI = 0, lastT = 0, decayRaf = null, velocity = 0;
 
   function render(vi, vel){
-    /* #pcViewport (overflow:hidden) is a pure clipping box: every scene inside it is
-       positioned entirely by the translate3d() transforms below, never by native scrolling,
-       and touch-action:pan-y already tells the browser not to let touch gestures scroll it
-       horizontally. But scenes far enough from the active index are skipped in the loop
-       below (the ad>2.4 early-return, for performance) and never receive a transform, so
-       they sit at their untransformed, full-width flex-centered position -- which, combined
-       with nearer scenes translated far to one side, gives the browser's own overflow
-       calculation real (if invisible) horizontal scrollable content on both sides of center.
-       Browsers then pick their own default scroll position for that overflow (observed:
-       roughly centered in the excess), which silently shifts this element's own children --
-       including #pcOverview, the fullscreen contact-sheet layer, which has nothing to do
-       with the filmstrip and should never move -- off to one side. Since this container is
-       never meant to carry a native scroll offset at all, pin it to 0 on every render. */
+    
+
+
+
+
+
+
+
+
+
+
+
+
     if(viewport && viewport.scrollLeft !== 0){ viewport.scrollLeft = 0; }
     var overviewProgress = Math.max(0, Math.min(1, vi - OVERVIEW));
     overview.style.opacity = String(1 - overviewProgress);
@@ -2377,15 +2377,15 @@ var hsLenis = null;
 
     var focusIdx = Math.max(0, Math.min(N - 1, Math.round(vi)));
     var t = overviewProgress;
-    /* dx scales WITH t (0 at rest in the overview, growing as the reader commits to a
-       project) so the eight strips sit as a tight, evenly centered contact sheet exactly
-       when the overview is fully opaque (t=0), and only scatter apart as it fades out
-       (t->1) -- they were previously scaling by (1-t), which is backwards: it fanned every
-       strip out to its maximum spread (offset*90px) at the exact moment the overview was
-       most visible, before it had scrolled at all. At up to 7 strips away from focusIdx that
-       routinely pushed strips off both edges of the viewport (confirmed lopsided even on a
-       1440px-wide screen, let alone mobile), leaving the "contact sheet" impossible to read
-       or fully see. */
+    
+
+
+
+
+
+
+
+
     scenes.forEach(function(s){
       var offset = s.index - focusIdx;
       var dx = offset * t * 90;
@@ -2445,12 +2445,12 @@ var hsLenis = null;
     } else {
       metaSource.textContent = 'This site';
     }
-    /* Only write this project's id into the address bar once the reader has actually
-       arrived at its scene (overviewProgress===1, i.e. vi>=0) -- not merely because it's
-       the nearest/default project for meta-bar and color purposes while still sitting in
-       the overview. Skipping that gate meant even a bare, no-hash homepage load silently
-       replaceState'd the URL to "#craft" on first paint, since render()'s initial call
-       (vi=OVERVIEW) always resolves focusIdx to project 0. */
+    
+
+
+
+
+
     if(overviewProgress >= 1 && !detail.classList.contains('is-open') && location.hash.slice(1) !== p.id){
       history.replaceState(null, '', '#' + p.id);
     }
@@ -2481,16 +2481,16 @@ var hsLenis = null;
   else { window.addEventListener('scroll', onScroll, {passive: true}); }
   window.addEventListener('resize', function(){ requestAnimationFrame(update); });
 
-  /* ---------- navigation ---------- */
+   
   function goToProject(index, opts){
     opts = opts || {};
     index = Math.max(OVERVIEW, Math.min(N - 1, index));
     var y = indexToScrollY(index);
     if(opts.instant){
-      /* force a genuinely instant jump: html{scroll-behavior:smooth} (global, see base
-         stylesheet) is only ever cancelled by the Lenis init script, so if Lenis hasn't
-         loaded yet (slow CDN, blocked script) a plain scrollTo here would animate instead
-         of snapping -- this matters for hash-landing on load and Home/End. */
+      
+
+
+
       var prevBehavior = document.documentElement.style.scrollBehavior;
       document.documentElement.style.scrollBehavior = 'auto';
       window.scrollTo(0, y);
@@ -2511,8 +2511,8 @@ var hsLenis = null;
     return null;
   }
 
-  /* back-compat shim: the shared anchor-click handler and terminal routing
-     both resolve a DOM element by id and hand it here */
+  
+
   window.hsScrollToProjSlide = function(el){
     if(!el || !el.id) return false;
     var idx = projectIndexForId(el.id);
@@ -2521,13 +2521,13 @@ var hsLenis = null;
     return true;
   };
 
-  /* ---------- keyboard navigation ---------- */
-  /* "engaged" means the user has scrolled anywhere into the pinned Projects range. Note this
-     can't use a mid-range threshold like 0.4: scrollRange is many viewport-heights tall, so the
-     visible fraction of ITS OWN total height never exceeds roughly (100vh / pc-count*100vh) --
-     for 8 projects that's under 0.12 at every scroll position, so a 0.4 threshold would simply
-     never fire and keyboard nav would never engage. threshold 0 (any overlap at all) is what
-     actually corresponds to "currently inside the section". */
+   
+  
+
+
+
+
+
   var engaged = false;
   if('IntersectionObserver' in window){
     new IntersectionObserver(function(entries){
@@ -2551,10 +2551,10 @@ var hsLenis = null;
     else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp'){ e.preventDefault(); goToProject(Math.round(lastVI) - 1); }
     else if(e.key === 'Home'){ e.preventDefault(); goToProject(0); }
     else if(e.key === 'End'){ e.preventDefault(); goToProject(N - 1); }
-    else if(e.key === 'Enter' && document.activeElement === exploreBtn){ /* native click follows */ }
+    else if(e.key === 'Enter' && document.activeElement === exploreBtn){   }
   });
 
-  /* ---------- pointer drag / touch swipe on the active media stage ---------- */
+   
   (function(){
     var dragging = false, startX = 0, startVI = 0, dragVI = 0, wasDragged = false;
     stage.addEventListener('pointerdown', function(e){
@@ -2587,7 +2587,7 @@ var hsLenis = null;
     }, true);
   })();
 
-  /* ---------- detail overlay ---------- */
+   
   var lastFocusEl = null;
 
   function escapeHtml(str){
@@ -2681,7 +2681,7 @@ var hsLenis = null;
   if(detailBack) detailBack.addEventListener('click', function(e){ e.preventDefault(); closeProjectDetail(); });
   detail.addEventListener('click', function(e){ if(e.target === detail) closeProjectDetail(); });
 
-  /* minimal focus trap while the detail overlay is open */
+   
   detail.addEventListener('keydown', function(e){
     if(e.key !== 'Tab') return;
     var focusables = detail.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])');
@@ -2691,7 +2691,7 @@ var hsLenis = null;
     else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
   });
 
-  /* ---------- hash routing (including legacy anchor ids) ---------- */
+   
   function landFromHash(instant){
     var id = location.hash.slice(1).replace(/-detail$/, '');
     var idx = projectIndexForId(id);
@@ -2702,28 +2702,28 @@ var hsLenis = null;
 
   window.hsProjects = { goToProject: goToProject, getProjectsMetrics: getProjectsMetrics, indexToScrollY: indexToScrollY, scrollYToVirtualIndex: scrollYToVirtualIndex, openProjectDetail: openProjectDetail, closeProjectDetail: closeProjectDetail };
 
-  /* land on whatever the URL's original hash pointed to, if any -- read from
-     window.hsInitialHash (captured and stripped from the URL by the very first script in
-     <head>), NOT from location.hash, which is empty at this point by design. Every
-     project-scene <article> has a real element id (id="proj-siem" etc, for backwards-
-     compatible deep links), so if the hash were left on the URL the browser's OWN native
-     "scroll the fragment's target into view" would fire independently of -- and can override,
-     including re-firing later as images/fonts finish loading -- our own scroll-scrub
-     positioning below. Stripping the hash before that element even exists in the DOM (see
-     <head>) removes the browser's ability to do that at all; restoring it is left to
-     setActiveProject's own replaceState once we've positioned things ourselves. Scroll
-     anchoring is also disabled document-wide (see html{} rule) so the browser never nudges
-     this scroll position on its own regardless of the cause.
+  
 
-     A single extra landing after window 'load' is not always enough: on a real page (fonts,
-     the WebGL hero, real images) layout above the pinned section can keep shifting for a bit
-     even after 'load' fires, which silently moves the pixel offset every index maps to and
-     leaves the page stranded at a now-stale target. Rather than guess a checkpoint count/delay
-     that happens to cover today's asset weight, watch for it directly: a ResizeObserver on
-     <body> re-runs the landing whenever the document's height actually changes, for a short
-     settle window after which any such shift is assumed to be content the user scrolled to on
-     purpose rather than layout still settling. It stops the moment the reader actually starts
-     driving (wheel/touch/key), so it never fights a real scroll. */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   var initialId = (window.hsInitialHash || '').slice(1).replace(/-detail$/, '');
   var initialIdx = initialId ? projectIndexForId(initialId) : null;
   function landInitial(){
@@ -2748,8 +2748,8 @@ var hsLenis = null;
   }
 })();
 
-/* ---------- about: faint HUD scan sweep + telemetry grid behind the section, only animates
-   on-screen -- same restrained "live system" language as the photo's own hover scan ---------- */
+
+
 (function(){
   var canvas = document.getElementById('aboutCanvas');
   if(!canvas) return;
@@ -2831,7 +2831,7 @@ var hsLenis = null;
   });
 })();
 
-/* ---------- scroll-linked parallax depth: several independent layers drifting at different rates ---------- */
+ 
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduce) return;
@@ -2884,10 +2884,10 @@ var hsLenis = null;
   apply();
 })();
 
-/* ---------- manifesto lines: light up progressively as the section scrolls into a comfortable
-   reading position (NOT the same progress math as the parallax layers above -- that formula only
-   reaches 1 once the section's bottom hits the viewport top, i.e. as it's leaving the screen,
-   which left this text permanently dim/blurred while it was still the thing on screen) ---------- */
+
+
+
+
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var section = document.querySelector('.manifesto');
@@ -2900,9 +2900,9 @@ var hsLenis = null;
   function apply(){
     var rect = section.getBoundingClientRect();
     var vh = window.innerHeight || document.documentElement.clientHeight;
-    /* progress 0 = section just entering at the bottom edge of the viewport;
-       progress 1 = section's top has scrolled up to ~35% of viewport height --
-       comfortably readable, well before it starts exiting at the top */
+    
+
+
     var progress = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.65)));
     lines.forEach(function(line, i){
       var r = ranges[i] || [0, 1];
@@ -2927,10 +2927,10 @@ var hsLenis = null;
   apply();
 })();
 
-/* ---------- kinetic headings: each .kinetic-h rides the Space Grotesk variable weight axis
-   (300-700) from a light draft weight up to full display weight as it crosses into a comfortable
-   reading position -- same corrected viewport-relative formula as the manifesto above, applied
-   per-element since these headings are scattered across five different sections ---------- */
+
+
+
+
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var heads = document.querySelectorAll('.kinetic-h');
@@ -2961,10 +2961,10 @@ var hsLenis = null;
   apply();
 })();
 
-/* ---------- timeline read-progress rail: the accent line fills downward past each item as the
-   reader scrolls, on both Experience and Education -- a literal progress indicator rather than a
-   static decorative spine, and the shared mechanism is what makes Education visually "rhyme"
-   with Experience instead of just borrowing its dot-and-line CSS ---------- */
+
+
+
+
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var tracks = [];
@@ -3001,8 +3001,8 @@ var hsLenis = null;
   apply();
 })();
 
-/* ---------- velocity-reactive marquee: speeds up with scroll velocity, settles back to its
-   idle pace when scrolling stops -- makes the ticker feel driven by the page, not decorative ---------- */
+
+
 (function(){
   var track = document.querySelector('.marquee-track');
   var section = document.querySelector('.marquee');
@@ -3035,19 +3035,19 @@ var hsLenis = null;
   }
 })();
 
-/* ---------- boot sequence: driven by REAL asset/readiness progress, not a fixed timer ----------
-   Five weighted milestones (20% each) feed the percentage bar: fonts decoded, three.js loaded,
-   Lenis loaded, hero headshot decoded, window 'load' fired. A displayed value eases toward that
-   real target every frame, so it never jumps 0->100 on a fast connection but also never finishes
-   before the page actually can.
 
-   The printed terminal LINES are gated on those same milestones, one line per real event, printed
-   strictly in narrative order even if the underlying events resolve out of order (a queue is
-   advanced, not a fixed schedule) -- so "clearance: ACTIVE" only ever appears once the identity
-   photo has actually decoded, not on a timer that merely usually finishes after it.
 
-   A hard ceiling (4200ms) forces completion so a blocked CDN script can never soft-lock the page;
-   on that path the remaining gated lines print immediately rather than staying missing. */
+
+
+
+
+
+
+
+
+
+
+
 (function(){
   var screen = document.getElementById('boot-screen');
   var inner = document.getElementById('bootInner');
@@ -3068,9 +3068,9 @@ var hsLenis = null;
 
   var MILESTONES = 5, done = 0;
   var target = 0, shown = 0, finished = false, raf = null;
-  /* each gated line waits on one or more named events; 'fonts'/'engine'/'visual'/'load' are set
-     true as the matching real milestone below resolves. The intro line has no gate (prints at
-     t=0); the closing line waits on everything. */
+  
+
+
   var ev = {fonts:false, engine3d:false, engineScroll:false, visual:false, load:false};
   var lines = [
     {text:'> booting hans@sysadmin ...', gate:null},
@@ -3099,10 +3099,10 @@ var hsLenis = null;
     inner.appendChild(d);
     requestAnimationFrame(function(){ d.style.opacity = '1'; });
   }
-  /* 1: web fonts decoded */
+   
   if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ ev.fonts = true; mark(); }); }
   else { ev.fonts = true; mark(); }
-  /* 2 & 3: the two CDN engines this site depends on (three.js hero, Lenis smooth scroll) */
+   
   (function waitFor(prop, cb){
     if(window[prop]){ cb(); return; }
     var tries = 0;
@@ -3119,7 +3119,7 @@ var hsLenis = null;
       if(window[prop] || tries > 80){ clearInterval(t); cb(); }
     }, 50);
   })('Lenis', function(){ ev.engineScroll = true; mark(); });
-  /* 4: the above-the-fold headshot actually decoded (not just requested) */
+   
   (function(){
     var img = document.querySelector('.about-photo img, img[src*="headshot"]');
     function done(){ ev.visual = true; mark(); }
@@ -3128,7 +3128,7 @@ var hsLenis = null;
     else if(img){ img.addEventListener('load', done, {once:true}); img.addEventListener('error', done, {once:true}); }
     else { done(); }
   })();
-  /* 5: the page itself has fully loaded */
+   
   if(document.readyState === 'complete'){ ev.load = true; mark(); }
   else { window.addEventListener('load', function(){ ev.load = true; mark(); }, {once:true}); }
 
@@ -3149,7 +3149,7 @@ var hsLenis = null;
   }
 
   function frame(){
-    /* ease the displayed value toward the real target, never the other way around */
+     
     shown += (target - shown) * 0.12;
     if(target >= 1 && target - shown < 0.01) shown = 1;
     var pct = Math.round(shown * 100);
@@ -3170,15 +3170,15 @@ var hsLenis = null;
     target = 1; shown = 1;
     if(barFill) barFill.style.width = '100%';
     if(pctEl) pctEl.textContent = '100%';
-    /* force every remaining gate true so no line is left permanently missing just because a
-       CDN script never loaded */
+    
+
     ev.fonts = ev.engine3d = ev.engineScroll = ev.visual = ev.load = true;
     advanceLines();
     finish();
   }, 4200);
 })();
 
-/* ---------- terminal typewriter + interactive shell ---------- */
+ 
 (function(){
   var lines = [
     {p:true, t:"whoami"},
@@ -3429,7 +3429,7 @@ var hsLenis = null;
   step();
 })();
 
-/* ---------- scroll reveal (with staggered children) ---------- */
+ 
 (function(){
   var els = document.querySelectorAll('.reveal');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3444,13 +3444,13 @@ var hsLenis = null;
     els.forEach(function(e){ e.classList.add('in'); revealStaggerChildren(e); });
     return;
   }
-  /* threshold:0 + a negative bottom rootMargin triggers reveal as soon as an
-     element's top edge scrolls into the upper ~88% of the viewport. This is
-     independent of the element's own height, unlike an area-ratio threshold
-     (e.g. 0.12), which requires 12% of the element's OWN height to be
-     simultaneously visible -- mathematically impossible for any element
-     taller than ~8x the viewport (as the Projects section's combined wrap
-     is on mobile), permanently stranding it at opacity:0. */
+  
+
+
+
+
+
+
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(en){
       if(en.isIntersecting){
@@ -3462,7 +3462,7 @@ var hsLenis = null;
   }, {threshold:0, rootMargin:'0px 0px -12% 0px'});
   els.forEach(function(e){ io.observe(e); });
 
-  /* stagger-items that aren't inside a .reveal ancestor: reveal them directly */
+   
   var orphanStagger = document.querySelectorAll('.stagger-item');
   orphanStagger.forEach(function(k){
     if(k.closest('.reveal')) return;
@@ -3475,7 +3475,7 @@ var hsLenis = null;
   });
 })();
 
-/* ---------- scroll progress bar ---------- */
+ 
 (function(){
   var bar = document.getElementById('scroll-progress');
   if(!bar) return;
@@ -3494,7 +3494,7 @@ var hsLenis = null;
   update();
 })();
 
-/* ---------- number count-up on stats ---------- */
+ 
 (function(){
   var nums = document.querySelectorAll('.stat .num');
   if(!nums.length) return;
@@ -3529,13 +3529,13 @@ var hsLenis = null;
   nums.forEach(function(n){ io.observe(n); });
 })();
 
-/* ---------- mousemove spotlight / 3D tilt (spring-eased, not a 1:1 snap) ---------- */
+ 
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduce) return;
   var targets = document.querySelectorAll('.stat, .mini-card, .skill-group, .teaser-item');
-  var TILT = 5; /* max degrees */
-  var SPRING = 0.16; /* per-frame lerp factor -- lower = softer/springier settle */
+  var TILT = 5;  
+  var SPRING = 0.16;  
   var state = new Map();
   var raf = null;
 
@@ -3585,7 +3585,7 @@ var hsLenis = null;
   });
 })();
 
-/* ---------- skills: one-time HUD-style scan sweep per card as it enters view ---------- */
+ 
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var groups = document.querySelectorAll('.skill-group');
@@ -3604,7 +3604,7 @@ var hsLenis = null;
   list.forEach(function(g){ io.observe(g); });
 })();
 
-/* ---------- HUD photo tilt (headshot "3D" scan card) ---------- */
+ 
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var el = document.getElementById('hudPhoto');
@@ -3627,7 +3627,7 @@ var hsLenis = null;
   });
 })();
 
-/* ---------- HUD scanline: play once on reveal, replay on hover ---------- */
+ 
 (function(){
   var card = document.getElementById('hudPhoto');
   var scan = card ? card.querySelector('.hud-scan') : null;
@@ -3635,7 +3635,7 @@ var hsLenis = null;
   if(!card || !scan || reduce) return;
   function play(){
     scan.classList.remove('play');
-    void scan.offsetWidth; /* restart animation */
+    void scan.offsetWidth;  
     scan.classList.add('play');
   }
   if('IntersectionObserver' in window){
@@ -3651,7 +3651,7 @@ var hsLenis = null;
   card.addEventListener('mouseenter', play);
 })();
 
-/* ---------- live local-time status ---------- */
+ 
 (function(){
   var el = document.getElementById('statusTime');
   var menuEl = document.getElementById('menuStatusTime');
@@ -3670,7 +3670,7 @@ var hsLenis = null;
   setInterval(tick, 30000);
 })();
 
-/* ---------- custom magnetic cursor ---------- */
+ 
 (function(){
   var mq = window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3712,7 +3712,7 @@ var hsLenis = null;
   document.addEventListener('mouseup', function(){ ring.classList.remove('press'); });
 })();
 
-/* ---------- section dock scrollspy ---------- */
+ 
 (function(){
   var links = document.querySelectorAll('.section-dock a[href^="#"]');
   if(!links.length || !('IntersectionObserver' in window)) return;
@@ -3733,7 +3733,7 @@ var hsLenis = null;
   sections.forEach(function(s){ io.observe(s); });
 })();
 
-/* ---------- hero network (three.js) ---------- */
+ 
 (function(){
   var canvas = document.getElementById('hero-canvas');
   var heroSection = document.querySelector('.hero');
@@ -3815,8 +3815,8 @@ var hsLenis = null;
     geo.attributes.position.needsUpdate = true;
     updateLines();
 
-    /* idle "breathing" -- a slow ambient pulse in point size/opacity, independent of
-       mouse input, so the network still reads as alive when nobody's moving the cursor */
+    
+
     var breathe = Math.sin(Date.now() * 0.00055) * 0.5 + 0.5;
     mat.opacity = BASE_OPACITY - 0.15 + breathe * 0.15;
     mat.size = BASE_SIZE - 0.35 + breathe * 0.35;
@@ -3848,8 +3848,8 @@ var hsLenis = null;
     if(shouldRun && !raf) animate();
     if(!shouldRun && raf){ cancelAnimationFrame(raf); raf = null; }
   }
-  /* pause the WebGL render loop entirely once the hero has scrolled out of view --
-     no point spending a frame budget animating a network nobody can see */
+  
+
   if('IntersectionObserver' in window){
     var heroIO = new IntersectionObserver(function(entries){
       inView = entries[0].isIntersecting;
