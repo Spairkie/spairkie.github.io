@@ -379,6 +379,9 @@ body.menu-open{overflow:hidden;}
   max-width:880px;margin:0;color:var(--text-dim);
 }
 .manifesto-text .accent{color:var(--accent);}
+.mf-line{display:block;opacity:.3;filter:blur(4px);font-weight:500;transition:opacity .1s linear,filter .1s linear,font-weight .1s linear;will-change:opacity,filter;}
+.mf-line + .mf-line{margin-top:.35em;}
+@media (prefers-reduced-motion: reduce){.mf-line{opacity:1;filter:none;font-weight:600;transition:none;}}
 
 /* ---------- featured-work teaser: quick visual proof right after the hero, before the résumé narrative ---------- */
 .teaser{padding:8px 0 64px;}
@@ -610,6 +613,15 @@ section:not(:last-of-type)::after{
 }
 .tl-item:hover .tl-dot{transform:scale(1.35);box-shadow:0 0 0 5px var(--accent-glow);}
 .tl-item.current .tl-dot{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow);}
+.tl-item.current .tl-dot::after{
+  content:"";position:absolute;inset:-2px;border-radius:50%;
+  background:var(--accent);opacity:.55;animation:tlBreathe 2.8s var(--ease) infinite;
+}
+@keyframes tlBreathe{
+  0%{transform:scale(1);opacity:.5;}
+  70%,100%{transform:scale(2.6);opacity:0;}
+}
+@media (prefers-reduced-motion: reduce){.tl-item.current .tl-dot::after{animation:none;display:none;}}
 .tl-date{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);margin-bottom:4px;}
 .tl-role{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text);margin:0 0 2px;}
 .tl-org{font-size:14px;color:var(--accent-dim);margin-bottom:10px;}
@@ -808,9 +820,15 @@ footer h2{font-family:var(--font-display);font-size:clamp(26px,4vw,38px);margin:
 }
 .footer-headline .accent{color:var(--accent);}
 footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
-.email-cta{font-size:16px;padding:14px 26px;gap:12px;}
+.email-cta{font-size:16px;padding:14px 26px;gap:12px;animation:ctaBreathe 3.4s ease-in-out infinite;}
+.email-cta:hover{animation-play-state:paused;}
 .email-cta .email-arrow{transition:transform .3s var(--ease);}
 .email-cta:hover .email-arrow{transform:translateX(4px);}
+@keyframes ctaBreathe{
+  0%,100%{box-shadow:0 0 0 0 var(--accent-glow);}
+  50%{box-shadow:0 0 26px 6px var(--accent-glow);}
+}
+@media (prefers-reduced-motion: reduce){.email-cta{animation:none;}}
 .quick-facts{max-width:660px;margin:56px auto 44px;text-align:left;border-top:1px solid var(--line-soft);}
 .qf-row{
   display:flex;align-items:baseline;gap:18px;padding:17px 4px;
@@ -1083,9 +1101,9 @@ body.boot-lock{overflow:hidden;}
   <div class="manifesto-texture" aria-hidden="true" id="manifestoTexture"></div>
   <div class="wrap reveal">
     <p class="manifesto-text">
-      I didn't learn security from a classroom first.<br>
-      I learned it from locked-out accounts, endpoint fleets that had to come back online, and a ticket queue that never really closes.<br>
-      <span class="accent">Every tool on this site exists because the operations work taught me the problem before cybersecurity gave me the language for it.</span>
+      <span class="mf-line">I didn't learn security from a classroom first.</span>
+      <span class="mf-line">I learned it from locked-out accounts, endpoint fleets that had to come back online, and a ticket queue that never really closes.</span>
+      <span class="mf-line accent">Every tool on this site exists because the operations work taught me the problem before cybersecurity gave me the language for it.</span>
     </p>
   </div>
 </section>
@@ -1857,6 +1875,20 @@ var hsLenis = null;
     el.style.transform = 'translate3d(0,' + (p * -50).toFixed(1) + 'px,0)';
   });
 
+  /* manifesto lines light up one at a time as you scroll through the section --
+     each line owns a slice of the section's 0-1 scroll progress */
+  var mfLines = manifestoSection ? manifestoSection.querySelectorAll('.mf-line') : [];
+  var mfRanges = [[0.02,0.42],[0.22,0.66],[0.46,0.92]];
+  mfLines.forEach(function(line, i){
+    var range = mfRanges[i] || [0,1];
+    addLayer(manifestoSection, line, function(el, p){
+      var t = Math.min(1, Math.max(0, (p - range[0]) / (range[1] - range[0])));
+      el.style.opacity = (0.3 + t * 0.7).toFixed(2);
+      el.style.filter = t >= 1 ? 'none' : 'blur(' + ((1 - t) * 4).toFixed(1) + 'px)';
+      el.style.fontWeight = String(Math.round(500 + t * 200));
+    });
+  });
+
   var circuitSection = document.querySelector('.circuit-divider');
   addLayer(circuitSection, document.getElementById('circuitCanvas'), function(el, p){
     el.style.transform = 'translate3d(0,' + (p * 26).toFixed(1) + 'px,0)';
@@ -1885,6 +1917,40 @@ var hsLenis = null;
     window.addEventListener('scroll', onScroll, {passive:true});
   }
   apply();
+})();
+
+/* ---------- velocity-reactive marquee: speeds up with scroll velocity, settles back to its
+   idle pace when scrolling stops -- makes the ticker feel driven by the page, not decorative ---------- */
+(function(){
+  var track = document.querySelector('.marquee-track');
+  var section = document.querySelector('.marquee');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!track || !section || reduce) return;
+
+  var BASE_DUR = 32, MIN_DUR = 5;
+  var current = BASE_DUR;
+  var lastY = window.scrollY;
+  var inView = true;
+  var raf = null;
+
+  function tick(){
+    var y = window.scrollY;
+    var velocity = Math.abs(y - lastY);
+    lastY = y;
+    var target = Math.max(MIN_DUR, BASE_DUR - velocity * 2.6);
+    current += (target - current) * 0.09;
+    track.style.animationDuration = current.toFixed(2) + 's';
+    raf = inView ? requestAnimationFrame(tick) : null;
+  }
+
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      inView = entries[0].isIntersecting;
+      if(inView && !raf) raf = requestAnimationFrame(tick);
+    }, {threshold:0}).observe(section);
+  }else{
+    raf = requestAnimationFrame(tick);
+  }
 })();
 
 /* ---------- boot sequence ---------- */
@@ -2531,6 +2597,7 @@ var hsLenis = null;
     lineGeo.attributes.position.needsUpdate = true;
   }
 
+  var BASE_OPACITY = 0.85, BASE_SIZE = 3.2, BASE_LINE_OPACITY = 0.35;
   function animate(){
     var p = geo.attributes.position.array;
     for(var i=0;i<COUNT;i++){
@@ -2543,6 +2610,13 @@ var hsLenis = null;
     }
     geo.attributes.position.needsUpdate = true;
     updateLines();
+
+    /* idle "breathing" -- a slow ambient pulse in point size/opacity, independent of
+       mouse input, so the network still reads as alive when nobody's moving the cursor */
+    var breathe = Math.sin(Date.now() * 0.00055) * 0.5 + 0.5;
+    mat.opacity = BASE_OPACITY - 0.15 + breathe * 0.15;
+    mat.size = BASE_SIZE - 0.35 + breathe * 0.35;
+    lineMat.opacity = BASE_LINE_OPACITY - 0.1 + breathe * 0.12;
 
     camera.position.x += (mouseX*40 - camera.position.x) * 0.02;
     camera.position.y += (-mouseY*30 - camera.position.y) * 0.02;
