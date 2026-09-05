@@ -1089,6 +1089,7 @@ footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
   -webkit-mask-image:radial-gradient(circle at center,#000 18%,transparent 72%);
 }
 #boot-screen.boot-done{opacity:0;visibility:hidden;pointer-events:none;}
+#boot-screen[hidden]{display:none!important;}
 .boot-inner{
   position:relative;width:min(680px,calc(100vw - 36px));overflow:hidden;
   border:1px solid var(--line);border-radius:14px;background:var(--bg-card);
@@ -2856,7 +2857,7 @@ var hsLenis = null;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var seen = false;
   try{ seen = sessionStorage.getItem('hs_booted') === '1'; }catch(e){}
-  if(reduce || seen){ screen.hidden = true; return; }
+  if(reduce || seen){ screen.classList.add('boot-done'); screen.hidden = true; return; }
 
   document.body.classList.add('boot-lock');
   var flags = {dom:false,fonts:false,visual:false,min:false};
