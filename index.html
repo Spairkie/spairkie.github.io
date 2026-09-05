@@ -2670,10 +2670,19 @@ var hsLenis = null;
      including re-firing later as images/fonts finish loading -- our own scroll-scrub
      positioning below. Stripping the hash before that element even exists in the DOM (see
      <head>) removes the browser's ability to do that at all; restoring it is left to
-     setActiveProject's own replaceState once we've positioned things ourselves. A second
-     landing after window 'load' is kept as a safety net for any other post-load reflow above
-     the pinned section, and scroll anchoring is disabled document-wide (see html{} rule) so
-     the browser never nudges this scroll position on its own regardless of the cause. */
+     setActiveProject's own replaceState once we've positioned things ourselves. Scroll
+     anchoring is also disabled document-wide (see html{} rule) so the browser never nudges
+     this scroll position on its own regardless of the cause.
+
+     A single extra landing after window 'load' is not always enough: on a real page (fonts,
+     the WebGL hero, real images) layout above the pinned section can keep shifting for a bit
+     even after 'load' fires, which silently moves the pixel offset every index maps to and
+     leaves the page stranded at a now-stale target. Rather than guess a checkpoint count/delay
+     that happens to cover today's asset weight, watch for it directly: a ResizeObserver on
+     <body> re-runs the landing whenever the document's height actually changes, for a short
+     settle window after which any such shift is assumed to be content the user scrolled to on
+     purpose rather than layout still settling. It stops the moment the reader actually starts
+     driving (wheel/touch/key), so it never fights a real scroll. */
   var initialId = (window.hsInitialHash || '').slice(1).replace(/-detail$/, '');
   var initialIdx = initialId ? projectIndexForId(initialId) : null;
   function landInitial(){
@@ -2682,6 +2691,17 @@ var hsLenis = null;
   if(initialIdx !== null){
     landInitial();
     window.addEventListener('load', function(){ setTimeout(landInitial, 60); });
+    var settleUntil = Date.now() + 5000, userSteered = false;
+    ['wheel', 'touchstart', 'keydown'].forEach(function(evt){
+      window.addEventListener(evt, function(){ userSteered = true; }, {once: true, passive: true});
+    });
+    if('ResizeObserver' in window){
+      var settleRO = new ResizeObserver(function(){
+        if(userSteered || Date.now() > settleUntil){ settleRO.disconnect(); return; }
+        landInitial();
+      });
+      settleRO.observe(document.body);
+    }
   } else {
     render(OVERVIEW, 0);
   }
