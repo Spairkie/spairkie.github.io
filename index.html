@@ -565,8 +565,6 @@ body.pc-detail-lock{overflow:hidden;}
 .terminal-body .prompt{color:var(--accent);}
 .terminal-line{color:var(--text-dim);white-space:pre-wrap;}
 .terminal-out{color:var(--text);}
-.terminal-cursor{display:inline-block;width:7px;height:14px;background:var(--accent);vertical-align:middle;animation:blink 1s step-end infinite;margin-left:2px;}
-@keyframes blink{50%{opacity:0;}}
 
  
 section{padding:76px 0;border-bottom:none;position:relative;}
@@ -715,8 +713,6 @@ section:not(:last-of-type)::after{
 
 
 
-
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
 .chip{
   font-family:var(--font-mono);font-size:11px;color:var(--text-dimmer);border:1px solid var(--line);
@@ -899,8 +895,6 @@ section:not(:last-of-type)::after{
 .pw-view.is-open{opacity:1;transform:scale(1);}
 .pw-view-chrome{display:flex;align-items:center;justify-content:space-between;padding:22px 30px;flex:0 0 auto;}
 .pw-view-label{font-family:var(--font-mono);font-size:12px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.85;}
-.pw-view-close-group{display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:11.5px;}
-.pw-view-pos{opacity:0.55;}
 .pw-view-close{background:none;border:0;color:inherit;font-size:22px;line-height:1;cursor:pointer;padding:2px 8px;}
 .pw-view-close:hover{color:var(--pw-accent,#5eead4);}
 .pw-view-close:focus-visible{outline:2px solid var(--pw-accent,#5eead4);outline-offset:2px;}
@@ -993,9 +987,6 @@ section:not(:last-of-type)::after{
 @media (prefers-reduced-motion: reduce){.edu-seal{animation:none;}}
 @media (max-width:900px){.edu-seal{display:none;}}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
-.edu-item{margin-bottom:18px;}
-.edu-item h4{font-family:var(--font-display);font-size:15.5px;margin:0 0 4px;font-weight:600;}
-.edu-item .meta{font-size:13px;color:var(--text-dimmer);}
 .cert-list{list-style:none;margin:0;padding:0;}
 .cert-list li{
   display:flex;justify-content:space-between;align-items:center;gap:10px;
@@ -1203,7 +1194,7 @@ body.boot-lock{overflow:hidden;}
   </div>
 </header>
 
-<div class="section-dock" id="sectionDock" aria-hidden="true">
+<div class="section-dock" aria-hidden="true">
   <a href="#about" data-label="About"><span class="dock-dot"></span></a>
   <a href="#experience" data-label="Experience"><span class="dock-dot"></span></a>
   <a href="#projects" data-label="Projects"><span class="dock-dot"></span></a>
@@ -1217,7 +1208,7 @@ body.boot-lock{overflow:hidden;}
     <button class="menu-close" id="menuClose" type="button" aria-label="Close menu">
       <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></g></svg>
     </button>
-    <nav class="menu-links" id="menuLinks">
+    <nav class="menu-links">
       <a href="#about"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">01</span>About</span></span></a>
       <a href="#experience"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">02</span>Experience</span></span></a>
       <a href="#projects"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">03</span>Projects</span></span></a>
@@ -1507,7 +1498,7 @@ body.boot-lock{overflow:hidden;}
         <p class="also-label">Also on this site</p>
         <h3 class="also-title">Sub projects, past the highlights</h3>
       </div>
-      <div class="also-grid" id="alsoGrid">
+      <div class="also-grid">
         <div class="mini-card stagger-item">
           <h4>This portfolio site</h4>
           <p>Static, single-file, hand-built. The WebGL network in the hero above is the same three.js engine as the diploma project.</p>
@@ -1538,7 +1529,7 @@ body.boot-lock{overflow:hidden;}
       <span class="pw-view-label">Projects</span>
       <button class="pw-view-close" id="pwViewClose" type="button" aria-label="Close project">&times;</button>
     </div>
-    <div class="pw-view-body" id="pwViewBody">
+    <div class="pw-view-body">
       <div class="pw-view-media" id="pwViewMedia"></div>
       <div class="pw-view-copy" id="pwViewCopy">
         <p class="pw-view-kicker" id="pwViewKicker"></p>
@@ -1554,7 +1545,7 @@ body.boot-lock{overflow:hidden;}
 
   <div id="pwSource" hidden>
     <div class="proj-source" data-project="craft">
-      <div class="scene-media" id="pm-0">
+      <div class="scene-media">
         <div class="live-embed diploma">
           <div class="lf-bar" aria-hidden="true">
             <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
@@ -1579,14 +1570,14 @@ body.boot-lock{overflow:hidden;}
           <span class="chip">Fully interactive</span>
         </div>
         <div class="feature-links">
-          <a class="link-primary" href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Open full demo</a>
+          <a href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Open full demo</a>
           <a href="https://github.com/Spairkie/interactive-diploma" target="_blank" rel="noopener">Source on GitHub</a>
         </div>
       </div>
     </div>
 
     <div class="proj-source" data-project="proj-siem">
-      <div class="scene-media" id="pm-1">
+      <div class="scene-media">
         <img src="screenshots/log-correlator-siem.webp" alt="Log Correlator SIEM dashboard: 34 events ingested, 5 incidents, MITRE ATT&amp;CK techniques observed" loading="lazy" width="1200" height="780">
       </div>
       <div class="scene-detail-copy">
@@ -1614,14 +1605,14 @@ body.boot-lock{overflow:hidden;}
           <span class="chip">Cross-source correlation</span>
         </div>
         <div class="feature-links">
-          <a class="link-primary" href="https://spairkie.github.io/log-correlator-siem/" target="_blank" rel="noopener">Live dashboard</a>
+          <a href="https://spairkie.github.io/log-correlator-siem/" target="_blank" rel="noopener">Live dashboard</a>
           <a href="https://github.com/Spairkie/log-correlator-siem" target="_blank" rel="noopener">Source on GitHub</a>
         </div>
       </div>
     </div>
 
     <div class="proj-source" data-project="proj-helpdesk">
-      <div class="scene-media" id="pm-2">
+      <div class="scene-media">
         <div class="chart-panel">
           <svg viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" style="width:100%;height:auto;display:block;">
             <text x="0" y="18" font-size="13" font-weight="600" fill="#e7edf5">SLA compliance by priority</text>
@@ -1663,7 +1654,7 @@ body.boot-lock{overflow:hidden;}
     </div>
 
     <div class="proj-source" data-project="proj-ad-auditor">
-      <div class="scene-media" id="pm-3">
+      <div class="scene-media">
         <img src="screenshots/ad-security-auditor.webp" alt="AD Security Auditor HTML report: 16 findings, 4 critical, 5 high, 7 medium" loading="lazy" width="1200" height="708">
       </div>
       <div class="scene-detail-copy">
@@ -1684,7 +1675,7 @@ body.boot-lock{overflow:hidden;}
     </div>
 
     <div class="proj-source" data-project="proj-phishing">
-      <div class="scene-media" id="pm-4">
+      <div class="scene-media">
         <img src="screenshots/phishing-email-analyzer.webp" alt="Phishing Email Analyzer report flagging a critical-risk message with SPF, DKIM, and DMARC failures" loading="lazy" width="1200" height="678">
       </div>
       <div class="scene-detail-copy">
@@ -1705,7 +1696,7 @@ body.boot-lock{overflow:hidden;}
     </div>
 
     <div class="proj-source" data-project="proj-jotrelay">
-      <div class="scene-media" id="pm-5">
+      <div class="scene-media">
         <div class="live-embed jotrelay">
           <div class="lf-bar" aria-hidden="true">
             <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
@@ -1729,14 +1720,14 @@ body.boot-lock{overflow:hidden;}
           <span class="chip">Encryption option</span>
         </div>
         <div class="feature-links">
-          <a class="link-primary" href="https://spairkie.github.io/JotRelay/" target="_blank" rel="noopener">Open live demo</a>
+          <a href="https://spairkie.github.io/JotRelay/" target="_blank" rel="noopener">Open live demo</a>
           <a href="https://github.com/Spairkie/JotRelay" target="_blank" rel="noopener">Source on GitHub</a>
         </div>
       </div>
     </div>
 
     <div class="proj-source" data-project="proj-toolkit">
-      <div class="scene-media" id="pm-6">
+      <div class="scene-media">
         <div class="term-panel">
           <div class="term-topbar" aria-hidden="true">
             <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
@@ -1769,7 +1760,7 @@ body.boot-lock{overflow:hidden;}
     </div>
 
     <div class="proj-source" data-project="proj-winlog">
-      <div class="scene-media" id="pm-7">
+      <div class="scene-media">
         <div class="term-panel">
           <div class="term-topbar" aria-hidden="true">
             <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
@@ -1860,7 +1851,7 @@ body.boot-lock{overflow:hidden;}
       <h2 class="kinetic-h">Background</h2>
     </div>
     <div class="two-col">
-      <div class="timeline timeline-compact" id="tlEducation">
+      <div class="timeline" id="tlEducation">
         <div class="timeline-fill" aria-hidden="true"></div>
         <div class="tl-item stagger-item">
           <span class="tl-dot"></span>
@@ -1876,8 +1867,8 @@ body.boot-lock{overflow:hidden;}
         </div>
       </div>
       <ul class="cert-list">
-        <li><span class="cert-name"><span class="live-dot" aria-hidden="true"></span>CompTIA Security+ <span class="accent">Active</span></span> <a class="cert-proof" href="certs/CompTIA%20Security%2B%20ce%20certificate.pdf" target="_blank" rel="noopener">view certificate →</a></li>
-        <li><span class="cert-name"><span class="live-dot" aria-hidden="true"></span>Secret Security Clearance <span class="accent">Active</span>, U.S. Air Force Reserve</span></li>
+        <li><span><span class="live-dot" aria-hidden="true"></span>CompTIA Security+ <span class="accent">Active</span></span> <a class="cert-proof" href="certs/CompTIA%20Security%2B%20ce%20certificate.pdf" target="_blank" rel="noopener">view certificate →</a></li>
+        <li><span><span class="live-dot" aria-hidden="true"></span>Secret Security Clearance <span class="accent">Active</span>, U.S. Air Force Reserve</span></li>
         <li>CompTIA IT Fundamentals+ <a class="cert-proof" href="certs/CompTIA%20IT%20Fundamentals%2B%20(FC0-U61).pdf" target="_blank" rel="noopener">view certificate →</a></li>
         <li>Microsoft Technology Associate (MTA) <a class="cert-proof" href="certs/Microsoft%20Technology%20Associate.pdf" target="_blank" rel="noopener">view certificate →</a></li>
         <li>Basic Life Support (BLS) &amp; CPR Certified</li>
@@ -3085,7 +3076,7 @@ var hsLenis = null;
       printLine('$ ' + raw, 'terminal-echo');
       var result = runCommand(raw);
       if(result.clear){
-        el.querySelectorAll('.terminal-line, .terminal-cursor').forEach(function(n){
+        el.querySelectorAll('.terminal-line').forEach(function(n){
           if(n !== row) n.remove();
         });
       } else if(result.text){
