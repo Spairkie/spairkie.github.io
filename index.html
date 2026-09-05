@@ -109,7 +109,7 @@ hsSetFavicon(window.hsInitialTheme === 'light');
 :root[data-theme="light"] ::selection{background:var(--accent-dim);color:#f4f1ea;}
 :root[data-theme="light"] .hero::after{background:radial-gradient(ellipse 60% 50% at 50% 0%, transparent 0%, var(--bg) 78%);}
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;overflow-anchor:none;}
 body{
   margin:0;
   background:var(--bg);
@@ -2641,25 +2641,37 @@ var hsLenis = null;
     goToProject(idx, {instant: instant, noHistory: true});
   }
   window.addEventListener('hashchange', function(){ landFromHash(false); });
-  if(location.hash){
-    window.addEventListener('load', function(){ setTimeout(function(){ landFromHash(true); }, 60); });
-  }
 
   window.hsProjects = { goToProject: goToProject, getProjectsMetrics: getProjectsMetrics, indexToScrollY: indexToScrollY, scrollYToVirtualIndex: scrollYToVirtualIndex, openProjectDetail: openProjectDetail, closeProjectDetail: closeProjectDetail };
 
-  /* land on whatever the URL's original hash pointed to (if any) BEFORE the very first paint.
-     This has to happen synchronously, right here, rather than only in the deferred
-     window-'load' handler above: the default render(OVERVIEW, 0) call below always resolves
-     to project 0 and calls setActiveProject(0), which replaceState's the hash to that
-     project's id -- if a real deep link (e.g. "#proj-siem") were left for the 'load' handler
-     to pick up later, it would already have been overwritten to "#craft" by the time that
-     handler runs. Resolving the true starting index up front avoids the clobber entirely;
-     scrollRange's height only depends on 100vh (see --pc-count), not on fonts/images, so this
-     measurement is accurate even before the page has fully finished loading. */
+  /* land on whatever the URL's original hash pointed to (if any) BEFORE the very first paint,
+     and land there AGAIN once the page has actually settled. Two things can otherwise break a
+     deep link on a real, slow-loading page (neither reproduces in a fast/offline test):
+
+     1) the default render(OVERVIEW, 0) call below always resolves to project 0 and calls
+        setActiveProject(0), which replaceState's the hash to that project's id -- landing
+        purely on a deferred window-'load' handler risks reading an already-clobbered hash.
+     2) content loading in above the pinned section (web fonts swapping, the hero's async
+        assets) reflows the page after this script has already run; the browser's own native
+        scroll-anchoring then nudges window.scrollY to compensate, which fires a real 'scroll'
+        event that our own onScroll handler reads as "the user is near project 0" and calls
+        setActiveProject(0) all over again -- silently clobbering an already-correct landing.
+
+     The fix for both: capture the ORIGINAL requested index once, right now, and re-assert
+     goToProject with that same captured index (never by re-reading location.hash, which may
+     have drifted) at three points -- synchronously now, after window 'load' once images have
+     definitely finished, and after document.fonts.ready once webfont swapping is done -- and
+     disable scroll-anchoring on the pinned range below so the browser never nudges our own
+     precisely-managed scroll position in the first place (see .pc-scrollrange). */
   var initialId = location.hash.slice(1).replace(/-detail$/, '');
   var initialIdx = initialId ? projectIndexForId(initialId) : null;
+  function landInitial(){
+    if(initialIdx !== null){ goToProject(initialIdx, {instant: true, noHistory: true}); }
+  }
   if(initialIdx !== null){
-    goToProject(initialIdx, {instant: true, noHistory: true});
+    landInitial();
+    window.addEventListener('load', function(){ setTimeout(landInitial, 60); });
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(landInitial, 30); }); }
   } else {
     render(OVERVIEW, 0);
   }
