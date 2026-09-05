@@ -2206,7 +2206,9 @@ var hsLenis = null;
       type:'Security tool', stack:'Python', status:'25 tests passing',
       short_desc:"Correlates sequences of events across two log sources into one incident, not two unrelated alerts." },
     { id:'proj-helpdesk', num:3, title:'Helpdesk Ticket Analytics', displayLines:['HELP','DESK'], short:'HD',
-      bg:'#e9edf1', ink:'#141b24', accent:'#2f6fa8',
+      /* accent darkened from #2f6fa8 (4.51:1 on bg, right at the WCAG AA floor with no margin
+         for small text like the detail view's links) to #285f8f (5.71:1), same hue/saturation. */
+      bg:'#e9edf1', ink:'#141b24', accent:'#285f8f',
       type:'Analytics tool', stack:'Python', status:'14 tests passing',
       short_desc:"Turns a raw ticket export into SLA compliance, resolution-time, and volume metrics." },
     { id:'proj-ad-auditor', num:4, title:'AD Security Auditor', displayLines:['AD','AUDIT'], short:'AD',
@@ -2218,7 +2220,9 @@ var hsLenis = null;
       type:'Security tool', stack:'Python', status:'46 tests passing',
       short_desc:"Statically analyzes raw .eml files for phishing indicators, fully offline." },
     { id:'proj-jotrelay', num:6, title:'JotRelay', displayLines:['JOT','RELAY'], short:'JR',
-      bg:'#eef7f1', ink:'#0c1f15', accent:'#2f8f5f',
+      /* accent darkened from #2f8f5f (3.68:1 on bg -- fails WCAG AA's 4.5:1 for the small
+         link/disclosure text it colors in the detail view) to #256f4a (5.57:1), same hue/sat. */
+      bg:'#eef7f1', ink:'#0c1f15', accent:'#256f4a',
       type:'Web app', stack:'JS / Supabase', status:'Live demo',
       short_desc:"Real-time encrypted collaborative notepad with shareable links and an installable PWA." },
     { id:'proj-toolkit', num:7, title:'AD & Endpoint Automation Toolkit', displayLines:['END','POINT'], short:'EP',
