@@ -1,0 +1,62 @@
+name: Markup hook audit
+
+on:
+  push:
+    branches:
+      - cleanup/dead-code-audit
+    paths:
+      - .github/workflows/markup-hook-audit.yml
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find unused markup hooks
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          out = []
+          for path in [Path('index.html'), Path('404.html')]:
+              text = path.read_text(encoding='utf-8')
+              styles = '\n'.join(re.findall(r'(?is)<style\b[^>]*>(.*?)</style\s*>', text))
+              scripts = '\n'.join(re.findall(r'(?is)<script\b(?![^>]*\bsrc=)[^>]*>(.*?)</script\s*>', text))
+              markup = re.sub(r'(?is)<style\b[^>]*>.*?</style\s*>|<script\b[^>]*>.*?</script\s*>', '', text)
+
+              classes = []
+              for m in re.finditer(r'\bclass\s*=\s*(["\'])(.*?)\1', markup, re.I | re.S):
+                  classes.extend(m.group(2).split())
+              ids = [m.group(2) for m in re.finditer(r'\bid\s*=\s*(["\'])(.*?)\1', markup, re.I | re.S)]
+
+              out += [f'## {path}', '', '### Static class names with no CSS or JS reference']
+              unused_classes = []
+              for c in sorted(set(classes)):
+                  pat = r'(?<![\w-])' + re.escape(c) + r'(?![\w-])'
+                  if not re.search(pat, styles) and not re.search(pat, scripts):
+                      unused_classes.append(c)
+              out += [f'- .{c}' for c in unused_classes] or ['- none']
+              out += ['', '### Static IDs with no CSS, JS, href/hash, ARIA, or other reference']
+              unused_ids = []
+              for i in sorted(set(ids)):
+                  declaration_count = len(re.findall(r'\bid\s*=\s*(["\'])' + re.escape(i) + r'\1', markup, re.I))
+                  total_markup = len(re.findall(re.escape(i), markup))
+                  pat = r'(?<![\w-])' + re.escape(i) + r'(?![\w-])'
+                  if total_markup == declaration_count and not re.search(pat, styles) and not re.search(pat, scripts):
+                      unused_ids.append(i)
+              out += [f'- #{i}' for i in unused_ids] or ['- none']
+              out.append('')
+
+          Path('markup-hook-report.md').write_text('\n'.join(out) + '\n', encoding='utf-8')
+      - name: Commit report
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add markup-hook-report.md
+          git commit -m "Add markup-hook audit report"
+          git push
