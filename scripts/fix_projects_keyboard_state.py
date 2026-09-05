@@ -6,4 +6,6 @@ s=s.replace("    if(!nextInSection || !root.matches(':hover')) keyboardIndex = c
 s=s.replace("    keyboardIndex = index;\n    if(staticLayout()){", "    keyboardIndex = index;\n    if(source === 'keyboard') keyboardNavUntil = performance.now()+520;\n    if(staticLayout()){", 1)
 s=s.replace("          onComplete: function(){ keyboardIndex = activeIndex < 0 ? index : activeIndex; }", "          onComplete: function(){ keyboardNavUntil = 0; keyboardIndex = activeIndex < 0 ? index : activeIndex; }", 1)
 s=s.replace("  function resetKeyboardToScroll(){\n    requestAnimationFrame(function(){", "  function resetKeyboardToScroll(){\n    keyboardNavUntil = 0;\n    requestAnimationFrame(function(){", 1)
+s=s.replace("    if(window.hsLenis) window.hsLenis.stop();\n    setHash(PROJECTS[index].id,opts.updateHash);", "    setHash(PROJECTS[index].id,opts.updateHash);", 1)
+s=s.replace("    document.body.classList.remove('folio-detail-lock');\n    if(window.hsLenis) window.hsLenis.start();\n    function finish(){", "    document.body.classList.remove('folio-detail-lock');\n    function finish(){", 1)
 p.write_text(s,encoding='utf-8')
