@@ -1221,7 +1221,7 @@ body.boot-lock{overflow:hidden;}
       </div>
       <div class="boot-meta">
         <span class="boot-stage" id="bootStage">starting local session</span>
-        <span class="boot-skip" id="bootSkip">Esc / tap to skip</span>
+        <span class="boot-skip">Esc / tap to skip</span>
       </div>
     </div>
   </div>
@@ -2943,7 +2943,7 @@ var hsLenis = null;
   }
   (function(){
     var img = document.querySelector('.about-photo img, img[src*="headshot"]');
-    function ready(){ milestone('visual', 0.9, '> visual assets ready ... [ok]', 'finalizing', 'checking runtime'); }
+    function ready(){ milestone('visual', 0.9, '> visual assets ready ... [ok]', 'finalizing', 'finalizing launch'); }
     if(img && img.decode) img.decode().then(ready).catch(ready);
     else if(img && img.complete) ready();
     else if(img){ img.addEventListener('load', ready, {once:true}); img.addEventListener('error', ready, {once:true}); }
