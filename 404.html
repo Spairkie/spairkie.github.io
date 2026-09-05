@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
-/* set theme before first paint -- same key/logic as the main site, so a broken
-   link doesn't dump someone in light mode into a jarring forced-dark 404 */
+
+
 (function(){
   try{
     var saved = localStorage.getItem('hs_theme');
@@ -57,7 +57,7 @@
     will-change:transform;
   }
 
-  /* a faint pulsing radar ring behind everything -- "signal lost, still listening" */
+   
   .signal-ring{
     position:absolute; left:50%; top:50%; width:1px; height:1px; pointer-events:none; z-index:-1;
   }
@@ -72,7 +72,7 @@
     100%{ width:900px; height:900px; opacity:0; }
   }
 
-  /* CRT scanline overlay -- subtle, sits above the canvas, below the content */
+   
   .scanlines{
     position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:0.35; mix-blend-mode:overlay;
     background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px);
@@ -109,7 +109,7 @@
     100%{ transform:translate(0,0); }
   }
 
-  /* brief chromatic-aberration glitch burst, fired once on load and again every so often */
+   
   .error-code.glitch::before, .error-code.glitch::after{
     content:attr(data-text); position:absolute; left:0; top:0; width:100%;
     clip-path:inset(0 0 0 0);
@@ -214,7 +214,7 @@
   </div>
 
   <script>
-    // === Background canvas: sparse binary rain, matches the theme's accent color ===
+    
     var canvas = document.getElementById('binaryCanvas');
     var ctx = canvas.getContext('2d');
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -279,7 +279,7 @@
     if(reduceMotion){ drawStatic(); }
     else{ animate(); }
 
-    // === Scramble typing animation -- names the actual path that didn't resolve, when there is one ===
+    
     var scrambleEl = document.getElementById('scrambleText');
     var attemptedPath = '';
     try{
@@ -310,7 +310,7 @@
     if(reduceMotion){ scrambleEl.textContent = targetText; }
     else{ setTimeout(updateScramble, 400); }
 
-    // === Countdown + redirect ===
+    
     var seconds = 15;
     var countdownEl = document.getElementById('countdown');
     var timer = setInterval(function(){
@@ -326,12 +326,12 @@
       if(e.key === 'Escape') window.location.href = '/';
     });
 
-    // === chromatic-aberration glitch burst: once on load, then occasionally at random ===
+    
     var errorCode = document.getElementById('errorCode');
     function fireGlitch(){
       if(!errorCode || reduceMotion) return;
       errorCode.classList.remove('glitch');
-      void errorCode.offsetWidth; /* restart the animation */
+      void errorCode.offsetWidth;  
       errorCode.classList.add('glitch');
     }
     if(!reduceMotion){
@@ -341,7 +341,7 @@
       })();
     }
 
-    // === subtle mouse-parallax tilt on the whole card -- a light, not a hijack ===
+    
     if(!reduceMotion && window.matchMedia && !window.matchMedia('(pointer: coarse)').matches){
       var card = document.getElementById('container404');
       var tx = 0, ty = 0, cx = 0, cy = 0, ticking = false;
