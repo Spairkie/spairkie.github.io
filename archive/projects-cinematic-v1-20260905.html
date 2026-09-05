@@ -5,16 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
 /* Capture and strip the URL's hash before the browser gets a chance to act on it, then
-   let the Projects engine decide what to do with it once it initializes further down. This
-   has to be the very first thing that runs: each of the eight project list rows below has a
-   real element id (id="proj-siem" etc, kept for backwards-compatible deep links), so the
-   browser's own native "scroll the fragment's target into view" would otherwise land on the
-   plain list row instead of opening that project's full-bleed takeover -- a strictly worse
-   landing for a deep link. Since the browser only does this when it can resolve the hash to a
-   real element, removing the hash from the URL immediately (before that element even exists in
-   the DOM, at the very top of <head>) means there is nothing for it to act on;
-   window.hsInitialHash keeps the original value for the Projects engine to read once it
-   initializes further down. */
+   restore it later once the Projects engine has positioned the page itself. This has to be
+   the very first thing that runs: every project-scene <article> below has a real element id
+   (id="proj-siem" etc, kept for backwards-compatible deep links), so the browser's own native
+   "scroll the fragment's target into view" behaviour fires independently of -- and can
+   override -- our own scroll-scrub positioning, including re-firing later as images/fonts
+   finish loading and layout settles, well after our own JS already positioned things
+   correctly. Since the browser only does this when it can resolve the hash to a real element,
+   removing the hash from the URL immediately (before that element even exists in the DOM, at
+   the very top of <head>) means there is nothing for it to act on; window.hsInitialHash keeps
+   the original value for the Projects engine to read once it initializes further down. */
 (function(){
   window.hsInitialHash = location.hash;
   if(location.hash){
@@ -811,141 +811,189 @@ section:not(:last-of-type)::after{
 @media (max-width:640px){.also-grid{grid-template-columns:1fr;}}
 
 /* ====================================================================
-   Projects: minimal list + cursor-follow preview + full-bleed takeover.
-   Three deliberately simple, separate ideas instead of one scroll-hijacking
-   engine: (1) an oversized-type list is the resting state, sitting in the
-   site's own light/dark theme like every other section; (2) hovering a row
-   with a mouse floats a small preview near the cursor, built from the same
-   real screenshot/color data each project already carries; (3) opening a
-   row is a full-bleed, single-project takeover holding that project's real
-   media and detail copy, reachable directly via the eight legacy anchor
-   ids. Real per-project content (media + copy) lives once, in the hidden
-   #pwSource below, and is moved -- not cloned -- into the open takeover,
-   so a live iframe demo never reloads. ==================================================================== */
-.projects-wall{background:var(--bg);color:var(--text);}
-.projects-wall .section-head{margin-bottom:8px;}
-.projects-wall .section-lede{font-size:15px;color:var(--text-dim);max-width:520px;margin:14px 0 0;}
+   cinematic Projects exhibition: overview contact-sheet, full-bleed
+   per-project stage, and a fullscreen detail overlay. All chrome below
+   (ticks, giant titles, meta bar, overview strips) is generated from the
+   PROJECTS data array in JS; real project copy/media stays in the HTML
+   above (.scene-media / .scene-detail-copy) as the single source of truth.
+   ==================================================================== */
+.projects-cinematic{
+  position:relative;background:var(--pc-bg,#05070a);color:var(--pc-ink,#e7edf5);isolation:isolate;
+  transition:background-color .5s ease,color .5s ease;
+}
+.pc-chrome{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+  padding:22px 30px;pointer-events:none;
+}
+.pc-chrome > *{pointer-events:auto;}
+.pc-label{font-family:var(--font-mono);font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:currentColor;opacity:0.85;}
+.pc-about{font-family:var(--font-mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:currentColor;text-decoration:none;border-bottom:1px solid currentColor;opacity:0.85;padding-bottom:2px;}
+.pc-about:hover{color:var(--pc-accent,#5eead4);opacity:1;text-decoration:none;}
+.pc-ticknav{display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:11.5px;color:currentColor;opacity:0.7;}
+.pc-ticks{display:flex;align-items:center;gap:5px;height:14px;}
+.pc-tick{
+  width:1px;height:12px;background:currentColor;opacity:0.35;border:0;padding:0;cursor:pointer;
+  transition:width .3s var(--ease),opacity .3s ease,background-color .3s ease;flex:0 0 auto;
+}
+.pc-tick:hover{opacity:0.7;}
+.pc-tick.is-active{width:20px;height:2px;align-self:center;background:var(--pc-accent,#5eead4);opacity:1;}
+.pc-ticknum{min-width:1.6em;text-align:center;opacity:0.9;}
 
-.pw-list{margin-top:28px;border-top:1px solid var(--line-soft);}
-.pw-row{
-  position:relative;display:flex;align-items:center;gap:22px;
-  padding:26px 4px;border-bottom:1px solid var(--line-soft);
-  text-decoration:none;color:inherit;cursor:pointer;background:none;
-  font:inherit;text-align:left;width:100%;
-}
-/* the sitewide a:hover{text-decoration:underline} rule (higher specificity than a bare
-   class) would otherwise draw a line straight through these oversized titles */
-.pw-row:hover,.pw-row:focus-visible{text-decoration:none;}
-.pw-row::before{
-  content:"";position:absolute;inset:0;z-index:0;transform-origin:left center;transform:scaleX(0);
-  background:var(--accent-glow);transition:transform .45s var(--ease);
-}
-.pw-row:hover::before,.pw-row:focus-visible::before{transform:scaleX(1);}
-.pw-row > *{position:relative;z-index:1;}
-.pw-row-thumb{display:none;flex:0 0 auto;width:52px;height:52px;border-radius:8px;overflow:hidden;}
-.pw-row-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-.pw-row-num{flex:0 0 auto;width:2.4em;font-family:var(--font-mono);font-size:13px;color:var(--text-dimmer);}
-.pw-row-title{
-  flex:1 1 auto;min-width:0;font-family:var(--font-display);font-weight:600;letter-spacing:-0.01em;
-  font-size:clamp(28px,5.6vw,80px);line-height:1.04;margin:0;overflow-wrap:anywhere;word-break:break-word;
-  transition:transform .5s var(--ease),color .3s ease;
-}
-.pw-row:hover .pw-row-title,.pw-row:focus-visible .pw-row-title{transform:translateX(14px);color:var(--accent);}
-.pw-row-meta{
-  flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right;
-  font-family:var(--font-mono);font-size:11px;color:var(--text-dimmer);
-  text-transform:uppercase;letter-spacing:0.06em;
-}
-.pw-row-go{
-  flex:0 0 auto;opacity:0;transform:translateY(4px);transition:opacity .3s ease,transform .3s ease;
-  color:var(--accent);font-family:var(--font-mono);font-size:12px;white-space:nowrap;
-}
-.pw-row:hover .pw-row-go,.pw-row:focus-visible .pw-row-go{opacity:1;transform:translateY(0);}
-.pw-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+.pc-scrollrange{position:relative;height:calc((var(--pc-count,9)) * 100vh);}
+.pc-viewport{position:sticky;top:0;height:100vh;overflow:hidden;touch-action:pan-y;}
 
-/* ---------- cursor-follow preview (mouse / trackpad only) ---------- */
-.pw-preview{
-  position:fixed;top:0;left:0;z-index:50;width:220px;height:150px;pointer-events:none;
-  border-radius:10px;overflow:hidden;opacity:0;background:#0b0f14;border:1px solid var(--line);
-  box-shadow:0 30px 70px -30px rgba(0,0,0,0.55);transition:opacity .25s ease;will-change:transform;
+/* ---------- overview / contact sheet ---------- */
+.pc-overview{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;
 }
-.pw-preview.is-visible{opacity:1;}
-.pw-preview img{display:block;width:100%;height:100%;object-fit:cover;}
-.pw-preview-fallback{
-  width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+.pc-strips{display:flex;align-items:stretch;justify-content:center;gap:6px;height:56vh;max-width:min(1400px,92vw);}
+.pc-strip{
+  position:relative;flex:0 0 64px;width:64px;overflow:hidden;cursor:pointer;border:0;padding:0;
+  background:#0a0e14;filter:grayscale(0.85) brightness(0.55);
+  transition:filter .35s ease,flex-basis .5s var(--ease),opacity .35s ease,transform .5s var(--ease);
 }
-.pw-preview-fallback .pf-abbr{font-family:var(--font-display);font-weight:700;font-size:26px;}
-.pw-preview-fallback .pf-hint{font-family:var(--font-mono);font-size:10px;opacity:0.7;max-width:150px;text-align:center;line-height:1.4;}
-@media (hover:none),(pointer:coarse){.pw-preview{display:none;}}
+.pc-strip:nth-child(3n+2){flex-basis:52px;}
+.pc-strip:nth-child(5n+1){flex-basis:76px;}
+.pc-strip img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.pc-strip:hover,.pc-strip:focus-visible{filter:grayscale(0) brightness(0.95);}
+.pc-strip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
-/* ---------- touch: a small static thumb per row stands in for the cursor preview.
-   The "go" arrow and meta line are hover affordances with nowhere to fit beside the
-   oversized title at phone widths, so touch relies on the whole row being tappable
-   instead (a plain, well-understood mobile-list convention). ---------- */
-@media (hover:none),(pointer:coarse){
-  .pw-row-thumb{display:block;}
-  .pw-row-meta{display:none;}
-  .pw-row-go{display:none;}
+/* ---------- stage ---------- */
+.pc-stage{position:absolute;inset:0;z-index:2;}
+.project-scene{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  will-change:transform,opacity;pointer-events:none;
 }
+.scene-media{
+  position:relative;z-index:2;width:min(56vw,980px);height:min(54vh,600px);overflow:hidden;
+  background:#0b0f14;box-shadow:0 40px 100px -40px rgba(0,0,0,0.6);cursor:grab;
+}
+.scene-media:active{cursor:grabbing;}
+.scene-media img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;}
+.scene-media .chart-panel,.scene-media .term-panel{position:absolute;inset:0;margin:0;border-radius:0;border:0;display:flex;flex-direction:column;justify-content:center;}
+.scene-media .live-embed{position:absolute;inset:0;border-radius:0;border:0;display:flex;flex-direction:column;}
+.scene-media .live-embed iframe{flex:1;height:auto !important;}
+.scene-title{position:absolute;left:0;right:0;top:50%;transform:translateY(-40%);z-index:1;text-align:center;opacity:0;transition:opacity .35s ease;pointer-events:none;}
+.project-scene.is-active .scene-title{opacity:1;}
+.title-line{
+  font-family:var(--font-display);font-weight:700;letter-spacing:-0.02em;
+  font-size:clamp(56px,11vw,220px);line-height:0.86;color:var(--pc-ink,#f4f1ea);white-space:nowrap;
+}
+.title-line .letter{
+  display:inline-block;transform:translateY(0.2em);opacity:0;
+  transition:transform .55s var(--ease),opacity .5s var(--ease);
+  transition-delay:calc(var(--li,0) * 20ms);
+}
+.title-line .letter.space{width:0.38em;}
+.project-scene.is-active .title-line .letter{transform:translateY(0);opacity:1;}
+.scene-detail-copy{display:none;}
 
-/* ---------- full-bleed single-project takeover ---------- */
-.pw-view{
-  position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;
-  background:var(--pw-bg,#05070a);color:var(--pw-ink,#e7edf5);
-  opacity:0;transform:scale(0.97);
-  transition:opacity .45s var(--ease),transform .45s var(--ease),background-color .4s ease,color .4s ease;
+/* ---------- bottom metadata + explore ---------- */
+.pc-metabar{
+  position:absolute;left:0;right:0;bottom:0;z-index:5;padding:0 32px 34px;
+  display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;
+  transition:opacity .3s ease;
 }
-.pw-view[hidden]{display:none;}
-.pw-view.is-open{opacity:1;transform:scale(1);}
-.pw-view-chrome{display:flex;align-items:center;justify-content:space-between;padding:22px 30px;flex:0 0 auto;}
-.pw-view-label{font-family:var(--font-mono);font-size:12px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.85;}
-.pw-view-close-group{display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:11.5px;}
-.pw-view-pos{opacity:0.55;}
-.pw-view-close{background:none;border:0;color:inherit;font-size:22px;line-height:1;cursor:pointer;padding:2px 8px;}
-.pw-view-close:hover{color:var(--pw-accent,#5eead4);}
-.pw-view-close:focus-visible{outline:2px solid var(--pw-accent,#5eead4);outline-offset:2px;}
-.pw-view-body{
-  flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,0.9fr);
-  gap:48px;align-items:center;padding:10px 40px 30px;
+.pc-meta-grid{display:flex;gap:26px;flex-wrap:wrap;justify-content:center;font-family:var(--font-mono);font-size:11px;letter-spacing:0.03em;}
+.pc-meta-cell{display:flex;gap:8px;align-items:baseline;}
+.pc-meta-k{text-transform:uppercase;letter-spacing:0.12em;opacity:0.5;}
+.pc-meta-v{color:currentColor;}
+.pc-meta-v a{color:inherit;}
+.pc-meta-desc{max-width:520px;font-size:13.5px;opacity:0.7;margin:0;}
+.pc-explore{
+  background:none;border:0;padding:0;cursor:pointer;color:currentColor;
+  display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--font-mono);
 }
-.pw-view-media{position:relative;height:min(64vh,640px);display:flex;align-items:center;justify-content:center;background:#0b0f14;border-radius:12px;overflow:hidden;}
-.pw-view-media .scene-media{width:100%;height:100%;}
-.pw-view-media img{width:100%;height:100%;object-fit:cover;}
-.pw-view-media .chart-panel,.pw-view-media .term-panel{position:absolute;inset:0;margin:0;border-radius:0;border:0;display:flex;flex-direction:column;justify-content:center;}
-.pw-view-media .live-embed{position:absolute;inset:0;border-radius:0;border:0;display:flex;flex-direction:column;}
-.pw-view-media .live-embed iframe{flex:1;height:auto !important;}
-.pw-view-copy{max-height:100%;overflow-y:auto;padding-right:6px;}
-.pw-view-kicker{font-family:var(--font-mono);font-size:11.5px;color:var(--pw-accent,#5eead4);text-transform:uppercase;letter-spacing:0.08em;margin:0 0 14px;}
-.pw-view-copy h3{font-family:var(--font-display);font-weight:700;font-size:clamp(28px,3.4vw,46px);margin:0 0 18px;letter-spacing:-0.01em;line-height:1.05;}
-.pw-view-copy .feature-desc,.pw-view-copy .why-body{color:inherit;opacity:0.78;}
-.pw-view-copy .feature-desc{max-width:none;}
-.pw-view-copy .why summary{color:var(--pw-accent,#5eead4);}
-.pw-view-copy .feature-links a{color:var(--pw-accent,#5eead4);}
-.pw-view-copy .feature-flow .flow-node{color:inherit;border-color:currentColor;background:rgba(255,255,255,0.04);opacity:0.9;}
-.pw-view-copy .feature-flow .flow-node.accent{color:var(--pw-accent,#5eead4);border-color:var(--pw-accent,#5eead4);}
-.pw-view-copy .chip{border-color:currentColor;opacity:0.85;color:inherit;}
-.pw-view-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px 30px;flex:0 0 auto;font-family:var(--font-mono);font-size:12px;}
-.pw-view-nav button{background:none;border:1px solid currentColor;opacity:0.75;color:inherit;border-radius:20px;padding:8px 18px;cursor:pointer;transition:opacity .2s ease,transform .2s ease;}
-.pw-view-nav button:hover{opacity:1;transform:translateY(-1px);}
-.pw-view-nav button:focus-visible{outline:2px solid var(--pw-accent,#5eead4);outline-offset:2px;}
+.pc-explore-label{font-size:12px;letter-spacing:0.16em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:2px;}
+.pc-explore-line{width:1px;height:22px;background:currentColor;opacity:0.6;transition:height .25s ease;}
+.pc-explore-plus{font-size:13px;transition:transform .25s ease;}
+.pc-explore:hover .pc-explore-line{height:30px;}
+.pc-explore:hover .pc-explore-plus{transform:rotate(90deg);}
+.pc-explore:focus-visible{outline:2px solid var(--accent);outline-offset:4px;}
 
+/* ---------- detail overlay ---------- */
+.pc-detail{
+  position:fixed;inset:0;z-index:200;background:var(--pc-bg,#05070a);color:var(--pc-ink,#f4f1ea);
+  opacity:0;transform:scale(0.97);display:flex;flex-direction:column;
+  transition:opacity .45s var(--ease),transform .45s var(--ease);
+}
+.pc-detail[hidden]{display:none;}
+.pc-detail.is-open{opacity:1;transform:scale(1);}
+.pc-detail-chrome{display:flex;align-items:flex-start;justify-content:space-between;padding:22px 30px;}
+.pc-detail-close-group{display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--font-mono);font-size:11.5px;}
+.pc-detail-pos{opacity:0.55;}
+.pc-detail-close{background:none;border:0;color:inherit;font-size:22px;line-height:1;cursor:pointer;padding:2px 8px;}
+.pc-detail-close:hover{color:var(--pc-accent,#5eead4);}
+.pc-detail-rule{width:1px;height:14px;background:currentColor;opacity:0.4;}
+.pc-detail-back{color:inherit;font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:1px;}
+.pc-detail-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(90px,auto) minmax(0,1fr) auto;gap:32px;align-items:center;padding:0 40px;overflow:hidden;}
+.pc-detail-abbr{font-family:var(--font-display);font-weight:700;font-size:clamp(50px,8vw,130px);line-height:0.82;letter-spacing:-0.02em;color:var(--pc-accent,#5eead4);}
+.pc-detail-media{position:relative;height:min(60vh,620px);display:flex;align-items:center;justify-content:center;background:#0b0f14;overflow:hidden;}
+.pc-detail-media .detail-media-hero{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;}
+.pc-detail-media .detail-media-poster{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:40px;background:var(--pc-bg,#05070a);}
+.pc-detail-media.show-poster .detail-media-hero{display:none;}
+.pc-detail-media.show-poster .detail-media-poster{display:flex;}
+.pc-detail-media img{width:100%;height:100%;object-fit:contain;}
+.pc-detail-media .live-embed,.pc-detail-media .term-panel,.pc-detail-media .chart-panel{position:relative;width:100%;height:100%;margin:0;border-radius:0;}
+.detail-poster-stat{font-family:var(--font-display);font-weight:700;font-size:clamp(26px,3.2vw,44px);line-height:1.2;}
+.detail-poster-meta{margin-top:16px;font-family:var(--font-mono);font-size:12px;opacity:0.65;text-transform:uppercase;letter-spacing:0.08em;}
+.pc-detail-rail{display:flex;flex-direction:column;gap:10px;}
+.pc-detail-thumb{
+  width:60px;height:60px;border:1px solid currentColor;opacity:0.4;background:#0b0f14;cursor:pointer;
+  overflow:hidden;padding:0;position:relative;font-family:var(--font-mono);font-size:16px;color:inherit;
+  transition:opacity .2s ease,border-color .2s ease;
+}
+.pc-detail-thumb img{width:100%;height:100%;object-fit:cover;}
+.pc-detail-thumb.is-active{opacity:1;border-color:var(--pc-accent,#5eead4);}
+.pc-detail-thumb:hover{opacity:0.8;}
+.pc-detail-footer{padding:22px 40px 34px;}
+/* .scene-detail-copy is display:none where it normally lives (inert markup inside the hidden
+   cinematic scene -- see the note above .scene-detail-copy's rule), but openProjectDetail()
+   relocates that exact node into #pcDetailFooter as the detail overlay's real description
+   content, and it needs to actually render there. Scoping the override to this container (kept
+   in sync with .pc-detail-desc-wrap's own display:flex below) means the same node goes back to
+   being invisible automatically once closeProjectDetail() returns it to the scene. */
+#pcDetailFooter .scene-detail-copy{display:block;}
+.pc-detail-desc-wrap{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;}
+.pc-detail-desc-wrap .feature-stats{margin:0 0 10px;}
+.pc-detail-desc-wrap .feature-links{margin:6px 0 0;}
+.pc-detail-desc-wrap .feature-links a{color:var(--pc-accent,#5eead4);}
+.pc-detail-desc-wrap .feature-desc{max-width:640px;font-size:14px;line-height:1.7;opacity:0.75;margin:0 0 10px;}
+.pc-detail-desc-wrap .why summary{color:var(--pc-accent,#5eead4);}
+.pc-detail-desc-wrap .why-body{opacity:0.75;}
+
+@media (max-width:1279px){
+  .scene-media{width:66vw;height:52vh;}
+}
 @media (max-width:1099px){
-  .pw-view-body{grid-template-columns:1fr;grid-auto-rows:auto;gap:26px;padding:10px 24px 20px;}
-  .pw-view-media{height:44vh;}
+  .scene-media{width:76vw;height:50vh;}
+  .title-line{font-size:clamp(48px,13vw,150px);}
+  .pc-detail-body{grid-template-columns:1fr;grid-template-rows:auto auto auto;padding:0 24px;gap:18px;}
+  .pc-detail-abbr{font-size:clamp(40px,10vw,90px);}
+  .pc-detail-rail{flex-direction:row;}
+  .pc-detail-desc-wrap{flex-direction:column;gap:14px;}
 }
 @media (max-width:760px){
-  .pw-row{padding:20px 2px;gap:16px;}
-  .pw-row-title{font-size:clamp(24px,9vw,44px);}
-  .pw-view-chrome{padding:16px 18px;}
-  .pw-view-body{padding:6px 18px 16px;}
-  .pw-view-media{height:34vh;}
-  .pw-view-copy h3{font-size:clamp(22px,7vw,32px);}
-  .pw-view-nav{padding:14px 18px 22px;}
+  .pc-chrome{padding:16px 18px;}
+  .pc-ticknav{gap:8px;font-size:10px;}
+  .pc-ticks{display:none;}
+  .scene-media{width:86vw;height:42vh;}
+  .title-line{font-size:clamp(36px,15vw,100px);}
+  .pc-metabar{padding:0 18px 20px;gap:10px;}
+  .pc-meta-grid{gap:12px 16px;font-size:9.5px;}
+  .pc-strips{height:36vh;}
+  .pc-strip{flex-basis:38px !important;width:38px;}
+  .pc-detail-chrome{padding:16px 18px;}
+  .pc-detail-body{padding:0 18px;}
+  .pc-detail-media{height:34vh;}
+  .pc-detail-abbr{font-size:clamp(28px,11vw,54px);}
+  .pc-detail-footer{padding:16px 18px 26px;}
 }
 @media (prefers-reduced-motion: reduce){
-  .pw-row-title,.pw-row::before,.pw-row-go{transition:none !important;}
-  .pw-preview{transition:opacity .1s linear;}
-  .pw-view{transition:opacity .15s ease;transform:none !important;}
+  .title-line .letter{transition:opacity .2s ease;transform:none !important;transition-delay:0s !important;}
+  .project-scene{transition:none;}
+  .pc-strip{transition:filter .05s linear;}
+  .pc-detail{transition:opacity .2s ease;transform:none !important;}
 }
 /* ---------- skills ---------- */
 .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;}
@@ -1408,99 +1456,325 @@ body.boot-lock{overflow:hidden;}
   </div>
 </section>
 
-<section id="projects" class="projects-wall reveal">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Projects</p>
-      <h2 class="kinetic-h">Eight real builds, start to finish</h2>
-      <p class="section-lede">Real, working, tested, and documented. Pick one.</p>
-    </div>
+<section id="projects" class="projects-cinematic">
+  <h2 class="sr-only">Security &amp; infrastructure tooling</h2>
+  <p class="sr-only">Eight builds, real, working, tested, and documented.</p>
 
-    <div class="pw-list" id="pwList">
-      <a class="pw-row stagger-item" id="craft" href="#craft" data-index="0"
-         data-abbr="ID" data-bg="#0c0906" data-ink="#f4ecdf" data-accent="#f0b429"
-         data-hint="A full 3D, physically-lit recreation of my actual diploma. It's live. Drag it.">
-        <span class="pw-row-thumb"><span class="pw-preview-fallback" style="background:#0c0906;color:#f4ecdf;"><span class="pf-abbr">ID</span></span></span>
-        <span class="pw-row-num">01</span>
-        <span class="pw-row-title">Interactive Diploma</span>
-        <span class="pw-row-meta"><span>Creative / 3D</span><span>Three.js</span><span>Fully interactive</span></span>
-        <span class="pw-row-go">View project &rarr;</span>
-      </a>
+  <div class="pc-chrome">
+    <span class="pc-label">Projects</span>
+    <nav class="pc-ticknav" id="pcTickNav" aria-label="Project navigation">
+      <span class="pc-ticknum" id="pcNumCurrent">01</span>
+      <div class="pc-ticks" id="pcTicks"></div>
+      <span class="pc-ticknum" id="pcNumTotal">08</span>
+    </nav>
+    <a href="#about" class="pc-about">About</a>
+  </div>
 
-      <a class="pw-row stagger-item" id="proj-siem" href="#proj-siem" data-index="1"
-         data-abbr="SIEM" data-bg="#081413" data-ink="#eafffb" data-accent="#5eead4"
-         data-thumb="screenshots/log-correlator-siem.webp"
-         data-hint="Correlates sequences of events across two log sources into one incident, not two alerts.">
-        <span class="pw-row-thumb"><img src="screenshots/log-correlator-siem.webp" alt="" loading="lazy"></span>
-        <span class="pw-row-num">02</span>
-        <span class="pw-row-title">Log Correlator SIEM</span>
-        <span class="pw-row-meta"><span>Security tool</span><span>Python</span><span>25 tests passing</span></span>
-        <span class="pw-row-go">View project &rarr;</span>
-      </a>
+  <div class="pc-scrollrange" id="pcScrollRange">
+    <div class="pc-viewport" id="pcViewport">
 
-      <a class="pw-row stagger-item" id="proj-helpdesk" href="#proj-helpdesk" data-index="2"
-         data-abbr="HD" data-bg="#e9edf1" data-ink="#141b24" data-accent="#285f8f"
-         data-hint="Turns a raw ticket export into SLA compliance, resolution-time, and volume metrics.">
-        <span class="pw-row-thumb"><span class="pw-preview-fallback" style="background:#e9edf1;color:#141b24;"><span class="pf-abbr">HD</span></span></span>
-        <span class="pw-row-num">03</span>
-        <span class="pw-row-title">Helpdesk Ticket Analytics</span>
-        <span class="pw-row-meta"><span>Analytics tool</span><span>Python</span><span>14 tests passing</span></span>
-        <span class="pw-row-go">View project &rarr;</span>
-      </a>
+      <div class="pc-overview" id="pcOverview" aria-hidden="true">
+        <div class="pc-strips" id="pcStrips"></div>
+      </div>
 
-      <a class="pw-row stagger-item" id="proj-ad-auditor" href="#proj-ad-auditor" data-index="3"
-         data-abbr="AD" data-bg="#0d0b14" data-ink="#efeaff" data-accent="#9d84e8"
-         data-thumb="screenshots/ad-security-auditor.webp"
-         data-hint="Audits Active Directory security posture entirely offline, from exported CSV data.">
-        <span class="pw-row-thumb"><img src="screenshots/ad-security-auditor.webp" alt="" loading="lazy"></span>
-        <span class="pw-row-num">04</span>
-        <span class="pw-row-title">AD Security Auditor</span>
-        <span class="pw-row-meta"><span>Security tool</span><span>PowerShell</span><span>Pester tested</span></span>
-        <span class="pw-row-go">View project &rarr;</span>
-      </a>
+      <div class="pc-stage" id="pcStage">
 
-      <a class="pw-row stagger-item" id="proj-phishing" href="#proj-phishing" data-index="4"
-         data-abbr="PH" data-bg="#160a0d" data-ink="#ffe9ee" data-accent="#e8748c"
-         data-thumb="screenshots/phishing-email-analyzer.webp"
-         data-hint="Statically analyzes raw .eml files for phishing indicators, fully offline.">
-        <span class="pw-row-thumb"><img src="screenshots/phishing-email-analyzer.webp" alt="" loading="lazy"></span>
-        <span class="pw-row-num">05</span>
-        <span class="pw-row-title">Phishing Email Analyzer</span>
-        <span class="pw-row-meta"><span>Security tool</span><span>Python</span><span>46 tests passing</span></span>
-        <span class="pw-row-go">View project &rarr;</span>
-      </a>
+        <article class="project-scene" id="craft" data-index="0">
+          <h3 class="sr-only">Interactive Diploma</h3>
+          <div class="scene-media" id="pm-0">
+            <div class="live-embed diploma">
+              <div class="lf-bar" aria-hidden="true">
+                <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+                <span class="lf-title">interactive-diploma &middot; live</span>
+                <span class="lf-hint">drag to rotate &middot; scroll to zoom</span>
+              </div>
+              <iframe src="https://spairkie.github.io/interactive-diploma/" title="Interactive Diploma &middot; live 3D demo, drag to rotate" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live 3D diploma: click to drag and zoom">
+                <span class="lf-overlay-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
+                  Click to drag &amp; zoom
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="scene-detail-copy">
+            <p class="feature-desc">Everything else here solves a problem nobody outside IT ever sees. This one didn't need to exist: a full 3D, physically-lit recreation of my actual Liberty University diploma, procedural paper and card materials, studio lighting, a folder that opens on drag. Built because the three.js engine idling in the hero above deserved a real object to render, not just a wireframe backdrop. It's live. Drag it.</p>
+            <div class="feature-stats">
+              <span class="chip">Three.js</span>
+              <span class="chip">Procedural materials</span>
+              <span class="chip">Studio lighting</span>
+              <span class="chip">Fully interactive</span>
+            </div>
+            <div class="feature-links">
+              <a class="link-primary" href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Open full demo</a>
+              <a href="https://github.com/Spairkie/interactive-diploma" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+          </div>
+        </article>
 
-      <a class="pw-row stagger-item" id="proj-jotrelay" href="#proj-jotrelay" data-index="5"
-         data-abbr="JR" data-bg="#eef7f1" data-ink="#0c1f15" data-accent="#256f4a"
-         data-hint="Real-time encrypted collaborative notepad with shareable links and an installable PWA.">
-        <span class="pw-row-thumb"><span class="pw-preview-fallback" style="background:#eef7f1;color:#0c1f15;"><span class="pf-abbr">JR</span></span></span>
-        <span class="pw-row-num">06</span>
-        <span class="pw-row-title">JotRelay</span>
-        <span class="pw-row-meta"><span>Web app</span><span>JS / Supabase</span><span>Live demo</span></span>
-        <span class="pw-row-go">View project &rarr;</span>
-      </a>
+        <article class="project-scene" id="proj-siem" data-index="1">
+          <h3 class="sr-only">Log Correlator SIEM</h3>
+          <div class="scene-media" id="pm-1">
+            <img src="screenshots/log-correlator-siem.webp" alt="Log Correlator SIEM dashboard: 34 events ingested, 5 incidents, MITRE ATT&amp;CK techniques observed" loading="lazy" width="1200" height="780">
+          </div>
+          <div class="scene-detail-copy">
+            <p class="feature-desc">Most portfolio "SIEM" projects flag one log line at a time. This one correlates <em>sequences</em> of events across two different log sources: a burst of failed SSH logins immediately followed by a successful one from the same IP is treated as one escalated incident, not two unrelated alerts, mirroring how a real detection-engineering rule chain works. Five rules, each mapped to a MITRE ATT&amp;CK technique ID; zero runtime dependencies; renders as a self-contained HTML dashboard with no build step.</p>
+            <div class="feature-flow" aria-hidden="true">
+              <span class="flow-node">auth.log</span>
+              <span class="flow-arrow">+</span>
+              <span class="flow-node">firewall.csv</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-node accent">correlator.py</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-node">ATT&amp;CK-mapped incidents</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-node">HTML dashboard</span>
+            </div>
+            <details class="why">
+              <summary>Why I built this</summary>
+              <p class="why-body">I don't have a live SOC seat yet, so I couldn't point to a real correlation rule I'd shipped. This was my way of proving the thinking anyway: don't just flag a suspicious line, chain it to what came before it, the way an actual detection engineer reads a timeline. If I can't show the seat, I can show the reasoning.</p>
+            </details>
+            <div class="feature-stats">
+              <span class="chip">5 correlation rules</span>
+              <span class="chip">25 tests passing</span>
+              <span class="chip">MITRE ATT&amp;CK mapped</span>
+              <span class="chip">Zero dependencies</span>
+              <span class="chip">Cross-source correlation</span>
+            </div>
+            <div class="feature-links">
+              <a class="link-primary" href="https://spairkie.github.io/log-correlator-siem/" target="_blank" rel="noopener">Live dashboard</a>
+              <a href="https://github.com/Spairkie/log-correlator-siem" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+          </div>
+        </article>
 
-      <a class="pw-row stagger-item" id="proj-toolkit" href="#proj-toolkit" data-index="6"
-         data-abbr="EP" data-bg="#170f08" data-ink="#ffe9d1" data-accent="#e2a35c"
-         data-hint="Provisioning, offboarding, and compliance scripts. Every write action supports -WhatIf.">
-        <span class="pw-row-thumb"><span class="pw-preview-fallback" style="background:#170f08;color:#ffe9d1;"><span class="pf-abbr">EP</span></span></span>
-        <span class="pw-row-num">07</span>
-        <span class="pw-row-title">AD &amp; Endpoint Automation Toolkit</span>
-        <span class="pw-row-meta"><span>Automation</span><span>PowerShell</span><span>PS 5.1 compatible</span></span>
-        <span class="pw-row-go">View project &rarr;</span>
-      </a>
+        <article class="project-scene" id="proj-helpdesk" data-index="2">
+          <h3 class="sr-only">Helpdesk Ticket Analytics</h3>
+          <div class="scene-media" id="pm-2">
+            <div class="chart-panel">
+              <svg viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" style="width:100%;height:auto;display:block;">
+                <text x="0" y="18" font-size="13" font-weight="600" fill="#e7edf5">SLA compliance by priority</text>
+                <text x="0" y="50" font-size="12" fill="#93a1b4">Low</text>
+                <rect x="140" y="34" width="440" height="22" rx="3" fill="#1c2634" />
+                <rect x="140" y="34" width="440" height="22" rx="3" fill="#5eead4" />
+                <text x="590" y="50" font-size="11" fill="#e7edf5">100%</text>
+                <text x="0" y="82" font-size="12" fill="#93a1b4">High</text>
+                <rect x="140" y="66" width="440" height="22" rx="3" fill="#1c2634" />
+                <rect x="140" y="66" width="357" height="22" rx="3" fill="#5eead4" />
+                <text x="590" y="82" font-size="11" fill="#e7edf5">81.2%</text>
+                <text x="0" y="114" font-size="12" fill="#93a1b4">Medium</text>
+                <rect x="140" y="98" width="440" height="22" rx="3" fill="#1c2634" />
+                <rect x="140" y="98" width="440" height="22" rx="3" fill="#5eead4" />
+                <text x="590" y="114" font-size="11" fill="#e7edf5">100%</text>
+                <text x="0" y="146" font-size="12" fill="#93a1b4">Critical</text>
+                <rect x="140" y="130" width="440" height="22" rx="3" fill="#1c2634" />
+                <rect x="140" y="130" width="409" height="22" rx="3" fill="#5eead4" />
+                <text x="590" y="146" font-size="11" fill="#e7edf5">92.9%</text>
+              </svg>
+              <p class="chart-cap">Live chart from the tool's own inline-SVG report generator, rendered from a 620-ticket sample dataset. No image file.</p>
+            </div>
+          </div>
+          <div class="scene-detail-copy">
+            <p class="feature-desc">Turns a raw ticket export into SLA compliance, resolution-time, and volume metrics, mirroring real high-volume ticket queue work (1,000+ tickets/year). Zero dependencies; renders its own charts as inline SVG.</p>
+            <details class="why">
+              <summary>Why I built this</summary>
+              <p class="why-body">Twelve to fifteen tickets a day adds up to thousands a year, and I kept asking the same question nobody was answering: which priority tier is actually missing SLA, and by how much? This is that answer, generated in seconds instead of guessed at.</p>
+            </details>
+            <div class="feature-stats">
+              <span class="chip">14 tests passing</span>
+              <span class="chip">Zero dependencies</span>
+              <span class="chip">HTML + CSV reports</span>
+            </div>
+            <div class="feature-links">
+              <a href="https://github.com/Spairkie/helpdesk-ticket-analytics" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+          </div>
+        </article>
 
-      <a class="pw-row stagger-item" id="proj-winlog" href="#proj-winlog" data-index="7"
-         data-abbr="WL" data-bg="#071316" data-ink="#eafbff" data-accent="#5fc9d8"
-         data-hint="Parses Windows Security/Sysmon events and maps findings to MITRE ATT&amp;CK techniques.">
-        <span class="pw-row-thumb"><span class="pw-preview-fallback" style="background:#071316;color:#eafbff;"><span class="pf-abbr">WL</span></span></span>
-        <span class="pw-row-num">08</span>
-        <span class="pw-row-title">WinLog Threat Hunter</span>
-        <span class="pw-row-meta"><span>Threat hunting</span><span>Python</span><span>25 tests passing</span></span>
-        <span class="pw-row-go">View project &rarr;</span>
-      </a>
+        <article class="project-scene" id="proj-ad-auditor" data-index="3">
+          <h3 class="sr-only">AD Security Auditor</h3>
+          <div class="scene-media" id="pm-3">
+            <img src="screenshots/ad-security-auditor.webp" alt="AD Security Auditor HTML report: 16 findings, 4 critical, 5 high, 7 medium" loading="lazy" width="1200" height="708">
+          </div>
+          <div class="scene-detail-copy">
+            <p class="feature-desc">Audits Active Directory security posture entirely offline, from exported CSV data: stale accounts, password hygiene, unapproved privileged-group membership, outdated OS versions, and duplicate SPNs. No live domain connection required. Renders a dark-themed HTML report plus CSV/JSON export.</p>
+            <details class="why">
+              <summary>Why I built this</summary>
+              <p class="why-body">I administer a real production AD environment, so I know exactly how easy it is for a stale account or a privileged-group change to go unnoticed. I wanted an audit I could hand to anyone without touching the live domain: export, run, read the findings.</p>
+            </details>
+            <div class="feature-stats">
+              <span class="chip">Pester tested</span>
+              <span class="chip">7 security checks</span>
+              <span class="chip">Read-only / offline</span>
+            </div>
+            <div class="feature-links">
+              <a href="https://github.com/Spairkie/ad-security-auditor" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-scene" id="proj-phishing" data-index="4">
+          <h3 class="sr-only">Phishing Email Analyzer</h3>
+          <div class="scene-media" id="pm-4">
+            <img src="screenshots/phishing-email-analyzer.webp" alt="Phishing Email Analyzer report flagging a critical-risk message with SPF, DKIM, and DMARC failures" loading="lazy" width="1200" height="678">
+          </div>
+          <div class="scene-detail-copy">
+            <p class="feature-desc">Statically analyzes raw .eml files for phishing indicators: SPF/DKIM/DMARC failures, lookalike and homoglyph domains, link-text/href mismatches, urgency language, and double-extension executables. Weighted score with plain-language explanations. Fully offline, never visits links or executes attachments.</p>
+            <details class="why">
+              <summary>Why I built this</summary>
+              <p class="why-body">Phishing reports land in every help desk queue, and "just don't click it" isn't an explanation. I wanted something that shows its work: which header failed, which domain is spoofed, in plain language, so the answer teaches the reader something instead of just flagging risk.</p>
+            </details>
+            <div class="feature-stats">
+              <span class="chip">46 tests passing</span>
+              <span class="chip">Zero dependencies</span>
+              <span class="chip">Offline / no network calls</span>
+            </div>
+            <div class="feature-links">
+              <a href="https://github.com/Spairkie/phishing-email-analyzer" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-scene" id="proj-jotrelay" data-index="5">
+          <h3 class="sr-only">JotRelay</h3>
+          <div class="scene-media" id="pm-5">
+            <div class="live-embed jotrelay">
+              <div class="lf-bar" aria-hidden="true">
+                <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+                <span class="lf-title">jotrelay.github.io &middot; live</span>
+                <span class="lf-hint">real app, not a screenshot</span>
+              </div>
+              <iframe src="https://spairkie.github.io/JotRelay/" title="JotRelay &middot; live app preview" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live JotRelay preview">
+                <span class="lf-overlay-badge">Click to interact</span>
+              </div>
+            </div>
+          </div>
+          <div class="scene-detail-copy">
+            <p class="feature-desc">Real-time encrypted collaborative notepad: shareable editable or read-only links, QR codes, presence and typing indicators, offline drafts, and a PWA install with an OS-level share target. Vanilla JS, no framework or build step.</p>
+            <details class="why">
+              <summary>Why I built this</summary>
+              <p class="why-body">Everything else here is backend tooling nobody outside IT ever sees. I wanted to prove I can also ship something a stranger opens, understands in five seconds, and actually wants to use, encryption included, because "real-time" and "private" shouldn't be a trade-off.</p>
+            </details>
+            <div class="feature-stats">
+              <span class="chip">Live demo</span>
+              <span class="chip">Encryption option</span>
+            </div>
+            <div class="feature-links">
+              <a class="link-primary" href="https://spairkie.github.io/JotRelay/" target="_blank" rel="noopener">Open live demo</a>
+              <a href="https://github.com/Spairkie/JotRelay" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-scene" id="proj-toolkit" data-index="6">
+          <h3 class="sr-only">AD &amp; Endpoint Automation Toolkit</h3>
+          <div class="scene-media" id="pm-6">
+            <div class="term-panel">
+              <div class="term-topbar" aria-hidden="true">
+                <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+                <span class="term-cmdline">PS&gt; .\Disable-InactiveADUsers.ps1 -InactiveDays 90 -ReportOnly</span>
+              </div>
+              <pre><span class="term-dim">Scanning 214 enabled accounts for LastLogonTimestamp older than 90 days...</span>
+
+<span class="term-hd">What if:</span> Performing the operation "Disable AD Account" on target "jsmith (OU=Sales,DC=corp,DC=local)".
+<span class="term-hd">What if:</span> Performing the operation "Disable AD Account" on target "r.chen (OU=Support,DC=corp,DC=local)".
+<span class="term-dim">... 10 more, see report ...</span>
+
+<span class="term-accent">12 accounts</span> flagged inactive &middot; <span class="term-hd">0</span> disabled (-ReportOnly) &middot; report written to <span class="term-dim">reports\inactive-2026-08-31.csv</span></pre>
+              <p class="chart-cap">Representative -WhatIf/-ReportOnly console output, formatted to match the script's real logging module. It targets a live AD domain, so this isn't a hosted demo.</p>
+            </div>
+          </div>
+          <div class="scene-detail-copy">
+            <p class="feature-desc">Scripts for AD user provisioning/offboarding, stale-account cleanup, hygiene reporting, and endpoint compliance audits. Every write action supports -WhatIf; every run produces a log and CSV report.</p>
+            <details class="why">
+              <summary>Why I built this</summary>
+              <p class="why-body">Provisioning and offboarding by hand is repetitive, which means it's exactly where mistakes happen. Every write action here defaults to -WhatIf first, because I wanted automation I'd actually trust against a real domain, not a script that just moves the risk somewhere less visible.</p>
+            </details>
+            <div class="feature-stats">
+              <span class="chip">SupportsShouldProcess</span>
+              <span class="chip">PS 5.1 compatible</span>
+            </div>
+            <div class="feature-links">
+              <a href="https://github.com/Spairkie/ad-automation-toolkit" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-scene" id="proj-winlog" data-index="7">
+          <h3 class="sr-only">WinLog Threat Hunter</h3>
+          <div class="scene-media" id="pm-7">
+            <div class="term-panel">
+              <div class="term-topbar" aria-hidden="true">
+                <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+                <span class="term-cmdline">$ python -m winlog_threat_hunter.cli sample_logs/brute_force_attack.jsonl</span>
+              </div>
+              <pre><span class="term-hd">WinLog Threat Hunter</span> <span class="term-dim">: analyzed 9 events, 3 finding(s)</span>
+<span class="sev-crit">CRITICAL: 2</span>   <span class="sev-high">HIGH: 1</span>
+
+<span class="sev-crit">[CRITICAL]</span> Repeated failed logons (brute force / password spray), followed by success
+  <span class="term-dim">rule: BRUTE-001 &middot; mitre: T1110 &middot; who: WIN-VPN01 / 45.33.12.7</span>
+  7 failed logons in 6 min, then a success from the same source: likely compromise, not a blocked attempt.
+
+<span class="sev-high">[HIGH]</span> Special privileges assigned following a notable interactive logon
+  <span class="term-dim">rule: PRIVESC-001 &middot; mitre: T1078 &middot; who: svc_backup / WIN-VPN01</span></pre>
+              <p class="chart-cap">Real output from the tool, run against its own bundled sample_logs/brute_force_attack.jsonl dataset, not staged.</p>
+            </div>
+          </div>
+          <div class="scene-detail-copy">
+            <p class="feature-desc">Parses exported Windows Security/Sysmon events and flags brute-force logons, privilege escalation, suspicious command lines, and admin-persistence patterns, each mapped to a MITRE ATT&amp;CK technique.</p>
+            <details class="why">
+              <summary>Why I built this</summary>
+              <p class="why-body">Raw Windows Security logs are enormous and mostly noise. I wanted practice turning that noise into named attacker behavior, mapped to ATT&amp;CK and not just "suspicious event #4471", because that translation is most of what a threat hunter actually does.</p>
+            </details>
+            <div class="feature-stats">
+              <span class="chip">25 tests passing</span>
+              <span class="chip">MITRE ATT&amp;CK mapped</span>
+            </div>
+            <div class="feature-links">
+              <a href="https://github.com/Spairkie/winlog-threat-hunter" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+          </div>
+        </article>
+
+      </div>
     </div>
   </div>
+
+  <div class="pc-metabar" id="pcMetaBar">
+    <div class="pc-meta-grid">
+      <div class="pc-meta-cell"><span class="pc-meta-k">Type</span><span class="pc-meta-v" id="pcMetaType"></span></div>
+      <div class="pc-meta-cell"><span class="pc-meta-k">Stack</span><span class="pc-meta-v" id="pcMetaStack"></span></div>
+      <div class="pc-meta-cell"><span class="pc-meta-k">Status</span><span class="pc-meta-v" id="pcMetaStatus"></span></div>
+      <div class="pc-meta-cell"><span class="pc-meta-k">Source</span><span class="pc-meta-v" id="pcMetaSource"></span></div>
+    </div>
+    <p class="pc-meta-desc" id="pcMetaDesc"></p>
+    <button class="pc-explore" id="pcExplore" type="button">
+      <span class="pc-explore-label">Explore</span>
+      <span class="pc-explore-line" aria-hidden="true"></span>
+      <span class="pc-explore-plus" aria-hidden="true">+</span>
+    </button>
+  </div>
+
+  <div class="pc-detail" id="pcDetail" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="pcDetailTitle" hidden>
+    <h3 class="sr-only" id="pcDetailTitle"></h3>
+    <div class="pc-detail-chrome">
+      <span class="pc-label">Projects</span>
+      <div class="pc-detail-close-group">
+        <span class="pc-detail-pos" id="pcDetailPos"></span>
+        <button class="pc-detail-close" id="pcDetailClose" type="button" aria-label="Close project">&times;</button>
+        <span class="pc-detail-rule" aria-hidden="true"></span>
+        <a href="#projects" class="pc-detail-back" id="pcDetailBack">Projects</a>
+      </div>
+    </div>
+    <div class="pc-detail-body">
+      <div class="pc-detail-abbr" id="pcDetailAbbr" aria-hidden="true"></div>
+      <div class="pc-detail-media" id="pcDetailMedia"></div>
+      <div class="pc-detail-rail" id="pcDetailRail"></div>
+    </div>
+    <div class="pc-detail-footer" id="pcDetailFooter"></div>
+  </div>
+
   <div class="wrap sub-projects-wrap">
     <div class="also-built">
       <div class="also-head">
@@ -1530,280 +1804,6 @@ body.boot-lock{overflow:hidden;}
     </div>
   </div>
 </section>
-
-  <div class="pw-preview" id="pwPreview" aria-hidden="true"></div>
-
-  <div class="pw-view" id="pwView" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="pwViewTitle" hidden>
-    <div class="pw-view-chrome">
-      <span class="pw-view-label">Projects</span>
-      <button class="pw-view-close" id="pwViewClose" type="button" aria-label="Close project">&times;</button>
-    </div>
-    <div class="pw-view-body" id="pwViewBody">
-      <div class="pw-view-media" id="pwViewMedia"></div>
-      <div class="pw-view-copy" id="pwViewCopy">
-        <p class="pw-view-kicker" id="pwViewKicker"></p>
-        <h3 id="pwViewTitle"></h3>
-      </div>
-    </div>
-    <div class="pw-view-nav">
-      <button id="pwPrev" type="button">&larr; Previous</button>
-      <span id="pwViewPos"></span>
-      <button id="pwNext" type="button">Next &rarr;</button>
-    </div>
-  </div>
-
-  <div id="pwSource" hidden>
-    <div class="proj-source" data-project="craft">
-      <div class="scene-media" id="pm-0">
-        <div class="live-embed diploma">
-          <div class="lf-bar" aria-hidden="true">
-            <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-            <span class="lf-title">interactive-diploma &middot; live</span>
-            <span class="lf-hint">drag to rotate &middot; scroll to zoom</span>
-          </div>
-          <iframe src="https://spairkie.github.io/interactive-diploma/" title="Interactive Diploma &middot; live 3D demo, drag to rotate" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-          <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live 3D diploma: click to drag and zoom">
-            <span class="lf-overlay-badge">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
-              Click to drag &amp; zoom
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="scene-detail-copy">
-        <p class="feature-desc">Everything else here solves a problem nobody outside IT ever sees. This one didn't need to exist: a full 3D, physically-lit recreation of my actual Liberty University diploma, procedural paper and card materials, studio lighting, a folder that opens on drag. Built because the three.js engine idling in the hero above deserved a real object to render, not just a wireframe backdrop. It's live. Drag it.</p>
-        <div class="feature-stats">
-          <span class="chip">Three.js</span>
-          <span class="chip">Procedural materials</span>
-          <span class="chip">Studio lighting</span>
-          <span class="chip">Fully interactive</span>
-        </div>
-        <div class="feature-links">
-          <a class="link-primary" href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Open full demo</a>
-          <a href="https://github.com/Spairkie/interactive-diploma" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="proj-source" data-project="proj-siem">
-      <div class="scene-media" id="pm-1">
-        <img src="screenshots/log-correlator-siem.webp" alt="Log Correlator SIEM dashboard: 34 events ingested, 5 incidents, MITRE ATT&amp;CK techniques observed" loading="lazy" width="1200" height="780">
-      </div>
-      <div class="scene-detail-copy">
-        <p class="feature-desc">Most portfolio "SIEM" projects flag one log line at a time. This one correlates <em>sequences</em> of events across two different log sources: a burst of failed SSH logins immediately followed by a successful one from the same IP is treated as one escalated incident, not two unrelated alerts, mirroring how a real detection-engineering rule chain works. Five rules, each mapped to a MITRE ATT&amp;CK technique ID; zero runtime dependencies; renders as a self-contained HTML dashboard with no build step.</p>
-        <div class="feature-flow" aria-hidden="true">
-          <span class="flow-node">auth.log</span>
-          <span class="flow-arrow">+</span>
-          <span class="flow-node">firewall.csv</span>
-          <span class="flow-arrow">&rarr;</span>
-          <span class="flow-node accent">correlator.py</span>
-          <span class="flow-arrow">&rarr;</span>
-          <span class="flow-node">ATT&amp;CK-mapped incidents</span>
-          <span class="flow-arrow">&rarr;</span>
-          <span class="flow-node">HTML dashboard</span>
-        </div>
-        <details class="why">
-          <summary>Why I built this</summary>
-          <p class="why-body">I don't have a live SOC seat yet, so I couldn't point to a real correlation rule I'd shipped. This was my way of proving the thinking anyway: don't just flag a suspicious line, chain it to what came before it, the way an actual detection engineer reads a timeline. If I can't show the seat, I can show the reasoning.</p>
-        </details>
-        <div class="feature-stats">
-          <span class="chip">5 correlation rules</span>
-          <span class="chip">25 tests passing</span>
-          <span class="chip">MITRE ATT&amp;CK mapped</span>
-          <span class="chip">Zero dependencies</span>
-          <span class="chip">Cross-source correlation</span>
-        </div>
-        <div class="feature-links">
-          <a class="link-primary" href="https://spairkie.github.io/log-correlator-siem/" target="_blank" rel="noopener">Live dashboard</a>
-          <a href="https://github.com/Spairkie/log-correlator-siem" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="proj-source" data-project="proj-helpdesk">
-      <div class="scene-media" id="pm-2">
-        <div class="chart-panel">
-          <svg viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" style="width:100%;height:auto;display:block;">
-            <text x="0" y="18" font-size="13" font-weight="600" fill="#e7edf5">SLA compliance by priority</text>
-            <text x="0" y="50" font-size="12" fill="#93a1b4">Low</text>
-            <rect x="140" y="34" width="440" height="22" rx="3" fill="#1c2634" />
-            <rect x="140" y="34" width="440" height="22" rx="3" fill="#5eead4" />
-            <text x="590" y="50" font-size="11" fill="#e7edf5">100%</text>
-            <text x="0" y="82" font-size="12" fill="#93a1b4">High</text>
-            <rect x="140" y="66" width="440" height="22" rx="3" fill="#1c2634" />
-            <rect x="140" y="66" width="357" height="22" rx="3" fill="#5eead4" />
-            <text x="590" y="82" font-size="11" fill="#e7edf5">81.2%</text>
-            <text x="0" y="114" font-size="12" fill="#93a1b4">Medium</text>
-            <rect x="140" y="98" width="440" height="22" rx="3" fill="#1c2634" />
-            <rect x="140" y="98" width="440" height="22" rx="3" fill="#5eead4" />
-            <text x="590" y="114" font-size="11" fill="#e7edf5">100%</text>
-            <text x="0" y="146" font-size="12" fill="#93a1b4">Critical</text>
-            <rect x="140" y="130" width="440" height="22" rx="3" fill="#1c2634" />
-            <rect x="140" y="130" width="409" height="22" rx="3" fill="#5eead4" />
-            <text x="590" y="146" font-size="11" fill="#e7edf5">92.9%</text>
-          </svg>
-          <p class="chart-cap">Live chart from the tool's own inline-SVG report generator, rendered from a 620-ticket sample dataset. No image file.</p>
-        </div>
-      </div>
-      <div class="scene-detail-copy">
-        <p class="feature-desc">Turns a raw ticket export into SLA compliance, resolution-time, and volume metrics, mirroring real high-volume ticket queue work (1,000+ tickets/year). Zero dependencies; renders its own charts as inline SVG.</p>
-        <details class="why">
-          <summary>Why I built this</summary>
-          <p class="why-body">Twelve to fifteen tickets a day adds up to thousands a year, and I kept asking the same question nobody was answering: which priority tier is actually missing SLA, and by how much? This is that answer, generated in seconds instead of guessed at.</p>
-        </details>
-        <div class="feature-stats">
-          <span class="chip">14 tests passing</span>
-          <span class="chip">Zero dependencies</span>
-          <span class="chip">HTML + CSV reports</span>
-        </div>
-        <div class="feature-links">
-          <a href="https://github.com/Spairkie/helpdesk-ticket-analytics" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="proj-source" data-project="proj-ad-auditor">
-      <div class="scene-media" id="pm-3">
-        <img src="screenshots/ad-security-auditor.webp" alt="AD Security Auditor HTML report: 16 findings, 4 critical, 5 high, 7 medium" loading="lazy" width="1200" height="708">
-      </div>
-      <div class="scene-detail-copy">
-        <p class="feature-desc">Audits Active Directory security posture entirely offline, from exported CSV data: stale accounts, password hygiene, unapproved privileged-group membership, outdated OS versions, and duplicate SPNs. No live domain connection required. Renders a dark-themed HTML report plus CSV/JSON export.</p>
-        <details class="why">
-          <summary>Why I built this</summary>
-          <p class="why-body">I administer a real production AD environment, so I know exactly how easy it is for a stale account or a privileged-group change to go unnoticed. I wanted an audit I could hand to anyone without touching the live domain: export, run, read the findings.</p>
-        </details>
-        <div class="feature-stats">
-          <span class="chip">Pester tested</span>
-          <span class="chip">7 security checks</span>
-          <span class="chip">Read-only / offline</span>
-        </div>
-        <div class="feature-links">
-          <a href="https://github.com/Spairkie/ad-security-auditor" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="proj-source" data-project="proj-phishing">
-      <div class="scene-media" id="pm-4">
-        <img src="screenshots/phishing-email-analyzer.webp" alt="Phishing Email Analyzer report flagging a critical-risk message with SPF, DKIM, and DMARC failures" loading="lazy" width="1200" height="678">
-      </div>
-      <div class="scene-detail-copy">
-        <p class="feature-desc">Statically analyzes raw .eml files for phishing indicators: SPF/DKIM/DMARC failures, lookalike and homoglyph domains, link-text/href mismatches, urgency language, and double-extension executables. Weighted score with plain-language explanations. Fully offline, never visits links or executes attachments.</p>
-        <details class="why">
-          <summary>Why I built this</summary>
-          <p class="why-body">Phishing reports land in every help desk queue, and "just don't click it" isn't an explanation. I wanted something that shows its work: which header failed, which domain is spoofed, in plain language, so the answer teaches the reader something instead of just flagging risk.</p>
-        </details>
-        <div class="feature-stats">
-          <span class="chip">46 tests passing</span>
-          <span class="chip">Zero dependencies</span>
-          <span class="chip">Offline / no network calls</span>
-        </div>
-        <div class="feature-links">
-          <a href="https://github.com/Spairkie/phishing-email-analyzer" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="proj-source" data-project="proj-jotrelay">
-      <div class="scene-media" id="pm-5">
-        <div class="live-embed jotrelay">
-          <div class="lf-bar" aria-hidden="true">
-            <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-            <span class="lf-title">jotrelay.github.io &middot; live</span>
-            <span class="lf-hint">real app, not a screenshot</span>
-          </div>
-          <iframe src="https://spairkie.github.io/JotRelay/" title="JotRelay &middot; live app preview" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-          <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live JotRelay preview">
-            <span class="lf-overlay-badge">Click to interact</span>
-          </div>
-        </div>
-      </div>
-      <div class="scene-detail-copy">
-        <p class="feature-desc">Real-time encrypted collaborative notepad: shareable editable or read-only links, QR codes, presence and typing indicators, offline drafts, and a PWA install with an OS-level share target. Vanilla JS, no framework or build step.</p>
-        <details class="why">
-          <summary>Why I built this</summary>
-          <p class="why-body">Everything else here is backend tooling nobody outside IT ever sees. I wanted to prove I can also ship something a stranger opens, understands in five seconds, and actually wants to use, encryption included, because "real-time" and "private" shouldn't be a trade-off.</p>
-        </details>
-        <div class="feature-stats">
-          <span class="chip">Live demo</span>
-          <span class="chip">Encryption option</span>
-        </div>
-        <div class="feature-links">
-          <a class="link-primary" href="https://spairkie.github.io/JotRelay/" target="_blank" rel="noopener">Open live demo</a>
-          <a href="https://github.com/Spairkie/JotRelay" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="proj-source" data-project="proj-toolkit">
-      <div class="scene-media" id="pm-6">
-        <div class="term-panel">
-          <div class="term-topbar" aria-hidden="true">
-            <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-            <span class="term-cmdline">PS&gt; .\Disable-InactiveADUsers.ps1 -InactiveDays 90 -ReportOnly</span>
-          </div>
-          <pre><span class="term-dim">Scanning 214 enabled accounts for LastLogonTimestamp older than 90 days...</span>
-
-<span class="term-hd">What if:</span> Performing the operation "Disable AD Account" on target "jsmith (OU=Sales,DC=corp,DC=local)".
-<span class="term-hd">What if:</span> Performing the operation "Disable AD Account" on target "r.chen (OU=Support,DC=corp,DC=local)".
-<span class="term-dim">... 10 more, see report ...</span>
-
-<span class="term-accent">12 accounts</span> flagged inactive &middot; <span class="term-hd">0</span> disabled (-ReportOnly) &middot; report written to <span class="term-dim">reports\inactive-2026-08-31.csv</span></pre>
-          <p class="chart-cap">Representative -WhatIf/-ReportOnly console output, formatted to match the script's real logging module. It targets a live AD domain, so this isn't a hosted demo.</p>
-        </div>
-      </div>
-      <div class="scene-detail-copy">
-        <p class="feature-desc">Scripts for AD user provisioning/offboarding, stale-account cleanup, hygiene reporting, and endpoint compliance audits. Every write action supports -WhatIf; every run produces a log and CSV report.</p>
-        <details class="why">
-          <summary>Why I built this</summary>
-          <p class="why-body">Provisioning and offboarding by hand is repetitive, which means it's exactly where mistakes happen. Every write action here defaults to -WhatIf first, because I wanted automation I'd actually trust against a real domain, not a script that just moves the risk somewhere less visible.</p>
-        </details>
-        <div class="feature-stats">
-          <span class="chip">SupportsShouldProcess</span>
-          <span class="chip">PS 5.1 compatible</span>
-        </div>
-        <div class="feature-links">
-          <a href="https://github.com/Spairkie/ad-automation-toolkit" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="proj-source" data-project="proj-winlog">
-      <div class="scene-media" id="pm-7">
-        <div class="term-panel">
-          <div class="term-topbar" aria-hidden="true">
-            <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-            <span class="term-cmdline">$ python -m winlog_threat_hunter.cli sample_logs/brute_force_attack.jsonl</span>
-          </div>
-          <pre><span class="term-hd">WinLog Threat Hunter</span> <span class="term-dim">: analyzed 9 events, 3 finding(s)</span>
-<span class="sev-crit">CRITICAL: 2</span>   <span class="sev-high">HIGH: 1</span>
-
-<span class="sev-crit">[CRITICAL]</span> Repeated failed logons (brute force / password spray), followed by success
-  <span class="term-dim">rule: BRUTE-001 &middot; mitre: T1110 &middot; who: WIN-VPN01 / 45.33.12.7</span>
-  7 failed logons in 6 min, then a success from the same source: likely compromise, not a blocked attempt.
-
-<span class="sev-high">[HIGH]</span> Special privileges assigned following a notable interactive logon
-  <span class="term-dim">rule: PRIVESC-001 &middot; mitre: T1078 &middot; who: svc_backup / WIN-VPN01</span></pre>
-          <p class="chart-cap">Real output from the tool, run against its own bundled sample_logs/brute_force_attack.jsonl dataset, not staged.</p>
-        </div>
-      </div>
-      <div class="scene-detail-copy">
-        <p class="feature-desc">Parses exported Windows Security/Sysmon events and flags brute-force logons, privilege escalation, suspicious command lines, and admin-persistence patterns, each mapped to a MITRE ATT&amp;CK technique.</p>
-        <details class="why">
-          <summary>Why I built this</summary>
-          <p class="why-body">Raw Windows Security logs are enormous and mostly noise. I wanted practice turning that noise into named attacker behavior, mapped to ATT&amp;CK and not just "suspicious event #4471", because that translation is most of what a threat hunter actually does.</p>
-        </details>
-        <div class="feature-stats">
-          <span class="chip">25 tests passing</span>
-          <span class="chip">MITRE ATT&amp;CK mapped</span>
-        </div>
-        <div class="feature-links">
-          <a href="https://github.com/Spairkie/winlog-threat-hunter" target="_blank" rel="noopener">Source on GitHub</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
 
 <section id="skills">
   <div class="wrap reveal">
@@ -2180,287 +2180,572 @@ var hsLenis = null;
 })();
 
 /* ====================================================================
-   Projects: minimal list + cursor-follow preview + full-bleed takeover.
-   Real per-project media/copy lives once in the hidden #pwSource below
-   and is moved (not cloned) into the open takeover, so a live iframe
-   demo never reloads. Public API kept intentionally small:
-     window.hsProjects.goToProject(index)
+   PROJECTS: cinematic exhibition engine (Round 15)
+   One data array drives all generated chrome (ticks, overview strips,
+   giant titles, meta bar, detail overlay). Real per-project copy/media
+   lives in the HTML above (.scene-media / .scene-detail-copy) and is
+   moved (not cloned) into the detail overlay when opened, so a live
+   embed's activated state survives open/close.
+
+   Public API (kept intentionally small, single source of truth):
+     window.hsProjects.goToProject(index, opts)
+     window.hsProjects.getProjectsMetrics()
+     window.hsProjects.indexToScrollY(index)
+     window.hsProjects.scrollYToVirtualIndex(scrollY)
      window.hsScrollToProjSlide(el)  -- back-compat shim used by the
        shared anchor-click handler and the terminal's "cd" routing.
    ==================================================================== */
 (function(){
-  var root = document.querySelector('.projects-wall');
-  var list = document.getElementById('pwList');
-  var view = document.getElementById('pwView');
-  var preview = document.getElementById('pwPreview');
-  var sourceWrap = document.getElementById('pwSource');
-  if(!root || !list || !view || !sourceWrap) return;
+  var PROJECTS = [
+    { id:'craft', num:1, title:'Interactive Diploma', displayLines:['INTERACTIVE','DIPLOMA'], short:'ID',
+      bg:'#0c0906', ink:'#f4ecdf', accent:'#f0b429',
+      type:'Creative / 3D', stack:'Three.js', status:'Fully interactive',
+      short_desc:"A full 3D, physically-lit recreation of my actual Liberty University diploma. It's live. Drag it." },
+    { id:'proj-siem', num:2, title:'Log Correlator SIEM', displayLines:['LOG','SIEM'], short:'SIEM',
+      bg:'#081413', ink:'#eafffb', accent:'#5eead4',
+      type:'Security tool', stack:'Python', status:'25 tests passing',
+      short_desc:"Correlates sequences of events across two log sources into one incident, not two unrelated alerts." },
+    { id:'proj-helpdesk', num:3, title:'Helpdesk Ticket Analytics', displayLines:['HELP','DESK'], short:'HD',
+      /* accent darkened from #2f6fa8 (4.51:1 on bg, right at the WCAG AA floor with no margin
+         for small text like the detail view's links) to #285f8f (5.71:1), same hue/saturation. */
+      bg:'#e9edf1', ink:'#141b24', accent:'#285f8f',
+      type:'Analytics tool', stack:'Python', status:'14 tests passing',
+      short_desc:"Turns a raw ticket export into SLA compliance, resolution-time, and volume metrics." },
+    { id:'proj-ad-auditor', num:4, title:'AD Security Auditor', displayLines:['AD','AUDIT'], short:'AD',
+      bg:'#0d0b14', ink:'#efeaff', accent:'#9d84e8',
+      type:'Security tool', stack:'PowerShell', status:'Pester tested',
+      short_desc:"Audits Active Directory security posture entirely offline, from exported CSV data." },
+    { id:'proj-phishing', num:5, title:'Phishing Email Analyzer', displayLines:['PHISH','ING'], short:'PH',
+      bg:'#160a0d', ink:'#ffe9ee', accent:'#e8748c',
+      type:'Security tool', stack:'Python', status:'46 tests passing',
+      short_desc:"Statically analyzes raw .eml files for phishing indicators, fully offline." },
+    { id:'proj-jotrelay', num:6, title:'JotRelay', displayLines:['JOT','RELAY'], short:'JR',
+      /* accent darkened from #2f8f5f (3.68:1 on bg -- fails WCAG AA's 4.5:1 for the small
+         link/disclosure text it colors in the detail view) to #256f4a (5.57:1), same hue/sat. */
+      bg:'#eef7f1', ink:'#0c1f15', accent:'#256f4a',
+      type:'Web app', stack:'JS / Supabase', status:'Live demo',
+      short_desc:"Real-time encrypted collaborative notepad with shareable links and an installable PWA." },
+    { id:'proj-toolkit', num:7, title:'AD & Endpoint Automation Toolkit', displayLines:['END','POINT'], short:'EP',
+      bg:'#170f08', ink:'#ffe9d1', accent:'#e2a35c',
+      type:'Automation', stack:'PowerShell', status:'PS 5.1 compatible',
+      short_desc:"Provisioning, offboarding, and compliance scripts. Every write action supports -WhatIf." },
+    { id:'proj-winlog', num:8, title:'WinLog Threat Hunter', displayLines:['WIN','LOG'], short:'WL',
+      bg:'#071316', ink:'#eafbff', accent:'#5fc9d8',
+      type:'Threat hunting', stack:'Python', status:'25 tests passing',
+      short_desc:"Parses Windows Security/Sysmon events and maps findings to MITRE ATT&CK techniques." }
+  ];
+  var N = PROJECTS.length;
+  var OVERVIEW = -1;
+
+  var root = document.querySelector('.projects-cinematic');
+  if(!root) return;
+  var scrollRange = document.getElementById('pcScrollRange');
+  var viewport = document.getElementById('pcViewport');
+  var stage = document.getElementById('pcStage');
+  var overview = document.getElementById('pcOverview');
+  var stripsWrap = document.getElementById('pcStrips');
+  var ticksWrap = document.getElementById('pcTicks');
+  var numCurrent = document.getElementById('pcNumCurrent');
+  var numTotal = document.getElementById('pcNumTotal');
+  var metaBar = document.getElementById('pcMetaBar');
+  var metaType = document.getElementById('pcMetaType');
+  var metaStack = document.getElementById('pcMetaStack');
+  var metaStatus = document.getElementById('pcMetaStatus');
+  var metaSource = document.getElementById('pcMetaSource');
+  var metaDesc = document.getElementById('pcMetaDesc');
+  var exploreBtn = document.getElementById('pcExplore');
+  var detail = document.getElementById('pcDetail');
+  var detailClose = document.getElementById('pcDetailClose');
+  var detailBack = document.getElementById('pcDetailBack');
+  var detailAbbr = document.getElementById('pcDetailAbbr');
+  var detailMedia = document.getElementById('pcDetailMedia');
+  var detailRail = document.getElementById('pcDetailRail');
+  var detailPos = document.getElementById('pcDetailPos');
+  var detailFooter = document.getElementById('pcDetailFooter');
+  var detailTitleEl = document.getElementById('pcDetailTitle');
+  if(!scrollRange || !stage || !detail) return;
 
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var canHover = window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 
-  var rows = Array.prototype.slice.call(list.querySelectorAll('.pw-row'));
-  var N = rows.length;
+  root.style.setProperty('--pc-count', N + 1);
 
-  var PROJECTS = rows.map(function(row, i){
-    var titleEl = row.querySelector('.pw-row-title');
-    var metaSpans = Array.prototype.slice.call(row.querySelectorAll('.pw-row-meta span'));
-    var source = sourceWrap.querySelector('.proj-source[data-project="' + row.id + '"]');
+  var scenes = PROJECTS.map(function(p, i){
+    var el = document.getElementById(p.id);
     return {
-      id: row.id, index: i, row: row, source: source,
-      media: source ? source.querySelector('.scene-media') : null,
-      copy: source ? source.querySelector('.scene-detail-copy') : null,
-      title: titleEl ? titleEl.textContent : row.id,
-      kicker: metaSpans.map(function(s){ return s.textContent; }).join(' · '),
-      bg: row.dataset.bg, ink: row.dataset.ink, accent: row.dataset.accent,
-      abbr: row.dataset.abbr || '', thumb: row.dataset.thumb || null, hint: row.dataset.hint || ''
+      data: p, el: el, index: i,
+      media: el ? el.querySelector('.scene-media') : null,
+      copy: el ? el.querySelector('.scene-detail-copy') : null
     };
+  }).filter(function(s){ return s.el; });
+
+  function thumbSrc(s){
+    if(!s.media) return null;
+    var img = s.media.querySelector('img');
+    return img ? img.src : null;
+  }
+
+  function buildTitle(lines){
+    var wrap = document.createElement('div');
+    wrap.className = 'scene-title';
+    wrap.setAttribute('aria-hidden', 'true');
+    var li = 0;
+    lines.forEach(function(line){
+      var lineEl = document.createElement('div');
+      lineEl.className = 'title-line';
+      line.split('').forEach(function(ch){
+        var span = document.createElement('span');
+        span.className = 'letter' + (ch === ' ' ? ' space' : '');
+        span.style.setProperty('--li', li++);
+        span.textContent = ch === ' ' ? ' ' : ch;
+        lineEl.appendChild(span);
+      });
+      wrap.appendChild(lineEl);
+    });
+    return wrap;
+  }
+
+  numTotal.textContent = String(N).padStart(2, '0');
+  scenes.forEach(function(s){
+    s.el.insertBefore(buildTitle(s.data.displayLines), s.el.firstChild);
+
+    var tick = document.createElement('button');
+    tick.type = 'button'; tick.className = 'pc-tick';
+    tick.setAttribute('aria-label', 'Go to project ' + (s.index + 1) + ': ' + s.data.title);
+    tick.addEventListener('click', function(){ goToProject(s.index); });
+    ticksWrap.appendChild(tick);
+    s.tick = tick;
+
+    var strip = document.createElement('button');
+    strip.type = 'button'; strip.className = 'pc-strip';
+    strip.setAttribute('aria-label', 'Preview: ' + s.data.title);
+    var src = thumbSrc(s);
+    if(src){ var img = document.createElement('img'); img.src = src; img.alt = ''; img.loading = 'lazy'; strip.appendChild(img); }
+    else { strip.style.background = s.data.bg; }
+    strip.addEventListener('click', function(){ goToProject(s.index); });
+    stripsWrap.appendChild(strip);
+    s.strip = strip;
   });
 
-  function indexForId(id){
-    for(var i = 0; i < N; i++){ if(PROJECTS[i].id === id) return i; }
-    return -1;
+  /* ---------- scroll <-> virtual index mapping ---------- */
+  function getProjectsMetrics(){
+    var rect = scrollRange.getBoundingClientRect();
+    var total = rect.height - window.innerHeight;
+    return { rect: rect, total: total > 0 ? total : 0 };
+  }
+  function indexToScrollY(index){
+    var m = getProjectsMetrics();
+    var frac = (index - OVERVIEW) / N;
+    return window.pageYOffset + m.rect.top + frac * m.total;
+  }
+  function scrollYToVirtualIndex(scrollY){
+    var m = getProjectsMetrics();
+    var rectTopDoc = m.rect.top + window.pageYOffset;
+    var p = m.total > 0 ? (scrollY - rectTopDoc) / m.total : 0;
+    p = Math.max(0, Math.min(1, p));
+    return OVERVIEW + p * N;
   }
 
-  /* ---------- cursor-follow preview (mouse / trackpad only -- no synthetic hover on touch) ---------- */
-  if(canHover){
-    var pvX = 0, pvY = 0, tgX = 0, tgY = 0, pvRAF = null, hoverRow = null;
+  /* activeIndex starts at an impossible value (never a real project index) rather than 0, so the
+     very first render() call always runs setActiveProject once -- even when the very first
+     project the user lands on happens to BE index 0, e.g. a fresh visit to "#craft" or the
+     bare page with no hash at all. Starting this at 0 would make the "nearest !== activeIndex"
+     check below a no-op on that first call, silently skipping the initial --pc-bg/--pc-ink/
+     --pc-accent vars, meta bar text, and .is-active class entirely. */
+  var activeIndex = -99, lastVI = 0, lastT = 0, decayRaf = null, velocity = 0;
 
-    var setPreviewContent = function(p){
-      preview.innerHTML = '';
-      if(p.thumb){
-        var img = document.createElement('img');
-        img.src = p.thumb; img.alt = '';
-        preview.appendChild(img);
-      } else {
-        var fb = document.createElement('div');
-        fb.className = 'pw-preview-fallback';
-        fb.style.background = p.bg; fb.style.color = p.ink;
-        var abbr = document.createElement('span'); abbr.className = 'pf-abbr'; abbr.textContent = p.abbr;
-        var hint = document.createElement('span'); hint.className = 'pf-hint'; hint.textContent = p.hint;
-        fb.appendChild(abbr); fb.appendChild(hint);
-        preview.appendChild(fb);
-      }
-    };
-    var movePreview = function(){
-      var ease = reduce ? 1 : 0.22;
-      pvX += (tgX - pvX) * ease;
-      pvY += (tgY - pvY) * ease;
-      preview.style.transform = 'translate3d(' + (pvX + 24) + 'px,' + (pvY + 24) + 'px,0)';
-      if(hoverRow){ pvRAF = requestAnimationFrame(movePreview); } else { pvRAF = null; }
-    };
-    list.addEventListener('pointermove', function(e){
-      if(e.pointerType && e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
-      tgX = e.clientX; tgY = e.clientY;
-      var row = e.target.closest ? e.target.closest('.pw-row') : null;
-      if(row !== hoverRow){
-        hoverRow = row;
-        if(row){
-          setPreviewContent(PROJECTS[Number(row.dataset.index)]);
-          preview.classList.add('is-visible');
-          pvX = e.clientX; pvY = e.clientY;
-          if(!pvRAF) pvRAF = requestAnimationFrame(movePreview);
-        } else {
-          preview.classList.remove('is-visible');
-        }
-      }
+  function render(vi, vel){
+    /* #pcViewport (overflow:hidden) is a pure clipping box: every scene inside it is
+       positioned entirely by the translate3d() transforms below, never by native scrolling,
+       and touch-action:pan-y already tells the browser not to let touch gestures scroll it
+       horizontally. But scenes far enough from the active index are skipped in the loop
+       below (the ad>2.4 early-return, for performance) and never receive a transform, so
+       they sit at their untransformed, full-width flex-centered position -- which, combined
+       with nearer scenes translated far to one side, gives the browser's own overflow
+       calculation real (if invisible) horizontal scrollable content on both sides of center.
+       Browsers then pick their own default scroll position for that overflow (observed:
+       roughly centered in the excess), which silently shifts this element's own children --
+       including #pcOverview, the fullscreen contact-sheet layer, which has nothing to do
+       with the filmstrip and should never move -- off to one side. Since this container is
+       never meant to carry a native scroll offset at all, pin it to 0 on every render. */
+    if(viewport && viewport.scrollLeft !== 0){ viewport.scrollLeft = 0; }
+    var overviewProgress = Math.max(0, Math.min(1, vi - OVERVIEW));
+    overview.style.opacity = String(1 - overviewProgress);
+    overview.style.visibility = overviewProgress >= 1 ? 'hidden' : 'visible';
+    stage.style.opacity = String(overviewProgress);
+    metaBar.style.opacity = String(overviewProgress);
+    metaBar.style.visibility = overviewProgress < 0.05 ? 'hidden' : 'visible';
+
+    var focusIdx = Math.max(0, Math.min(N - 1, Math.round(vi)));
+    var t = overviewProgress;
+    /* dx scales WITH t (0 at rest in the overview, growing as the reader commits to a
+       project) so the eight strips sit as a tight, evenly centered contact sheet exactly
+       when the overview is fully opaque (t=0), and only scatter apart as it fades out
+       (t->1) -- they were previously scaling by (1-t), which is backwards: it fanned every
+       strip out to its maximum spread (offset*90px) at the exact moment the overview was
+       most visible, before it had scrolled at all. At up to 7 strips away from focusIdx that
+       routinely pushed strips off both edges of the viewport (confirmed lopsided even on a
+       1440px-wide screen, let alone mobile), leaving the "contact sheet" impossible to read
+       or fully see. */
+    scenes.forEach(function(s){
+      var offset = s.index - focusIdx;
+      var dx = offset * t * 90;
+      s.strip.style.transform = 'translateX(' + dx.toFixed(1) + 'px)';
+      var op = s.index === focusIdx ? 1 : Math.max(0.3, 1 - Math.abs(offset) * 0.14);
+      s.strip.style.opacity = String(op);
+      s.strip.style.flexBasis = (s.index === focusIdx ? (64 + t * 46) : 64) + 'px';
     });
-    list.addEventListener('pointerleave', function(){
-      hoverRow = null;
-      preview.classList.remove('is-visible');
+
+    var nearest = focusIdx;
+    if(nearest !== activeIndex || overviewProgress <= 0.001){ setActiveProject(nearest, overviewProgress); }
+
+    scenes.forEach(function(s){
+      var d = s.index - vi;
+      var ad = Math.abs(d);
+      if(ad > 2.4){
+        s.el.style.opacity = '0';
+        s.el.style.pointerEvents = 'none';
+        return;
+      }
+      var scale = 1 - Math.min(0.24, ad * 0.17);
+      var op = Math.max(0, 1 - Math.min(1, ad * 0.7)) * overviewProgress;
+      var bright = 1 - Math.min(0.55, ad * 0.42);
+      var rot = reduce ? 0 : Math.max(-3, Math.min(3, vel * -1.6));
+      s.el.style.opacity = String(op);
+      s.el.style.pointerEvents = ad < 0.5 ? 'auto' : 'none';
+      s.el.style.transform = 'translate3d(' + (d * 62).toFixed(2) + 'vw,0,0) scale(' + scale.toFixed(3) + ') rotateZ(' + ((d < 0 ? rot : -rot)).toFixed(2) + 'deg)';
+      s.el.style.filter = 'brightness(' + bright.toFixed(2) + ')';
     });
   }
 
-  /* ---------- full-bleed single-project takeover ---------- */
-  var viewMedia = document.getElementById('pwViewMedia');
-  var viewCopy = document.getElementById('pwViewCopy');
-  var viewKicker = document.getElementById('pwViewKicker');
-  var viewTitle = document.getElementById('pwViewTitle');
-  var viewPos = document.getElementById('pwViewPos');
-  var viewClose = document.getElementById('pwViewClose');
-  var btnPrev = document.getElementById('pwPrev');
-  var btnNext = document.getElementById('pwNext');
-
-  var activeIndex = -1;
-  var gen = 0;
-
-  function setHash(id, mode){
-    if(mode === false) return;
-    try{
-      if(mode === 'replace'){ history.replaceState(null, '', '#' + id); }
-      else { history.pushState(null, '', '#' + id); }
-    }catch(e){}
-  }
-
-  function returnActiveContent(){
-    if(activeIndex === -1) return;
-    var p = PROJECTS[activeIndex];
-    if(!p.source) return;
-    if(p.media && p.media.parentNode === viewMedia){ p.source.insertBefore(p.media, p.source.firstChild); }
-    if(p.copy && p.copy.parentNode === viewCopy){ p.source.appendChild(p.copy); }
-  }
-
-  function openView(index, opts){
-    opts = opts || {};
-    index = ((index % N) + N) % N;
-    if(activeIndex === index && !view.hidden) return;
-    gen++;
-    returnActiveContent();
-    var p = PROJECTS[index];
-    activeIndex = index;
-    view.style.setProperty('--pw-bg', p.bg);
-    view.style.setProperty('--pw-ink', p.ink);
-    view.style.setProperty('--pw-accent', p.accent);
-    viewKicker.textContent = p.kicker;
-    viewTitle.textContent = p.title;
-    viewPos.textContent = String(index + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
-    if(p.media) viewMedia.appendChild(p.media);
-    if(p.copy) viewCopy.appendChild(p.copy);
-
-    var instant = !!opts.instant || reduce;
-    if(view.hidden){
-      view.hidden = false;
-      if(instant) view.style.transition = 'none';
-      void view.offsetWidth;
-      view.classList.add('is-open');
-      if(instant){
-        var myGen = gen;
-        requestAnimationFrame(function(){ requestAnimationFrame(function(){
-          if(myGen === gen) view.style.transition = '';
-        }); });
-      }
+  function setActiveProject(i, overviewProgress){
+    activeIndex = i;
+    var s = scenes[i];
+    if(!s) return;
+    var p = s.data;
+    scenes.forEach(function(sc){
+      var on = sc.index === i;
+      sc.el.classList.toggle('is-active', on);
+      sc.tick.classList.toggle('is-active', on);
+      sc.tick.setAttribute('aria-current', on ? 'true' : 'false');
+    });
+    root.style.setProperty('--pc-bg', p.bg);
+    root.style.setProperty('--pc-ink', p.ink);
+    root.style.setProperty('--pc-accent', p.accent);
+    numCurrent.textContent = String(i + 1).padStart(2, '0');
+    metaType.textContent = p.type;
+    metaStack.textContent = p.stack;
+    metaStatus.textContent = p.status;
+    metaDesc.textContent = p.short_desc;
+    metaSource.innerHTML = '';
+    var sourceLink = s.copy ? s.copy.querySelector('a[href*="github.com"]') : null;
+    if(sourceLink){
+      var a = document.createElement('a');
+      a.href = sourceLink.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'GitHub';
+      metaSource.appendChild(a);
+    } else {
+      metaSource.textContent = 'This site';
     }
+    /* Only write this project's id into the address bar once the reader has actually
+       arrived at its scene (overviewProgress===1, i.e. vi>=0) -- not merely because it's
+       the nearest/default project for meta-bar and color purposes while still sitting in
+       the overview. Skipping that gate meant even a bare, no-hash homepage load silently
+       replaceState'd the URL to "#craft" on first paint, since render()'s initial call
+       (vi=OVERVIEW) always resolves focusIdx to project 0. */
+    if(overviewProgress >= 1 && !detail.classList.contains('is-open') && location.hash.slice(1) !== p.id){
+      history.replaceState(null, '', '#' + p.id);
+    }
+  }
+
+  function update(){
+    var vi = scrollYToVirtualIndex(window.pageYOffset || document.documentElement.scrollTop);
+    var now = performance.now();
+    if(lastT){ velocity = (vi - lastVI) / Math.max(1, now - lastT) * 16; }
+    lastVI = vi; lastT = now;
+    render(vi, velocity);
+    if(Math.abs(velocity) > 0.01) kickDecay();
+  }
+
+  function kickDecay(){
+    if(decayRaf) return;
+    function step(){
+      velocity *= 0.86;
+      if(Math.abs(velocity) < 0.01){ velocity = 0; decayRaf = null; render(lastVI, 0); return; }
+      render(lastVI, velocity);
+      decayRaf = requestAnimationFrame(step);
+    }
+    decayRaf = requestAnimationFrame(step);
+  }
+
+  function onScroll(){ requestAnimationFrame(update); }
+  if(window.hsLenis && typeof window.hsLenis.on === 'function'){ window.hsLenis.on('scroll', onScroll); }
+  else { window.addEventListener('scroll', onScroll, {passive: true}); }
+  window.addEventListener('resize', function(){ requestAnimationFrame(update); });
+
+  /* ---------- navigation ---------- */
+  function goToProject(index, opts){
+    opts = opts || {};
+    index = Math.max(OVERVIEW, Math.min(N - 1, index));
+    var y = indexToScrollY(index);
+    if(opts.instant){
+      /* force a genuinely instant jump: html{scroll-behavior:smooth} (global, see base
+         stylesheet) is only ever cancelled by the Lenis init script, so if Lenis hasn't
+         loaded yet (slow CDN, blocked script) a plain scrollTo here would animate instead
+         of snapping -- this matters for hash-landing on load and Home/End. */
+      var prevBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo(0, y);
+      document.documentElement.style.scrollBehavior = prevBehavior;
+      lastT = 0;
+      update();
+    } else if(window.hsLenis){
+      window.hsLenis.scrollTo(y, {duration: opts.duration || 1.1});
+    } else {
+      window.scrollTo({top: y, behavior: reduce ? 'auto' : 'smooth'});
+    }
+    if(index >= 0 && !opts.noHistory){ history.pushState(null, '', '#' + PROJECTS[index].id); }
+    return true;
+  }
+
+  function projectIndexForId(id){
+    for(var i = 0; i < N; i++){ if(PROJECTS[i].id === id) return i; }
+    return null;
+  }
+
+  /* back-compat shim: the shared anchor-click handler and terminal routing
+     both resolve a DOM element by id and hand it here */
+  window.hsScrollToProjSlide = function(el){
+    if(!el || !el.id) return false;
+    var idx = projectIndexForId(el.id);
+    if(idx === null) return false;
+    goToProject(idx);
+    return true;
+  };
+
+  /* ---------- keyboard navigation ---------- */
+  /* "engaged" means the user has scrolled anywhere into the pinned Projects range. Note this
+     can't use a mid-range threshold like 0.4: scrollRange is many viewport-heights tall, so the
+     visible fraction of ITS OWN total height never exceeds roughly (100vh / pc-count*100vh) --
+     for 8 projects that's under 0.12 at every scroll position, so a 0.4 threshold would simply
+     never fire and keyboard nav would never engage. threshold 0 (any overlap at all) is what
+     actually corresponds to "currently inside the section". */
+  var engaged = false;
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      engaged = entries[0].isIntersecting;
+    }, {threshold: 0}).observe(scrollRange);
+  }
+  function typingTarget(el){
+    if(!el) return false;
+    var tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'IFRAME' || el.isContentEditable;
+  }
+  window.addEventListener('keydown', function(e){
+    if(typingTarget(document.activeElement)) return;
+    if(document.body.classList.contains('menu-open')) return;
+    if(detail.classList.contains('is-open')){
+      if(e.key === 'Escape'){ closeProjectDetail(); }
+      return;
+    }
+    if(!engaged) return;
+    if(e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown'){ e.preventDefault(); goToProject(Math.max(0, Math.round(lastVI)) + 1); }
+    else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp'){ e.preventDefault(); goToProject(Math.round(lastVI) - 1); }
+    else if(e.key === 'Home'){ e.preventDefault(); goToProject(0); }
+    else if(e.key === 'End'){ e.preventDefault(); goToProject(N - 1); }
+    else if(e.key === 'Enter' && document.activeElement === exploreBtn){ /* native click follows */ }
+  });
+
+  /* ---------- pointer drag / touch swipe on the active media stage ---------- */
+  (function(){
+    var dragging = false, startX = 0, startVI = 0, dragVI = 0, wasDragged = false;
+    stage.addEventListener('pointerdown', function(e){
+      if(detail.classList.contains('is-open')) return;
+      if(e.target.closest('.lf-overlay') || e.target.closest('iframe')) return;
+      dragging = true; wasDragged = false;
+      startX = e.clientX; startVI = lastVI;
+      stage.setPointerCapture && stage.setPointerCapture(e.pointerId);
+    });
+    stage.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      var dx = e.clientX - startX;
+      if(Math.abs(dx) > 6) wasDragged = true;
+      var vwPerProjectPx = window.innerWidth * 0.62;
+      dragVI = startVI - dx / vwPerProjectPx;
+      dragVI = Math.max(OVERVIEW, Math.min(N - 1, dragVI));
+      lastVI = dragVI;
+      render(dragVI, 0);
+    });
+    function endDrag(){
+      if(!dragging) return;
+      dragging = false;
+      if(wasDragged){ goToProject(Math.round(dragVI)); }
+      setTimeout(function(){ wasDragged = false; }, 60);
+    }
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+    stage.addEventListener('click', function(e){
+      if(wasDragged){ e.preventDefault(); e.stopPropagation(); wasDragged = false; }
+    }, true);
+  })();
+
+  /* ---------- detail overlay ---------- */
+  var lastFocusEl = null;
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function openProjectDetail(i){
+    var s = scenes[i];
+    if(!s) return;
+    lastFocusEl = document.activeElement;
+    detail.dataset.index = String(i);
+    var p = s.data;
+    root.style.setProperty('--pc-bg', p.bg);
+    root.style.setProperty('--pc-ink', p.ink);
+    root.style.setProperty('--pc-accent', p.accent);
+    detailAbbr.textContent = p.short;
+    detailPos.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
+    detailTitleEl.textContent = p.title;
+
+    var heroSlot = document.createElement('div');
+    heroSlot.className = 'detail-media-hero';
+    if(s.media) heroSlot.appendChild(s.media);
+    var posterSlot = document.createElement('div');
+    posterSlot.className = 'detail-media-poster';
+    posterSlot.innerHTML = '<div class="detail-poster-stat">' + escapeHtml(p.status) + '</div><div class="detail-poster-meta">' + escapeHtml(p.type) + ' &middot; ' + escapeHtml(p.stack) + '</div>';
+    detailMedia.innerHTML = '';
+    detailMedia.appendChild(heroSlot);
+    detailMedia.appendChild(posterSlot);
+    detailMedia.classList.remove('show-poster');
+
+    detailRail.innerHTML = '';
+    var tHero = document.createElement('button');
+    tHero.type = 'button'; tHero.className = 'pc-detail-thumb is-active';
+    tHero.setAttribute('aria-label', 'View project media');
+    var src = thumbSrc(s);
+    if(src){ var im = document.createElement('img'); im.src = src; im.alt = ''; tHero.appendChild(im); }
+    else { tHero.style.background = p.accent; }
+    tHero.addEventListener('click', function(){
+      detailMedia.classList.remove('show-poster');
+      tHero.classList.add('is-active'); tStat.classList.remove('is-active');
+    });
+    var tStat = document.createElement('button');
+    tStat.type = 'button'; tStat.className = 'pc-detail-thumb';
+    tStat.setAttribute('aria-label', 'View project stats');
+    tStat.style.background = p.bg; tStat.textContent = '+';
+    tStat.addEventListener('click', function(){
+      detailMedia.classList.add('show-poster');
+      tStat.classList.add('is-active'); tHero.classList.remove('is-active');
+    });
+    detailRail.appendChild(tHero);
+    detailRail.appendChild(tStat);
+
+    detailFooter.innerHTML = '';
+    var descWrap = document.createElement('div');
+    descWrap.className = 'pc-detail-desc-wrap';
+    if(s.copy) descWrap.appendChild(s.copy);
+    detailFooter.appendChild(descWrap);
+
+    detail.hidden = false;
+    detail.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(function(){ detail.classList.add('is-open'); });
     document.body.classList.add('pc-detail-lock');
     if(window.hsLenis) window.hsLenis.stop();
-    setHash(p.id, opts.updateHash);
-    if(!opts.noFocus && viewClose) viewClose.focus();
+    if(detailClose) detailClose.focus();
+    history.pushState({pcDetail: i}, '', '#' + p.id + '-detail');
   }
 
-  function closeView(opts){
-    opts = opts || {};
-    if(view.hidden) return;
-    gen++;
-    var myGen = gen;
-    var focusRow = activeIndex !== -1 ? PROJECTS[activeIndex].row : null;
-    view.classList.remove('is-open');
+  function closeProjectDetail(){
+    var i = parseInt(detail.dataset.index, 10);
+    var s = scenes[i];
+    if(s){
+      if(s.media && s.media.parentNode !== s.el){ s.el.appendChild(s.media); }
+      if(s.copy && s.copy.parentNode !== s.el){ s.el.appendChild(s.copy); }
+    }
+    detail.classList.remove('is-open');
+    detail.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('pc-detail-lock');
     if(window.hsLenis) window.hsLenis.start();
-    function finish(){
-      if(myGen !== gen) return;
-      view.hidden = true;
-      returnActiveContent();
-      activeIndex = -1;
-    }
-    if(reduce){ finish(); }
-    else {
-      var done = false;
-      view.addEventListener('transitionend', function te(e){
-        if(e.target !== view) return;
-        view.removeEventListener('transitionend', te);
-        done = true; finish();
-      });
-      setTimeout(function(){ if(!done) finish(); }, 550);
-    }
-    setHash('projects', opts.updateHash);
-    if(focusRow && !opts.noFocus) focusRow.focus();
+    if(location.hash.indexOf('-detail') !== -1){ history.pushState(null, '', '#' + (s ? s.data.id : 'projects')); }
+    if(lastFocusEl && lastFocusEl.focus) lastFocusEl.focus();
+    setTimeout(function(){ if(!detail.classList.contains('is-open')) detail.hidden = true; }, reduce ? 20 : 480);
   }
 
-  function next(){ openView((activeIndex === -1 ? 0 : activeIndex) + 1, {updateHash: 'replace'}); }
-  function prev(){ openView((activeIndex === -1 ? 0 : activeIndex) - 1, {updateHash: 'replace'}); }
-
-  rows.forEach(function(row, i){
-    row.addEventListener('click', function(e){ e.preventDefault(); openView(i); });
+  if(exploreBtn) exploreBtn.addEventListener('click', function(){ openProjectDetail(activeIndex); });
+  scenes.forEach(function(s){
+    if(s.media){ s.media.addEventListener('dblclick', function(){ openProjectDetail(s.index); }); }
   });
-  if(viewClose) viewClose.addEventListener('click', function(){ closeView(); });
-  if(btnPrev) btnPrev.addEventListener('click', prev);
-  if(btnNext) btnNext.addEventListener('click', next);
-  view.addEventListener('click', function(e){ if(e.target === view) closeView(); });
+  if(detailClose) detailClose.addEventListener('click', closeProjectDetail);
+  if(detailBack) detailBack.addEventListener('click', function(e){ e.preventDefault(); closeProjectDetail(); });
+  detail.addEventListener('click', function(e){ if(e.target === detail) closeProjectDetail(); });
 
-  /* minimal focus trap while the takeover is open */
-  view.addEventListener('keydown', function(e){
+  /* minimal focus trap while the detail overlay is open */
+  detail.addEventListener('keydown', function(e){
     if(e.key !== 'Tab') return;
-    var focusables = view.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    var focusables = detail.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])');
     if(!focusables.length) return;
     var first = focusables[0], last = focusables[focusables.length - 1];
     if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
     else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
   });
 
-  /* ---------- keyboard: Escape/Arrow inside the open takeover; Up/Down between list rows ---------- */
-  function typingTarget(el){
-    if(!el) return false;
-    var tag = el.tagName;
-    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'IFRAME' || el.isContentEditable;
-  }
-  document.addEventListener('keydown', function(e){
-    if(typingTarget(document.activeElement)) return;
-    if(document.body.classList.contains('menu-open')) return;
-    if(!view.hidden){
-      if(e.key === 'Escape'){ closeView(); }
-      else if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){ e.preventDefault(); next(); }
-      else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ e.preventDefault(); prev(); }
-      return;
-    }
-    var active = document.activeElement;
-    if(active && active.classList && active.classList.contains('pw-row')){
-      var idx = Number(active.dataset.index);
-      if(e.key === 'ArrowDown'){ e.preventDefault(); var n2 = rows[Math.min(N - 1, idx + 1)]; if(n2) n2.focus(); }
-      else if(e.key === 'ArrowUp'){ e.preventDefault(); var pv = rows[Math.max(0, idx - 1)]; if(pv) pv.focus(); }
-    }
-  });
-
-  /* ---------- touch swipe to page between projects while the takeover is open ---------- */
-  (function(){
-    var startX = 0, startY = 0, dragging = false;
-    view.addEventListener('pointerdown', function(e){
-      if(e.pointerType === 'mouse') return;
-      if(e.target.closest && (e.target.closest('.lf-overlay') || e.target.closest('iframe') || e.target.closest('.pw-view-nav') || e.target.closest('.pw-view-close'))) return;
-      dragging = true; startX = e.clientX; startY = e.clientY;
-    });
-    view.addEventListener('pointerup', function(e){
-      if(!dragging) return;
-      dragging = false;
-      var dx = e.clientX - startX, dy = e.clientY - startY;
-      if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5){
-        if(dx < 0){ next(); } else { prev(); }
-      }
-    });
-    view.addEventListener('pointercancel', function(){ dragging = false; });
-  })();
-
   /* ---------- hash routing (including legacy anchor ids) ---------- */
-  window.addEventListener('hashchange', function(){
-    var idx = indexForId(location.hash.slice(1));
-    if(idx !== -1){ openView(idx, {updateHash: false}); }
-    else if(activeIndex !== -1){ closeView({updateHash: false}); }
-  });
+  function landFromHash(instant){
+    var id = location.hash.slice(1).replace(/-detail$/, '');
+    var idx = projectIndexForId(id);
+    if(idx === null) return;
+    goToProject(idx, {instant: instant, noHistory: true});
+  }
+  window.addEventListener('hashchange', function(){ landFromHash(false); });
 
-  window.hsScrollToProjSlide = function(el){
-    if(!el) return false;
-    var idx = -1;
-    if(el.classList && el.classList.contains('pw-row') && el.dataset.index !== undefined){
-      idx = Number(el.dataset.index);
-    } else if(el.id){
-      idx = indexForId(el.id);
-    }
-    if(idx === -1 || isNaN(idx)) return false;
-    openView(idx);
-    return true;
-  };
-  window.hsProjects = {
-    goToProject: function(i){ openView(i); },
-    next: next, prev: prev,
-    closeProjectDetail: closeView
-  };
+  window.hsProjects = { goToProject: goToProject, getProjectsMetrics: getProjectsMetrics, indexToScrollY: indexToScrollY, scrollYToVirtualIndex: scrollYToVirtualIndex, openProjectDetail: openProjectDetail, closeProjectDetail: closeProjectDetail };
 
   /* land on whatever the URL's original hash pointed to, if any -- read from
      window.hsInitialHash (captured and stripped from the URL by the very first script in
-     <head>), NOT from location.hash (empty at this point by design), so the browser's own
-     native "scroll the fragment's target into view" never fires for the list row that shares
-     this id; opening the takeover directly is a strictly better landing for a deep link
-     anyway. replaceState (not pushState) keeps this first landing off the back-button stack. */
-  var initialIdx = indexForId((window.hsInitialHash || '').slice(1));
-  if(initialIdx !== -1){ openView(initialIdx, {instant: true, updateHash: 'replace'}); }
+     <head>), NOT from location.hash, which is empty at this point by design. Every
+     project-scene <article> has a real element id (id="proj-siem" etc, for backwards-
+     compatible deep links), so if the hash were left on the URL the browser's OWN native
+     "scroll the fragment's target into view" would fire independently of -- and can override,
+     including re-firing later as images/fonts finish loading -- our own scroll-scrub
+     positioning below. Stripping the hash before that element even exists in the DOM (see
+     <head>) removes the browser's ability to do that at all; restoring it is left to
+     setActiveProject's own replaceState once we've positioned things ourselves. Scroll
+     anchoring is also disabled document-wide (see html{} rule) so the browser never nudges
+     this scroll position on its own regardless of the cause.
+
+     A single extra landing after window 'load' is not always enough: on a real page (fonts,
+     the WebGL hero, real images) layout above the pinned section can keep shifting for a bit
+     even after 'load' fires, which silently moves the pixel offset every index maps to and
+     leaves the page stranded at a now-stale target. Rather than guess a checkpoint count/delay
+     that happens to cover today's asset weight, watch for it directly: a ResizeObserver on
+     <body> re-runs the landing whenever the document's height actually changes, for a short
+     settle window after which any such shift is assumed to be content the user scrolled to on
+     purpose rather than layout still settling. It stops the moment the reader actually starts
+     driving (wheel/touch/key), so it never fights a real scroll. */
+  var initialId = (window.hsInitialHash || '').slice(1).replace(/-detail$/, '');
+  var initialIdx = initialId ? projectIndexForId(initialId) : null;
+  function landInitial(){
+    if(initialIdx !== null){ goToProject(initialIdx, {instant: true, noHistory: true}); }
+  }
+  if(initialIdx !== null){
+    landInitial();
+    window.addEventListener('load', function(){ setTimeout(landInitial, 60); });
+    var settleUntil = Date.now() + 5000, userSteered = false;
+    ['wheel', 'touchstart', 'keydown'].forEach(function(evt){
+      window.addEventListener(evt, function(){ userSteered = true; }, {once: true, passive: true});
+    });
+    if('ResizeObserver' in window){
+      var settleRO = new ResizeObserver(function(){
+        if(userSteered || Date.now() > settleUntil){ settleRO.disconnect(); return; }
+        landInitial();
+      });
+      settleRO.observe(document.body);
+    }
+  } else {
+    render(OVERVIEW, 0);
+  }
 })();
 
 /* ---------- about: faint HUD scan sweep + telemetry grid behind the section, only animates
@@ -3416,7 +3701,7 @@ var hsLenis = null;
   }
   raf();
 
-  var hoverSel = 'a, button, .btn, .pw-row, .stat, .mini-card, .skill-group, .cert-proof, .tl-item';
+  var hoverSel = 'a, button, .btn, .scene-media, .pc-strip, .pc-tick, .stat, .mini-card, .skill-group, .cert-proof, .tl-item';
   document.addEventListener('mouseover', function(e){
     if(e.target.closest && e.target.closest(hoverSel)) ring.classList.add('hover');
   });
