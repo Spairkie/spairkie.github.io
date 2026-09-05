@@ -1,0 +1,153 @@
+name: Validate comment cleanup
+
+on:
+  push:
+    branches:
+      - cleanup/remove-code-comments
+    paths:
+      - .github/workflows/validate-comment-cleanup.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate inline scripts and comment cleanup
+        shell: python
+        run: |
+          import json
+          import pathlib
+          import re
+          import subprocess
+          import tempfile
+
+          files = [
+              pathlib.Path('index.html'),
+              pathlib.Path('404.html'),
+              pathlib.Path('archive/projects-cinematic-v1-20260905.html'),
+          ]
+
+          script_re = re.compile(r'(?is)<script\b([^>]*)>(.*?)</script\s*>')
+          style_re = re.compile(r'(?is)<style\b[^>]*>(.*?)</style\s*>')
+          html_comment_re = re.compile(r'(?s)<!--.*?-->')
+
+          def has_js_comment(text):
+              i = 0
+              n = len(text)
+              quote = None
+              template = False
+              regex = False
+              in_class = False
+              while i < n:
+                  ch = text[i]
+                  if quote:
+                      if ch == '\\':
+                          i += 2
+                          continue
+                      if ch == quote:
+                          quote = None
+                      i += 1
+                      continue
+                  if template:
+                      if ch == '\\':
+                          i += 2
+                          continue
+                      if ch == '`':
+                          template = False
+                      i += 1
+                      continue
+                  if regex:
+                      if ch == '\\':
+                          i += 2
+                          continue
+                      if ch == '[':
+                          in_class = True
+                      elif ch == ']' and in_class:
+                          in_class = False
+                      elif ch == '/' and not in_class:
+                          regex = False
+                      i += 1
+                      continue
+                  if ch in ('\"', "'"):
+                      quote = ch
+                      i += 1
+                      continue
+                  if ch == '`':
+                      template = True
+                      i += 1
+                      continue
+                  if ch == '/' and i + 1 < n:
+                      nxt = text[i + 1]
+                      if nxt in ('/', '*'):
+                          return True
+                      j = i - 1
+                      while j >= 0 and text[j].isspace():
+                          j -= 1
+                      if j < 0 or text[j] in '([{=,:;!&|?+-*%^~<>':
+                          regex = True
+                          in_class = False
+                  i += 1
+              return False
+
+          def has_css_comment(text):
+              i = 0
+              n = len(text)
+              quote = None
+              while i < n:
+                  ch = text[i]
+                  if quote:
+                      if ch == '\\':
+                          i += 2
+                          continue
+                      if ch == quote:
+                          quote = None
+                      i += 1
+                      continue
+                  if ch in ('\"', "'"):
+                      quote = ch
+                      i += 1
+                      continue
+                  if ch == '/' and i + 1 < n and text[i + 1] == '*':
+                      return True
+                  i += 1
+              return False
+
+          problems = []
+          checked_scripts = 0
+          with tempfile.TemporaryDirectory() as td:
+              td = pathlib.Path(td)
+              for path in files:
+                  text = path.read_text(encoding='utf-8')
+                  outside = script_re.sub('', style_re.sub('', text))
+                  if html_comment_re.search(outside):
+                      problems.append(f'{path}: HTML comment remains')
+
+                  for style in style_re.findall(text):
+                      if has_css_comment(style):
+                          problems.append(f'{path}: CSS comment remains')
+
+                  for attrs, body in script_re.findall(text):
+                      attrs_l = attrs.lower()
+                      if 'src=' in attrs_l:
+                          continue
+                      if 'application/ld+json' in attrs_l:
+                          try:
+                              json.loads(body)
+                          except Exception as exc:
+                              problems.append(f'{path}: invalid JSON-LD: {exc}')
+                          continue
+                      if has_js_comment(body):
+                          problems.append(f'{path}: JavaScript comment remains')
+                      jsfile = td / f'script-{checked_scripts}.js'
+                      jsfile.write_text(body, encoding='utf-8')
+                      result = subprocess.run(['node', '--check', str(jsfile)], text=True, capture_output=True)
+                      if result.returncode:
+                          problems.append(f'{path}: inline script syntax error: {result.stderr.strip()}')
+                      checked_scripts += 1
+
+          if problems:
+              raise SystemExit('\n'.join(problems))
+          print(f'Validated {len(files)} HTML files and {checked_scripts} inline JavaScript blocks.')
