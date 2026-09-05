@@ -15,10 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Apply Projects redesign
         run: python3 scripts/rebuild_projects.py
-
+      - name: Diagnose obsolete hooks
+        run: |
+          grep -n -C 2 'mini-card\|projects-wall\|pw-row\|pw-view\|pw-preview\|pwSource\|sub-projects-wrap\|also-built\|pc-detail-lock' index.html || true
       - name: Validate redesign
         run: |
           python3 - <<'PY'
@@ -56,7 +57,6 @@ jobs:
           PY
           for f in /tmp/js-check/*.js; do node --check "$f"; done
           git diff --check
-
       - name: Capture visual QA screenshots
         run: |
           python3 - <<'PY'
@@ -76,7 +76,6 @@ jobs:
           "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --hide-scrollbars --window-size=390,844 --virtual-time-budget=3500 --screenshot=projects-mobile.png 'http://127.0.0.1:4173/visual-projects.html'
           "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --hide-scrollbars --window-size=1440,900 --virtual-time-budget=4200 --screenshot=projects-detail.png 'http://127.0.0.1:4173/visual-projects.html?detail=1'
           kill "$SERVER_PID"
-
       - uses: actions/upload-artifact@v4
         with:
           name: projects-redesign-qa
@@ -85,12 +84,10 @@ jobs:
             projects-desktop-mid.png
             projects-mobile.png
             projects-detail.png
-
       - name: Remove temporary files
         run: |
           rm -f visual-projects.html projects-desktop.png projects-desktop-mid.png projects-mobile.png projects-detail.png
           rm -f scripts/rebuild_projects.py .github/workflows/rebuild-projects.yml
-
       - name: Commit redesign
         run: |
           git config user.name "Hans Sai"
