@@ -16,10 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Apply Projects redesign
-        run: python3 scripts/rebuild_projects.py
-      - name: Diagnose obsolete hooks
         run: |
-          grep -n -C 2 'mini-card\|projects-wall\|pw-row\|pw-view\|pw-preview\|pwSource\|sub-projects-wrap\|also-built\|pc-detail-lock' index.html || true
+          python3 scripts/rebuild_projects.py
+          python3 scripts/cleanup_projects_stale.py
       - name: Validate redesign
         run: |
           python3 - <<'PY'
@@ -87,7 +86,7 @@ jobs:
       - name: Remove temporary files
         run: |
           rm -f visual-projects.html projects-desktop.png projects-desktop-mid.png projects-mobile.png projects-detail.png
-          rm -f scripts/rebuild_projects.py .github/workflows/rebuild-projects.yml
+          rm -f scripts/rebuild_projects.py scripts/cleanup_projects_stale.py .github/workflows/rebuild-projects.yml
       - name: Commit redesign
         run: |
           git config user.name "Hans Sai"
