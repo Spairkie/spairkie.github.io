@@ -2396,7 +2396,7 @@ var hsLenis = null;
     });
 
     var nearest = focusIdx;
-    if(nearest !== activeIndex || overviewProgress <= 0.001){ setActiveProject(nearest); }
+    if(nearest !== activeIndex || overviewProgress <= 0.001){ setActiveProject(nearest, overviewProgress); }
 
     scenes.forEach(function(s){
       var d = s.index - vi;
@@ -2417,7 +2417,7 @@ var hsLenis = null;
     });
   }
 
-  function setActiveProject(i){
+  function setActiveProject(i, overviewProgress){
     activeIndex = i;
     var s = scenes[i];
     if(!s) return;
@@ -2445,7 +2445,13 @@ var hsLenis = null;
     } else {
       metaSource.textContent = 'This site';
     }
-    if(!detail.classList.contains('is-open') && location.hash.slice(1) !== p.id){
+    /* Only write this project's id into the address bar once the reader has actually
+       arrived at its scene (overviewProgress===1, i.e. vi>=0) -- not merely because it's
+       the nearest/default project for meta-bar and color purposes while still sitting in
+       the overview. Skipping that gate meant even a bare, no-hash homepage load silently
+       replaceState'd the URL to "#craft" on first paint, since render()'s initial call
+       (vi=OVERVIEW) always resolves focusIdx to project 0. */
+    if(overviewProgress >= 1 && !detail.classList.contains('is-open') && location.hash.slice(1) !== p.id){
       history.replaceState(null, '', '#' + p.id);
     }
   }
