@@ -447,7 +447,12 @@ body.menu-open{overflow:hidden;}
 @media (prefers-reduced-motion: reduce){.status-dot{animation:none;}}
 .hero h1{
   font-family:var(--font-display);
-  font-size:clamp(46px,10vw,124px);
+  /* the old clamp(46px,10vw,124px) had a flat 46px floor reached at any viewport
+     under 460px -- but the box keeps shrinking below that, so "Systems
+     Administrator" and "security engineering." literally overflowed their
+     line-mask and got clipped mid-letter on most real phones (confirmed at
+     360-414px). This curve keeps shrinking all the way down instead of going flat. */
+  font-size:clamp(30px,10.5vw,124px);
   line-height:0.97;
   font-weight:700;
   margin:0 0 22px;
@@ -793,6 +798,37 @@ section:not(:last-of-type)::after{
 .mini-card a{font-family:var(--font-mono);font-size:12px;}
 .mini-card a::before{content:"→ ";}
 
+/* ---------- craft stage: dramatic "off the clock" 3D showcase, forced dark regardless of theme ----------
+   Deliberately breaks from the surrounding light/dark theme system -- a single, intentional dark "stage"
+   moment for the one piece on the site that's pure craft rather than security tooling, echoing how the
+   research reference (aristidebenoist.com) commits fully to a mood per project rather than staying neutral. */
+.craft-stage{
+  position:relative;overflow:hidden;isolation:isolate;
+  background:#05070a;color:#e7edf5;
+  padding:130px 0 110px;
+}
+.craft-bg{position:absolute;inset:0;z-index:0;opacity:0.55;}
+.craft-bg canvas{display:block;width:100%;height:100%;}
+.craft-inner{position:relative;z-index:1;}
+.craft-eyebrow{color:var(--amber) !important;}
+.craft-title{
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(48px,10.5vw,150px);
+  line-height:0.95;letter-spacing:-0.03em;
+  margin:10px 0 30px;color:#f4f1ea;
+}
+.craft-title .accent{color:var(--amber);}
+.craft-desc{color:#93a1b4;max-width:620px;font-size:16px;line-height:1.7;margin:0 0 34px;}
+.craft-embed{max-width:940px;border-color:rgba(240,180,41,0.25);box-shadow:0 60px 130px -50px rgba(0,0,0,0.7);}
+.craft-embed .lf-bar{background:#0d1219;border-bottom-color:rgba(240,180,41,0.18);}
+.craft-embed .lf-title,.craft-embed .lf-hint{color:#6e8099;}
+.craft-stats{margin:30px 0 22px;}
+.craft-stats .chip{border-color:rgba(240,180,41,0.32);color:#d8c9a3;}
+.craft-links a{color:var(--amber);}
+.craft-links a:hover{color:#f4f1ea;}
+@media (max-width:760px){.craft-stage{padding:90px 0 80px;}}
+@media (prefers-reduced-motion: reduce){.craft-bg{opacity:0.25;}}
+
 /* ---------- skills ---------- */
 .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;}
 .skill-group{position:relative;overflow:hidden;background:var(--bg-card);padding:22px 24px;transition:background .3s ease;}
@@ -853,7 +889,12 @@ footer h2{font-family:var(--font-display);font-size:clamp(26px,4vw,38px);margin:
 }
 .footer-headline .accent{color:var(--accent);}
 footer p{color:var(--text-dim);max-width:460px;margin:0 auto 30px;}
-.email-cta{font-size:16px;padding:14px 26px;gap:12px;animation:ctaBreathe 3.4s ease-in-out infinite;}
+.email-cta{font-size:16px;padding:14px 26px;gap:12px;animation:ctaBreathe 3.4s ease-in-out infinite;max-width:100%;}
+/* the raw email string is one unbreakable "word" -- flex items default to min-width:auto, which
+   ignores the parent's width and lets long unbreakable text overflow the button (and, on the
+   narrowest phones, the page itself) instead of wrapping. min-width:0 lets it shrink, and
+   overflow-wrap lets it actually break if it still doesn't fit. */
+.email-cta .email-text{min-width:0;overflow-wrap:anywhere;}
 .email-cta:hover{animation-play-state:paused;}
 .email-cta .email-arrow{transition:transform .3s var(--ease);}
 .email-cta:hover .email-arrow{transform:translateX(4px);}
@@ -999,6 +1040,45 @@ body.boot-lock{overflow:hidden;}
 }
 .proj-card:hover .proj-shot::after{opacity:1;}
 
+/* ---------- per-project accent identity: each tool gets one signal color instead of every
+   card reading the same teal, the way a real alert dashboard color-codes by source. Only
+   the featured SIEM build keeps the site's core teal -- it's the flagship, everything else
+   in the grid gets its own hue. ---------- */
+.proj-card{--proj-accent:var(--accent);--proj-glow:var(--accent-glow);}
+.proj-card.hue-blue{--proj-accent:#5b9dd9;--proj-glow:rgba(91,157,217,0.16);}
+.proj-card.hue-violet{--proj-accent:#9d84e8;--proj-glow:rgba(157,132,232,0.16);}
+.proj-card.hue-rose{--proj-accent:#e8748c;--proj-glow:rgba(232,116,140,0.16);}
+.proj-card.hue-green{--proj-accent:#5ecf94;--proj-glow:rgba(94,207,148,0.16);}
+.proj-card.hue-copper{--proj-accent:#e2a35c;--proj-glow:rgba(226,163,92,0.16);}
+.proj-card.hue-flame{--proj-accent:#e2703f;--proj-glow:rgba(226,112,63,0.16);}
+:root[data-theme="light"] .proj-card.hue-blue{--proj-accent:#2f6fa8;}
+:root[data-theme="light"] .proj-card.hue-violet{--proj-accent:#6c4fc4;}
+:root[data-theme="light"] .proj-card.hue-rose{--proj-accent:#c33f5c;}
+:root[data-theme="light"] .proj-card.hue-green{--proj-accent:#2f8f5f;}
+:root[data-theme="light"] .proj-card.hue-copper{--proj-accent:#a35f22;}
+:root[data-theme="light"] .proj-card.hue-flame{--proj-accent:#b8501f;}
+.proj-card::before{background:radial-gradient(280px circle at var(--mx,50%) var(--my,50%), var(--proj-glow), transparent 65%);}
+.proj-card::after{color:var(--proj-accent);}
+.proj-card:hover{border-color:var(--proj-accent);}
+.proj-card .stack-tag{color:var(--proj-accent);border-color:var(--proj-glow);}
+.proj-card .proj-links a{color:var(--proj-accent);}
+.proj-card .why summary:hover{color:var(--proj-accent);}
+.proj-title-group{display:flex;align-items:center;gap:9px;}
+.proj-icon{width:19px;height:19px;flex:0 0 auto;color:var(--proj-accent);opacity:0.9;}
+.feature-title-group{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.feature-title-group .feature-title{margin:0;}
+.feature-icon{width:26px;height:26px;flex:0 0 auto;color:var(--accent);opacity:0.9;}
+
+/* SIEM feature-flow: a slow left-to-right pulse through the pipeline arrows, so the diagram
+   reads as data actually moving through the correlation chain rather than a static label row */
+@keyframes flowPulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.feature-flow > *:nth-child(2n){animation:flowPulse 2.2s ease-in-out infinite;}
+.feature-flow > *:nth-child(2){animation-delay:0s;}
+.feature-flow > *:nth-child(4){animation-delay:0.3s;}
+.feature-flow > *:nth-child(6){animation-delay:0.6s;}
+.feature-flow > *:nth-child(8){animation-delay:0.9s;}
+@media (prefers-reduced-motion: reduce){.feature-flow > *{animation:none !important;}}
+
 /* ---------- project "why" disclosure ---------- */
 .why{margin-top:14px;}
 .why summary{
@@ -1059,6 +1139,7 @@ body.boot-lock{overflow:hidden;}
   <a href="#about" data-label="About"><span class="dock-dot"></span></a>
   <a href="#experience" data-label="Experience"><span class="dock-dot"></span></a>
   <a href="#projects" data-label="Projects"><span class="dock-dot"></span></a>
+  <a href="#craft" data-label="Craft"><span class="dock-dot"></span></a>
   <a href="#skills" data-label="Skills"><span class="dock-dot"></span></a>
   <a href="#education" data-label="Education"><span class="dock-dot"></span></a>
   <a href="#contact" data-label="Contact"><span class="dock-dot"></span></a>
@@ -1073,9 +1154,10 @@ body.boot-lock{overflow:hidden;}
       <a href="#about"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">01</span>About</span></span></a>
       <a href="#experience"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">02</span>Experience</span></span></a>
       <a href="#projects"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">03</span>Projects</span></span></a>
-      <a href="#skills"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">04</span>Skills</span></span></a>
-      <a href="#education"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">05</span>Education</span></span></a>
-      <a href="#contact"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">06</span>Contact</span></span></a>
+      <a href="#craft"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">04</span>Craft</span></span></a>
+      <a href="#skills"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">05</span>Skills</span></span></a>
+      <a href="#education"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">06</span>Education</span></span></a>
+      <a href="#contact"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">07</span>Contact</span></span></a>
     </nav>
     <div class="menu-footer">
       <div class="menu-footer-row">
@@ -1138,7 +1220,7 @@ body.boot-lock{overflow:hidden;}
         <span class="teaser-pitch">Correlates sequences across two log sources into one incident, not two alerts.</span>
         <span class="teaser-go">View case &rarr;</span>
       </a>
-      <a class="teaser-item stagger-item" href="#proj-diploma">
+      <a class="teaser-item stagger-item" href="#craft">
         <span class="teaser-num">02</span>
         <span class="teaser-title">Interactive Diploma</span>
         <span class="teaser-pitch">A live, draggable 3D piece — the same three.js engine behind the hero above.</span>
@@ -1183,7 +1265,7 @@ body.boot-lock{overflow:hidden;}
       <div>
         <p>I administer Active Directory for a secure medical network: user provisioning, account unlocks, and Group Policy enforcement. I reimage and deploy fleets of endpoints with SmartDeploy and PXE Boot, and resolve 12 to 15 Level 2 support tickets a day.</p>
         <p>Outside of work, I build the tools I wish existed on the job: an AD and endpoint automation toolkit, a Windows event log threat hunter, a helpdesk analytics engine. Each one is real, tested, and documented, built to turn infrastructure experience into applied security skill rather than certificates alone.</p>
-        <p>I finish a B.S. in Computer Science with a Cybersecurity focus in May 2026 and I'm looking to grow from systems administration into security-adjacent infrastructure or junior security engineering roles, based in the Philadelphia and South Jersey metro or fully remote.</p>
+        <p>I completed a B.S. in Computer Science with a Cybersecurity focus in May 2026 and I'm looking to grow from systems administration into security-adjacent infrastructure or junior security engineering roles, based in the Philadelphia and South Jersey metro or fully remote.</p>
       </div>
       <div class="stat-list">
         <div class="stat stagger-item"><div class="num">150+</div><div class="label">Endpoints imaged &amp; deployed</div></div>
@@ -1273,13 +1355,21 @@ body.boot-lock{overflow:hidden;}
         <a href="#proj-jotrelay" class="proj-nav-item"><span class="proj-nav-num">05</span>JotRelay</a>
         <a href="#proj-toolkit" class="proj-nav-item"><span class="proj-nav-num">06</span>Endpoint Toolkit</a>
         <a href="#proj-winlog" class="proj-nav-item"><span class="proj-nav-num">07</span>WinLog Threat Hunter</a>
-        <a href="#proj-diploma" class="proj-nav-item"><span class="proj-nav-num">08</span>Interactive Diploma</a>
       </div>
     </div>
 
     <div class="feature-panel stagger-item" id="proj-siem">
       <span class="feature-tag">Featured build</span>
-      <h3 class="feature-title">Log Correlator SIEM</h3>
+      <div class="feature-title-group">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" y1="6" x2="13" y2="6"/>
+          <line x1="3" y1="10.5" x2="11" y2="10.5"/>
+          <line x1="3" y1="15" x2="9" y2="15"/>
+          <circle cx="16.5" cy="14.5" r="4"/>
+          <line x1="19.6" y1="17.6" x2="22" y2="20"/>
+        </svg>
+        <h3 class="feature-title">Log Correlator SIEM</h3>
+      </div>
       <div class="feature-shot">
         <img src="screenshots/log-correlator-siem.webp" alt="Log Correlator SIEM dashboard: 34 events ingested, 5 incidents, MITRE ATT&amp;CK techniques observed" loading="lazy" width="1200" height="780">
       </div>
@@ -1314,9 +1404,17 @@ body.boot-lock{overflow:hidden;}
 
     <div class="proj-grid">
 
-      <div class="proj-card wide stagger-item" id="proj-helpdesk">
+      <div class="proj-card wide hue-blue stagger-item" id="proj-helpdesk">
         <div class="proj-top">
-          <h3 class="proj-title">Helpdesk Ticket Analytics</h3>
+          <div class="proj-title-group">
+            <svg class="proj-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="3" y1="20.5" x2="21" y2="20.5"/>
+              <rect x="5" y="13" width="3.4" height="7.3" rx="0.6"/>
+              <rect x="10.3" y="9" width="3.4" height="11.3" rx="0.6"/>
+              <rect x="15.6" y="4.5" width="3.4" height="15.8" rx="0.6"/>
+            </svg>
+            <h3 class="proj-title">Helpdesk Ticket Analytics</h3>
+          </div>
           <span class="stack-tag">Python</span>
         </div>
         <p class="proj-desc">Turns a raw ticket export into SLA compliance, resolution-time, and volume metrics, mirroring real high-volume ticket queue work (1,000+ tickets/year). Zero dependencies; renders its own charts as inline SVG.</p>
@@ -1354,9 +1452,15 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card stagger-item" id="proj-ad-auditor">
+      <div class="proj-card hue-violet stagger-item" id="proj-ad-auditor">
         <div class="proj-top">
-          <h3 class="proj-title">AD Security Auditor</h3>
+          <div class="proj-title-group">
+            <svg class="proj-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3z"/>
+              <path d="M8.8 12.2l2.2 2.2 4.2-4.4"/>
+            </svg>
+            <h3 class="proj-title">AD Security Auditor</h3>
+          </div>
           <span class="stack-tag">PowerShell</span>
         </div>
         <p class="proj-desc">Audits Active Directory security posture entirely offline, from exported CSV data: stale accounts, password hygiene, unapproved privileged-group membership, outdated OS versions, and duplicate SPNs. No live domain connection required. Renders a dark-themed HTML report plus CSV/JSON export.</p>
@@ -1373,9 +1477,17 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card stagger-item" id="proj-phishing">
+      <div class="proj-card hue-rose stagger-item" id="proj-phishing">
         <div class="proj-top">
-          <h3 class="proj-title">Phishing Email Analyzer</h3>
+          <div class="proj-title-group">
+            <svg class="proj-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="5.5" width="15" height="11" rx="1.4"/>
+              <path d="M3.5 6.3l7 5 7-5"/>
+              <path d="M17 13.6l3.6 6.2h-7.2z"/>
+              <line x1="17" y1="15.9" x2="17" y2="17.6"/>
+            </svg>
+            <h3 class="proj-title">Phishing Email Analyzer</h3>
+          </div>
           <span class="stack-tag">Python</span>
         </div>
         <p class="proj-desc">Statically analyzes raw .eml files for phishing indicators: SPF/DKIM/DMARC failures, lookalike and homoglyph domains, link-text/href mismatches, urgency language, and double-extension executables. Weighted score with plain-language explanations. Fully offline, never visits links or executes attachments.</p>
@@ -1392,9 +1504,16 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card wide stagger-item" id="proj-jotrelay">
+      <div class="proj-card wide hue-green stagger-item" id="proj-jotrelay">
         <div class="proj-top">
-          <h3 class="proj-title">JotRelay</h3>
+          <div class="proj-title-group">
+            <svg class="proj-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 6.5A2 2 0 016 4.5h9a2 2 0 012 2V12a2 2 0 01-2 2h-6l-3.4 2.8V14H6a2 2 0 01-2-2V6.5z"/>
+              <path d="M15.2 16.4a3.6 3.6 0 003.5-3.5" stroke-opacity="0.75"/>
+              <path d="M20.6 12.1l-1.9-1.5.3 2.5z" fill="currentColor" stroke="none" fill-opacity="0.75"/>
+            </svg>
+            <h3 class="proj-title">JotRelay</h3>
+          </div>
           <span class="stack-tag">JavaScript / Supabase</span>
         </div>
         <p class="proj-desc">Real-time encrypted collaborative notepad: shareable editable or read-only links, QR codes, presence and typing indicators, offline drafts, and a PWA install with an OS-level share target. Vanilla JS, no framework or build step.</p>
@@ -1423,9 +1542,14 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card stagger-item" id="proj-toolkit">
+      <div class="proj-card hue-copper stagger-item" id="proj-toolkit">
         <div class="proj-top">
-          <h3 class="proj-title">AD &amp; Endpoint Automation Toolkit</h3>
+          <div class="proj-title-group">
+            <svg class="proj-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14.7 6.3a3.2 3.2 0 10-4.4 4.4L4 17l1.7 1.7 6.3-6.3a3.2 3.2 0 004.4-4.4l-2 2-1.7-1.7z"/>
+            </svg>
+            <h3 class="proj-title">AD &amp; Endpoint Automation Toolkit</h3>
+          </div>
           <span class="stack-tag">PowerShell</span>
         </div>
         <p class="proj-desc">Scripts for AD user provisioning/offboarding, stale-account cleanup, hygiene reporting, and endpoint compliance audits. Every write action supports -WhatIf; every run produces a log and CSV report.</p>
@@ -1454,9 +1578,19 @@ body.boot-lock{overflow:hidden;}
         </details>
       </div>
 
-      <div class="proj-card stagger-item" id="proj-winlog">
+      <div class="proj-card hue-flame stagger-item" id="proj-winlog">
         <div class="proj-top">
-          <h3 class="proj-title">WinLog Threat Hunter</h3>
+          <div class="proj-title-group">
+            <svg class="proj-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="7.5"/>
+              <circle cx="12" cy="12" r="2.4"/>
+              <line x1="12" y1="1.5" x2="12" y2="5"/>
+              <line x1="12" y1="19" x2="12" y2="22.5"/>
+              <line x1="1.5" y1="12" x2="5" y2="12"/>
+              <line x1="19" y1="12" x2="22.5" y2="12"/>
+            </svg>
+            <h3 class="proj-title">WinLog Threat Hunter</h3>
+          </div>
           <span class="stack-tag">Python</span>
         </div>
         <p class="proj-desc">Parses exported Windows Security/Sysmon events and flags brute-force logons, privilege escalation, suspicious command lines, and admin-persistence patterns, each mapped to a MITRE ATT&amp;CK technique.</p>
@@ -1489,36 +1623,6 @@ body.boot-lock{overflow:hidden;}
 
     </div>
 
-    <div class="feature-panel stagger-item" id="proj-diploma">
-      <span class="feature-tag">Off the clock</span>
-      <h3 class="feature-title">Interactive Diploma</h3>
-      <p class="feature-desc">Everything above solves a problem nobody outside IT ever sees. This one didn't need to exist: a full 3D, physically-lit recreation of my actual Liberty University diploma — procedural paper and card materials, studio lighting, a folder that opens on drag — built because the three.js engine idling in the hero above deserved a real object to render, not just a wireframe backdrop. It's live below. Drag it.</p>
-      <div class="live-embed diploma">
-        <div class="lf-bar" aria-hidden="true">
-          <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-          <span class="lf-title">interactive-diploma — live</span>
-          <span class="lf-hint">drag to rotate · scroll to zoom</span>
-        </div>
-        <iframe src="https://spairkie.github.io/interactive-diploma/" title="Interactive Diploma — live 3D demo, drag to rotate" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live 3D diploma — click to drag and zoom">
-          <span class="lf-overlay-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
-            Click to drag &amp; zoom
-          </span>
-        </div>
-      </div>
-      <div class="feature-stats">
-        <span class="chip">Three.js</span>
-        <span class="chip">Procedural materials</span>
-        <span class="chip">Studio lighting</span>
-        <span class="chip">Fully interactive</span>
-      </div>
-      <div class="feature-links">
-        <a href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Open full demo</a>
-        <a href="https://github.com/Spairkie/interactive-diploma" target="_blank" rel="noopener">Source on GitHub</a>
-      </div>
-    </div>
-
     <div class="also-built">
       <div class="also-head">
         <p class="also-label">Also on this site</p>
@@ -1535,6 +1639,39 @@ body.boot-lock{overflow:hidden;}
           <a href="favicon.ico" target="_blank" rel="noopener">View favicon.ico</a>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section id="craft" class="craft-stage">
+  <div class="craft-bg" aria-hidden="true"><canvas id="craftCanvas"></canvas></div>
+  <div class="wrap reveal craft-inner">
+    <p class="eyebrow craft-eyebrow">Off the clock</p>
+    <h2 class="craft-title kinetic-h">Interactive <span class="accent">Diploma</span></h2>
+    <p class="craft-desc">Everything above solves a problem nobody outside IT ever sees. This one didn't need to exist: a full 3D, physically-lit recreation of my actual Liberty University diploma — procedural paper and card materials, studio lighting, a folder that opens on drag — built because the three.js engine idling in the hero above deserved a real object to render, not just a wireframe backdrop. It's live below. Drag it.</p>
+    <div class="live-embed diploma craft-embed">
+      <div class="lf-bar" aria-hidden="true">
+        <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+        <span class="lf-title">interactive-diploma — live</span>
+        <span class="lf-hint">drag to rotate · scroll to zoom</span>
+      </div>
+      <iframe src="https://spairkie.github.io/interactive-diploma/" title="Interactive Diploma — live 3D demo, drag to rotate" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live 3D diploma — click to drag and zoom">
+        <span class="lf-overlay-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
+          Click to drag &amp; zoom
+        </span>
+      </div>
+    </div>
+    <div class="feature-stats craft-stats">
+      <span class="chip">Three.js</span>
+      <span class="chip">Procedural materials</span>
+      <span class="chip">Studio lighting</span>
+      <span class="chip">Fully interactive</span>
+    </div>
+    <div class="feature-links craft-links">
+      <a href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Open full demo</a>
+      <a href="https://github.com/Spairkie/interactive-diploma" target="_blank" rel="noopener">Source on GitHub</a>
     </div>
   </div>
 </section>
@@ -1595,7 +1732,7 @@ body.boot-lock{overflow:hidden;}
     <div class="two-col">
       <div class="timeline timeline-compact" id="tlEducation">
         <div class="timeline-fill" aria-hidden="true"></div>
-        <div class="tl-item current stagger-item">
+        <div class="tl-item stagger-item">
           <span class="tl-dot"></span>
           <div class="tl-date">May 2026</div>
           <h4 class="tl-role">B.S., Computer Science, Cybersecurity Focus</h4>
@@ -1629,7 +1766,7 @@ body.boot-lock{overflow:hidden;}
     <p class="eyebrow">Contact</p>
     <h2 class="footer-headline kinetic-h">Let's build something<br>worth <span class="accent">deploying.</span></h2>
     <p>Lindenwold, NJ. Open to South Jersey / Philadelphia-area and fully remote roles.</p>
-    <a class="btn btn-primary email-cta" href="mailto:saihanswissle@gmail.com">saihanswissle@gmail.com <span aria-hidden="true" class="email-arrow">&rarr;</span></a>
+    <a class="btn btn-primary email-cta" href="mailto:saihanswissle@gmail.com"><span class="email-text">saihanswissle@gmail.com</span> <span aria-hidden="true" class="email-arrow">&rarr;</span></a>
 
     <div class="quick-facts">
       <div class="qf-row"><span class="qf-num">01</span><span class="qf-label">Looking for</span><span class="qf-val">Systems/IT Admin &middot; Help Desk Lead &middot; Cleared IT/Security roles</span></div>
@@ -1912,6 +2049,79 @@ var hsLenis = null;
   window.addEventListener('resize', function(){
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(draw, 200);
+  });
+})();
+
+/* ---------- craft-stage background: slow-drifting outlined "cards", echoing the diploma's own
+   procedural paper/card materials. Only animates while the section is actually on screen. ---------- */
+(function(){
+  var canvas = document.getElementById('craftCanvas');
+  if(!canvas) return;
+  var section = document.getElementById('craft');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+  var W, H, cards;
+
+  function makeCards(){
+    var count = window.innerWidth < 760 ? 8 : 16;
+    cards = [];
+    for(var i = 0; i < count; i++){
+      var w = 26 + Math.random() * 46;
+      cards.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        w: w, h: w * 1.34,
+        rot: Math.random() * Math.PI,
+        vy: -(0.06 + Math.random() * 0.1),
+        vr: (Math.random() - 0.5) * 0.0016,
+        a: 0.06 + Math.random() * 0.12
+      });
+    }
+  }
+  function resize(){
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    if(!W || !H) return;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    makeCards();
+  }
+  resize();
+
+  function frame(){
+    ctx.clearRect(0, 0, W, H);
+    for(var i = 0; i < cards.length; i++){
+      var c = cards[i];
+      c.y += c.vy; c.rot += c.vr;
+      if(c.y < -c.h) { c.y = H + c.h; c.x = Math.random() * W; }
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(c.rot);
+      ctx.strokeStyle = 'rgba(240,180,41,' + c.a.toFixed(3) + ')';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-c.w / 2, -c.h / 2, c.w, c.h);
+      ctx.restore();
+    }
+  }
+
+  var raf = null, onScreen = false;
+  function loop(){ frame(); if(onScreen && !reduce) raf = requestAnimationFrame(loop); }
+  if(reduce){ frame(); }
+  else if('IntersectionObserver' in window && section){
+    var io = new IntersectionObserver(function(entries){
+      onScreen = entries[0].isIntersecting;
+      if(onScreen && !raf) raf = requestAnimationFrame(loop);
+      if(!onScreen && raf){ cancelAnimationFrame(raf); raf = null; }
+    }, {threshold: 0});
+    io.observe(section);
+  } else {
+    onScreen = true; raf = requestAnimationFrame(loop);
+  }
+
+  var resizeTimer2;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer2);
+    resizeTimer2 = setTimeout(function(){ resize(); if(reduce) frame(); }, 200);
   });
 })();
 
@@ -2277,7 +2487,7 @@ var hsLenis = null;
   var el = document.getElementById('termBody');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var SECTIONS = ['about','experience','projects','skills','education','contact'];
+  var SECTIONS = ['about','experience','projects','craft','skills','education','contact'];
   function matchSection(arg){
     if(!arg) return null;
     arg = arg.toLowerCase().replace(/^#/, '').replace(/\/$/, '');
