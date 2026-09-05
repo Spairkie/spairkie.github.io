@@ -2373,9 +2373,18 @@ var hsLenis = null;
 
     var focusIdx = Math.max(0, Math.min(N - 1, Math.round(vi)));
     var t = overviewProgress;
+    /* dx scales WITH t (0 at rest in the overview, growing as the reader commits to a
+       project) so the eight strips sit as a tight, evenly centered contact sheet exactly
+       when the overview is fully opaque (t=0), and only scatter apart as it fades out
+       (t->1) -- they were previously scaling by (1-t), which is backwards: it fanned every
+       strip out to its maximum spread (offset*90px) at the exact moment the overview was
+       most visible, before it had scrolled at all. At up to 7 strips away from focusIdx that
+       routinely pushed strips off both edges of the viewport (confirmed lopsided even on a
+       1440px-wide screen, let alone mobile), leaving the "contact sheet" impossible to read
+       or fully see. */
     scenes.forEach(function(s){
       var offset = s.index - focusIdx;
-      var dx = offset * (1 - t) * 90;
+      var dx = offset * t * 90;
       s.strip.style.transform = 'translateX(' + dx.toFixed(1) + 'px)';
       var op = s.index === focusIdx ? 1 : Math.max(0.3, 1 - Math.abs(offset) * 0.14);
       s.strip.style.opacity = String(op);
