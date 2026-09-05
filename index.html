@@ -2527,6 +2527,13 @@ var hsLenis = null;
     els.forEach(function(e){ e.classList.add('in'); revealStaggerChildren(e); });
     return;
   }
+  /* threshold:0 + a negative bottom rootMargin triggers reveal as soon as an
+     element's top edge scrolls into the upper ~88% of the viewport. This is
+     independent of the element's own height, unlike an area-ratio threshold
+     (e.g. 0.12), which requires 12% of the element's OWN height to be
+     simultaneously visible -- mathematically impossible for any element
+     taller than ~8x the viewport (as the Projects section's combined wrap
+     is on mobile), permanently stranding it at opacity:0. */
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(en){
       if(en.isIntersecting){
@@ -2535,7 +2542,7 @@ var hsLenis = null;
         io.unobserve(en.target);
       }
     });
-  }, {threshold:0.12});
+  }, {threshold:0, rootMargin:'0px 0px -12% 0px'});
   els.forEach(function(e){ io.observe(e); });
 
   /* stagger-items that aren't inside a .reveal ancestor: reveal them directly */
@@ -2546,7 +2553,7 @@ var hsLenis = null;
       entries.forEach(function(en){
         if(en.isIntersecting){ en.target.classList.add('in'); io2.unobserve(en.target); }
       });
-    }, {threshold:0.12});
+    }, {threshold:0, rootMargin:'0px 0px -12% 0px'});
     io2.observe(k);
   });
 })();
