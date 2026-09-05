@@ -1,0 +1,89 @@
+name: Fix Projects scroll responsiveness
+
+on:
+  push:
+    branches:
+      - redesign/projects-aristide-inspired
+    paths:
+      - scripts/fix_projects_scroll.py
+      - .github/workflows/fix-projects-scroll.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply scroll fix
+        run: python3 scripts/fix_projects_scroll.py
+
+      - name: Validate scroll fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          import re
+
+          text = Path('index.html').read_text(encoding='utf-8')
+          assert 'height:455vh' in text
+          assert "e.deltaY *= 1.35" in text
+          assert 'function renderFromScroll' in text
+          assert 'renderRAF' not in text
+          assert 'animateRender' not in text
+          assert "{duration:.72}" in text
+          assert "window.addEventListener('scroll',syncFromScroll,{passive:true})" in text
+          assert '@media(max-width:820px){\n .folio-section{height:auto' in text
+
+          class IDs(HTMLParser):
+            def __init__(self): super().__init__(); self.ids=[]
+            def handle_starttag(self, tag, attrs):
+              for k,v in attrs:
+                if k == 'id' and v: self.ids.append(v)
+          p=IDs(); p.feed(text)
+          dup=sorted({x for x in p.ids if p.ids.count(x)>1})
+          assert not dup, 'duplicate ids: '+', '.join(dup)
+
+          blocks=[]
+          for m in re.finditer(r'<script([^>]*)>(.*?)</script>', text, re.S|re.I):
+            attrs=m.group(1)
+            if re.search(r'\bsrc\s*=',attrs,re.I): continue
+            tm=re.search(r'\btype\s*=\s*["\']([^"\']+)',attrs,re.I)
+            if tm and tm.group(1).lower() not in ('text/javascript','application/javascript','module'): continue
+            blocks.append(m.group(2))
+          out=Path('/tmp/js-check'); out.mkdir(exist_ok=True)
+          for i,b in enumerate(blocks): (out/f'{i}.js').write_text(b,encoding='utf-8')
+          PY
+          for f in /tmp/js-check/*.js; do node --check "$f"; done
+          git diff --check
+
+      - name: Validate desktop scroll mapping
+        run: |
+          python3 - <<'PY'
+          viewport = 900
+          old_span = 6.10 * viewport - viewport
+          new_span = 4.55 * viewport - viewport
+          projects = 8
+          old_px_per_project = old_span / (projects - 1)
+          new_px_per_project = new_span / (projects - 1)
+          effective_wheel = 120 * 1.35
+          print(f'old px/project: {old_px_per_project:.1f}')
+          print(f'new px/project: {new_px_per_project:.1f}')
+          print(f'effective 120px wheel input: {effective_wheel:.1f}px')
+          print(f'wheel events/project: {new_px_per_project/effective_wheel:.2f}')
+          assert new_px_per_project < old_px_per_project * 0.72
+          assert new_px_per_project / effective_wheel < 3
+          PY
+
+      - name: Remove temporary files
+        run: rm -f scripts/fix_projects_scroll.py .github/workflows/fix-projects-scroll.yml
+
+      - name: Commit fix
+        run: |
+          git config user.name "Hans Sai"
+          git config user.email "37721651+Spairkie@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix Projects wheel scroll responsiveness"
+          git push
