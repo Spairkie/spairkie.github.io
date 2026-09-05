@@ -2229,6 +2229,7 @@ var hsLenis = null;
   var root = document.querySelector('.projects-cinematic');
   if(!root) return;
   var scrollRange = document.getElementById('pcScrollRange');
+  var viewport = document.getElementById('pcViewport');
   var stage = document.getElementById('pcStage');
   var overview = document.getElementById('pcOverview');
   var stripsWrap = document.getElementById('pcStrips');
@@ -2342,6 +2343,20 @@ var hsLenis = null;
   var activeIndex = -99, lastVI = 0, lastT = 0, decayRaf = null, velocity = 0;
 
   function render(vi, vel){
+    /* #pcViewport (overflow:hidden) is a pure clipping box: every scene inside it is
+       positioned entirely by the translate3d() transforms below, never by native scrolling,
+       and touch-action:pan-y already tells the browser not to let touch gestures scroll it
+       horizontally. But scenes far enough from the active index are skipped in the loop
+       below (the ad>2.4 early-return, for performance) and never receive a transform, so
+       they sit at their untransformed, full-width flex-centered position -- which, combined
+       with nearer scenes translated far to one side, gives the browser's own overflow
+       calculation real (if invisible) horizontal scrollable content on both sides of center.
+       Browsers then pick their own default scroll position for that overflow (observed:
+       roughly centered in the excess), which silently shifts this element's own children --
+       including #pcOverview, the fullscreen contact-sheet layer, which has nothing to do
+       with the filmstrip and should never move -- off to one side. Since this container is
+       never meant to carry a native scroll offset at all, pin it to 0 on every render. */
+    if(viewport && viewport.scrollLeft !== 0){ viewport.scrollLeft = 0; }
     var overviewProgress = Math.max(0, Math.min(1, vi - OVERVIEW));
     overview.style.opacity = String(1 - overviewProgress);
     overview.style.visibility = overviewProgress >= 1 ? 'hidden' : 'visible';
