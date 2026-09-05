@@ -311,18 +311,32 @@ body.menu-open{overflow:hidden;}
 }
 .hero-inner{position:relative;z-index:2;}
 @keyframes heroIn{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:translateY(0);}}
-.hero-inner > *{opacity:0;animation:heroIn .9s var(--ease) forwards;}
-.hero-inner > .badges{animation-delay:.05s;}
-.hero-inner > .status-line{animation-delay:.11s;}
-.hero-inner > h1{animation-delay:.16s;}
-.hero-inner > .hero-sub{animation-delay:.30s;}
-.hero-inner > .lede{animation-delay:.40s;}
-.hero-inner > .hero-cta{animation-delay:.52s;}
+.hero-copy > *,.hero-inner > .terminal{opacity:0;animation:heroIn .9s var(--ease) forwards;}
+.hero-copy > .badges{animation-delay:.05s;}
+.hero-copy > .status-line{animation-delay:.11s;}
+.hero-copy > h1{animation-delay:.16s;}
+.hero-copy > .hero-sub{animation-delay:.30s;}
+.hero-copy > .lede{animation-delay:.40s;}
+.hero-copy > .hero-cta{animation-delay:.52s;}
 .hero-inner > .terminal{animation-delay:.64s;}
-.hero-inner > h1{opacity:1;animation:none;}
+.hero-copy > h1{opacity:1;animation:none;}
 @media (prefers-reduced-motion: reduce){
-  .hero-inner > *{animation:none;opacity:1;}
+  .hero-copy > *,.hero-inner > .terminal{animation:none;opacity:1;}
   .line{transform:none !important;animation:none !important;}
+}
+/* ---------- hero: terminal sits beside the copy on desktop instead of stacked below it,
+   so both are visible together without scrolling. Below the breakpoint it drops back to a
+   single column (terminal after the CTA row) -- the exact stacked layout this shipped with
+   for years, so mobile/tablet get no behavior change. ---------- */
+@media (min-width:1100px){
+  .hero-inner{
+    max-width:1300px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(360px,420px);
+    align-items:start;
+    column-gap:56px;
+  }
+  .hero-inner .terminal{max-width:none;width:100%;margin-top:6px;}
 }
 
 /* ---------- kinetic hero headline (line-mask reveal) ---------- */
@@ -406,6 +420,16 @@ body.menu-open{overflow:hidden;}
 .teaser-pitch{font-size:13.5px;color:var(--text-dim);line-height:1.6;flex:1;}
 .teaser-go{font-family:var(--font-mono);font-size:12px;color:var(--accent-dim);transition:color .2s ease,transform .2s var(--ease);}
 .teaser-item:hover .teaser-go{color:var(--accent);transform:translateX(3px);}
+/* each teaser card borrows its accent from the real project it links to (see the matching
+   .hue-* system on .proj-card) so this quick-proof strip already hints at the showcase's
+   color-coding before the reader ever reaches the Projects section */
+.teaser-item.hue-amber{--t-accent:var(--amber);--t-glow:rgba(240,180,41,0.16);}
+.teaser-item.hue-rose{--t-accent:#e8748c;--t-glow:rgba(232,116,140,0.16);}
+:root[data-theme="light"] .teaser-item.hue-amber{--t-accent:#8a5a09;}
+:root[data-theme="light"] .teaser-item.hue-rose{--t-accent:#c33f5c;}
+.teaser-item.hue-amber::before,.teaser-item.hue-rose::before{background:radial-gradient(220px circle at var(--mx,50%) var(--my,0%), var(--t-glow), transparent 65%);}
+.teaser-item.hue-amber .teaser-num,.teaser-item.hue-rose .teaser-num{color:var(--t-accent);}
+.teaser-item.hue-amber .teaser-go,.teaser-item.hue-amber:hover .teaser-go,.teaser-item.hue-rose .teaser-go,.teaser-item.hue-rose:hover .teaser-go{color:var(--t-accent);}
 @media (max-width:820px){.teaser-grid{grid-template-columns:1fr;}}
 
 /* ---------- custom cursor ---------- */
@@ -462,6 +486,15 @@ body.menu-open{overflow:hidden;}
 .hero h1 .line-wrap:nth-child(2) .line{font-weight:500;color:var(--text-dim);}
 .hero h1 .accent{color:var(--accent);font-weight:700;}
 :root[data-theme="light"] .hero h1 .line-wrap:nth-child(2) .line{color:var(--text-dimmer);}
+/* the flagship 124px headline was sized assuming the full ~1040px wrap width; halving that
+   width for the side-by-side hero layout at the same size would clip mid-word, so it steps
+   down here and is allowed to wrap each phrase onto two lines where needed (still one
+   slide-up reveal per phrase -- see .line-wrap -- since the whole block, however many lines,
+   animates as one unit) rather than trying to force one line at a shrunken size. */
+@media (min-width:1100px){
+  .hero h1{font-size:clamp(46px,5.6vw,84px);max-width:none;}
+  .hero p.lede{max-width:none;}
+}
 .hero-sub{
   font-family:var(--font-mono);font-size:14px;color:var(--text-dim);
   margin:0 0 22px;letter-spacing:0.01em;
@@ -530,6 +563,13 @@ section:not(:last-of-type)::after{
   background-image:radial-gradient(circle, var(--line-soft) 1px, transparent 1px);
   background-size:26px 26px;opacity:0.6;
 }
+/* ---------- about: a faint HUD scan sweep behind the whole section, echoing the same
+   scan-line/corner-bracket language already on the headshot's hover state, so the section
+   reads as "live telemetry" rather than a flat panel ---------- */
+.about-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+.about-bg canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0.5;}
+#about .wrap{position:relative;z-index:1;}
+@media (prefers-reduced-motion: reduce){.about-bg{opacity:0.6;}}
 .section-head{margin-bottom:40px;}
 .eyebrow{
   font-family:var(--font-mono);font-size:12.5px;color:var(--accent);
@@ -619,6 +659,13 @@ section:not(:last-of-type)::after{
   position:absolute;left:5px;top:6px;width:1px;height:0%;
   background:linear-gradient(180deg,var(--accent),var(--accent-dim));
   box-shadow:0 0 6px var(--accent-glow);will-change:height;pointer-events:none;
+}
+/* a small glowing "comet head" rides the fill's growing tip -- one quiet extra signal that
+   this is a live read-position, not a texture or a pattern, so it adds presence without noise */
+.timeline-fill::after{
+  content:"";position:absolute;left:50%;bottom:0;width:7px;height:7px;border-radius:50%;
+  transform:translate(-50%,50%);background:var(--accent);
+  box-shadow:0 0 10px 2px var(--accent-glow);
 }
 @media (prefers-reduced-motion: reduce){.timeline-fill{display:none;}}
 .tl-item{position:relative;padding-bottom:38px;transition:transform .3s var(--ease);}
@@ -759,35 +806,22 @@ section:not(:last-of-type)::after{
 }
 .lf-overlay-badge svg{width:14px;height:14px;flex-shrink:0;}
 
+/* ---------- sub-projects: the non-highlight builds, reached by continuing to scroll past the
+   main carousel. A plain grid on purpose -- these are the "also" items, not the showcase. ---------- */
+.sub-projects-wrap{margin-top:8px;}
 .also-built{margin-top:24px;position:relative;}
-.also-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
-.also-label{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);text-transform:uppercase;letter-spacing:0.1em;margin:0;}
-.also-hint{font-family:var(--font-mono);font-size:11px;color:var(--text-dimmer);opacity:0.75;transform:translateX(0);animation:alsoNudge 2.2s ease-in-out infinite;}
-@keyframes alsoNudge{0%,100%{transform:translateX(0);}50%{transform:translateX(4px);}}
-@media (prefers-reduced-motion: reduce){.also-hint{animation:none;}}
-.also-grid{
-  display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x proximity;
-  padding:2px 2px 14px;margin:0 -2px;-webkit-overflow-scrolling:touch;
-  scrollbar-width:thin;scrollbar-color:var(--line) transparent;
-}
-.also-grid::-webkit-scrollbar{height:6px;}
-.also-grid::-webkit-scrollbar-track{background:transparent;}
-.also-grid::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
-.also-grid::-webkit-scrollbar-thumb:hover{background:var(--accent-dim);}
-.also-built::after{
-  content:"";position:absolute;top:34px;bottom:14px;right:0;width:56px;
-  background:linear-gradient(90deg, transparent, var(--bg) 88%);
-  pointer-events:none;opacity:1;transition:opacity .3s ease;
-}
-.also-built.at-end::after{opacity:0;}
+.also-head{margin-bottom:20px;}
+.also-label{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 6px;}
+.also-title{font-family:var(--font-display);font-size:clamp(20px,2.6vw,26px);font-weight:600;margin:0;}
+.also-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;}
 .mini-card{
-  position:relative;overflow:hidden;border:1px solid var(--line-soft);border-radius:10px;padding:18px;
-  transition:transform .3s var(--ease), border-color .3s ease;transform-style:preserve-3d;will-change:transform;
-  flex:0 0 auto;width:min(340px,78vw);scroll-snap-align:start;
+  position:relative;overflow:hidden;border:1px solid var(--line-soft);border-radius:10px;padding:22px;
+  min-width:0;transition:transform .3s var(--ease), border-color .3s ease;transform-style:preserve-3d;will-change:transform;
 }
+.mini-card a,.mini-card p{overflow-wrap:anywhere;}
 .mini-card::before{
   content:"";position:absolute;inset:0;opacity:0;pointer-events:none;
-  background:radial-gradient(200px circle at var(--mx,50%) var(--my,50%), var(--accent-glow), transparent 65%);
+  background:radial-gradient(220px circle at var(--mx,50%) var(--my,50%), var(--accent-glow), transparent 65%);
   transition:opacity .3s ease;
 }
 .mini-card:hover::before{opacity:1;}
@@ -797,6 +831,15 @@ section:not(:last-of-type)::after{
 .mini-card p{font-size:13.5px;color:var(--text-dim);margin:0 0 10px;}
 .mini-card a{font-family:var(--font-mono);font-size:12px;}
 .mini-card a::before{content:"→ ";}
+.also-more{
+  font-family:var(--font-mono);font-size:11.5px;color:var(--text-dimmer);background:none;border:1px solid var(--line);
+  border-radius:20px;padding:5px 12px;cursor:pointer;margin:0 0 10px;transition:border-color .2s ease,color .2s ease;
+}
+.also-more:hover{border-color:var(--accent-dim);color:var(--accent);}
+.also-detail{max-height:0;overflow:hidden;opacity:0;transition:max-height .4s var(--ease),opacity .3s ease,margin .4s ease;}
+.also-detail p{font-size:13px;color:var(--text-dim);margin:0 0 10px;}
+.also-detail.open{max-height:220px;opacity:1;}
+@media (max-width:640px){.also-grid{grid-template-columns:1fr;}}
 
 /* ---------- craft stage: dramatic "off the clock" 3D showcase, forced dark regardless of theme ----------
    Deliberately breaks from the surrounding light/dark theme system -- a single, intentional dark "stage"
@@ -807,8 +850,6 @@ section:not(:last-of-type)::after{
   background:#05070a;color:#e7edf5;
   padding:130px 0 110px;
 }
-.craft-bg{position:absolute;inset:0;z-index:0;opacity:0.55;}
-.craft-bg canvas{display:block;width:100%;height:100%;}
 .craft-inner{position:relative;z-index:1;}
 .craft-eyebrow{color:var(--amber) !important;}
 .craft-title{
@@ -828,6 +869,48 @@ section:not(:last-of-type)::after{
 .craft-links a:hover{color:#f4f1ea;}
 @media (max-width:760px){.craft-stage{padding:90px 0 80px;}}
 @media (prefers-reduced-motion: reduce){.craft-bg{opacity:0.25;}}
+
+/* ---------- projects: pinned horizontal carousel on desktop, plain vertical stack below 1000px.
+   Each "highlight" project (craft + the seven tools) gets one full screen: scrolling vertically
+   through the pinned range drives a horizontal translateX across the track, so the carousel
+   motion rides the same scroll gesture as the rest of the page instead of fighting it. ---------- */
+.proj-pin-wrap{position:relative;}
+.proj-pin{position:relative;}
+.proj-track{display:flex;}
+.proj-slide{
+  position:relative;width:100%;flex:0 0 100%;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;
+  padding:112px 28px 60px;
+}
+.proj-slide .slide-inner{position:relative;z-index:1;width:100%;max-width:1180px;margin:0 auto;}
+.slide-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+.slide-bg canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0.5;}
+.proj-slide.craft-stage .slide-bg{opacity:1;}
+@media (min-width:1000px){
+  .proj-pin-wrap{height:calc(var(--slide-count,8) * 100vh);}
+  .proj-pin{position:sticky;top:0;height:100vh;overflow:hidden;}
+  .proj-track{height:100%;}
+  .proj-slide{height:100%;overflow-y:auto;}
+  /* compact each project's own markup so it has a fighting chance of fitting one screen --
+     a safety scrollbar inside the slide (above) covers whatever still doesn't. */
+  .proj-slide .feature-panel,.proj-slide .proj-card{padding:22px 26px;}
+  .proj-slide .feature-shot,.proj-slide .proj-shot{background:#0b0f14;display:flex;align-items:center;justify-content:center;}
+  .proj-slide .feature-shot img,.proj-slide .proj-shot img{max-height:32vh;width:auto;max-width:100%;height:auto;object-fit:contain;}
+  .proj-slide .term-panel pre{max-height:20vh;overflow:auto;}
+  .proj-slide .chart-panel{padding:12px 14px;}
+  .proj-slide .craft-embed iframe{height:min(360px,42vh);}
+  .proj-slide .live-embed.jotrelay iframe{height:min(230px,32vh);}
+  .proj-slide .craft-desc{margin-bottom:22px;}
+}
+@media (max-width:999px){
+  .proj-pin-wrap{height:auto !important;}
+  .proj-pin{position:static;height:auto;overflow:visible;}
+  .proj-track{display:block;transform:none !important;}
+  .proj-slide{position:relative;width:auto;padding:0 0 64px;display:block;}
+  .proj-slide:last-child{padding-bottom:0;}
+  .proj-slide .slide-inner{max-width:none;}
+  .slide-bg{opacity:0.7;}
+}
 
 /* ---------- skills ---------- */
 .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;}
@@ -857,6 +940,23 @@ section:not(:last-of-type)::after{
 @media (prefers-reduced-motion: reduce){.skill-group.scan::after{animation:none;display:none;}}
 
 /* ---------- education / certs ---------- */
+/* a faint, slowly-turning concentric "seal" watermark -- a nod to the certificate/diploma
+   theme of this section without literally drawing a badge; pure CSS, no canvas needed */
+.edu-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+#education .wrap{position:relative;z-index:1;}
+.edu-seal{
+  position:absolute;top:50%;right:-8%;width:560px;height:560px;margin-top:-280px;
+  border-radius:50%;border:1px dashed var(--line);opacity:0.5;
+  animation:eduSpin 140s linear infinite;
+}
+.edu-seal.ring2{
+  width:420px;height:420px;top:50%;right:1%;margin-top:-210px;
+  border-style:dotted;border-color:var(--accent-dim);opacity:0.3;
+  animation:eduSpin 100s linear infinite reverse;
+}
+@keyframes eduSpin{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion: reduce){.edu-seal{animation:none;}}
+@media (max-width:900px){.edu-seal{display:none;}}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
 .edu-item{margin-bottom:18px;}
 .edu-item h4{font-family:var(--font-display);font-size:15.5px;margin:0 0 4px;font-weight:600;}
@@ -1139,7 +1239,6 @@ body.boot-lock{overflow:hidden;}
   <a href="#about" data-label="About"><span class="dock-dot"></span></a>
   <a href="#experience" data-label="Experience"><span class="dock-dot"></span></a>
   <a href="#projects" data-label="Projects"><span class="dock-dot"></span></a>
-  <a href="#craft" data-label="Craft"><span class="dock-dot"></span></a>
   <a href="#skills" data-label="Skills"><span class="dock-dot"></span></a>
   <a href="#education" data-label="Education"><span class="dock-dot"></span></a>
   <a href="#contact" data-label="Contact"><span class="dock-dot"></span></a>
@@ -1154,10 +1253,9 @@ body.boot-lock{overflow:hidden;}
       <a href="#about"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">01</span>About</span></span></a>
       <a href="#experience"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">02</span>Experience</span></span></a>
       <a href="#projects"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">03</span>Projects</span></span></a>
-      <a href="#craft"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">04</span>Craft</span></span></a>
-      <a href="#skills"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">05</span>Skills</span></span></a>
-      <a href="#education"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">06</span>Education</span></span></a>
-      <a href="#contact"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">07</span>Contact</span></span></a>
+      <a href="#skills"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">04</span>Skills</span></span></a>
+      <a href="#education"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">05</span>Education</span></span></a>
+      <a href="#contact"><span class="menu-link-wrap"><span class="menu-link-line"><span class="menu-num">06</span>Contact</span></span></a>
     </nav>
     <div class="menu-footer">
       <div class="menu-footer-row">
@@ -1165,7 +1263,7 @@ body.boot-lock{overflow:hidden;}
         <a href="https://www.linkedin.com/in/8pairkie/" target="_blank" rel="noopener">LinkedIn</a>
         <a href="mailto:saihanswissle@gmail.com">Email</a>
       </div>
-      <p class="menu-footer-status"><span class="status-dot"></span>Open to new opportunities &mdash; <span id="menuStatusTime">local time</span></p>
+      <p class="menu-footer-status"><span class="status-dot"></span>Open to new opportunities <span class="status-sep">&bull;</span> <span id="menuStatusTime">local time</span></p>
     </div>
   </div>
 </div>
@@ -1174,20 +1272,22 @@ body.boot-lock{overflow:hidden;}
   <canvas id="hero-canvas"></canvas>
   <span class="hero-mark" aria-hidden="true">&gt;_</span>
   <div class="wrap hero-inner">
-    <div class="badges">
-      <span class="badge">Active Secret Clearance</span>
-      <span class="badge">CompTIA Security+</span>
-      <span class="badge amber">B.S. Computer Science, Cybersecurity, 2026</span>
-    </div>
-    <p class="status-line"><span class="status-dot"></span>Open to new opportunities &mdash; Philadelphia / South Jersey metro <span class="status-sep">&bull;</span> <span id="statusTime">local time</span></p>
-    <h1><span class="line-wrap"><span class="line">Systems Administrator</span></span><span class="line-wrap"><span class="line">building toward</span></span><span class="line-wrap"><span class="line"><span class="accent">security engineering.</span></span></span></h1>
-    <p class="hero-sub">Active Directory &amp; Endpoint Management · IT Operations · Applied Security</p>
-    <p class="lede">Five-plus years of hands-on IT operations across military healthcare and civilian environments: Active Directory administration, endpoint imaging for 150+ systems, and 1,000+ resolved tickets a year. I build and document real automation and detection tooling outside of work to turn that operations experience into applied security skill.</p>
-    <div class="hero-cta">
-      <a class="btn btn-primary" href="resume/Hans_Sai_Resume.pdf" target="_blank" rel="noopener">View Resume</a>
-      <a class="btn btn-ghost" href="https://github.com/Spairkie" target="_blank" rel="noopener">GitHub</a>
-      <a class="btn btn-ghost" href="https://www.linkedin.com/in/8pairkie/" target="_blank" rel="noopener">LinkedIn</a>
-      <a class="btn btn-ghost" href="mailto:saihanswissle@gmail.com">Email Me</a>
+    <div class="hero-copy">
+      <div class="badges">
+        <span class="badge">Active Secret Clearance</span>
+        <span class="badge">CompTIA Security+</span>
+        <span class="badge amber">B.S. Computer Science, Cybersecurity, 2026</span>
+      </div>
+      <p class="status-line"><span class="status-dot"></span>Open to new opportunities <span class="status-sep">&bull;</span> Philadelphia / South Jersey metro <span class="status-sep">&bull;</span> <span id="statusTime">local time</span></p>
+      <h1><span class="line-wrap"><span class="line">Systems Administrator</span></span><span class="line-wrap"><span class="line">building toward</span></span><span class="line-wrap"><span class="line"><span class="accent">security engineering.</span></span></span></h1>
+      <p class="hero-sub">Active Directory &amp; Endpoint Management · IT Operations · Applied Security</p>
+      <p class="lede">Five-plus years of hands-on IT operations across military healthcare and civilian environments: Active Directory administration, endpoint imaging for 150+ systems, and 1,000+ resolved tickets a year. I build and document real automation and detection tooling outside of work to turn that operations experience into applied security skill.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="resume/Hans_Sai_Resume.pdf" target="_blank" rel="noopener">View Resume</a>
+        <a class="btn btn-ghost" href="https://github.com/Spairkie" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn btn-ghost" href="https://www.linkedin.com/in/8pairkie/" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn btn-ghost" href="mailto:saihanswissle@gmail.com">Email Me</a>
+      </div>
     </div>
     <div class="terminal">
       <div class="terminal-bar">
@@ -1207,10 +1307,22 @@ body.boot-lock{overflow:hidden;}
   </div>
 </div>
 
+<section class="manifesto">
+  <div class="manifesto-texture" aria-hidden="true" id="manifestoTexture"></div>
+  <div class="wrap reveal">
+    <p class="eyebrow">Why this exists</p>
+    <p class="manifesto-text">
+      <span class="mf-line">I didn't learn security from a classroom first.</span>
+      <span class="mf-line">I learned it from locked-out accounts, endpoint fleets that had to come back online, and a ticket queue that never really closes.</span>
+      <span class="mf-line accent">Every tool on this site exists because the operations work taught me the problem before cybersecurity gave me the language for it.</span>
+    </p>
+  </div>
+</section>
+
 <section class="teaser">
   <div class="wrap reveal">
     <div class="teaser-head">
-      <p class="eyebrow">Before the résumé</p>
+      <p class="eyebrow">The proof, before the résumé</p>
       <a href="#projects" class="teaser-all">See all seven &rarr;</a>
     </div>
     <div class="teaser-grid">
@@ -1220,13 +1332,13 @@ body.boot-lock{overflow:hidden;}
         <span class="teaser-pitch">Correlates sequences across two log sources into one incident, not two alerts.</span>
         <span class="teaser-go">View case &rarr;</span>
       </a>
-      <a class="teaser-item stagger-item" href="#craft">
+      <a class="teaser-item hue-amber stagger-item" href="#craft">
         <span class="teaser-num">02</span>
         <span class="teaser-title">Interactive Diploma</span>
-        <span class="teaser-pitch">A live, draggable 3D piece — the same three.js engine behind the hero above.</span>
+        <span class="teaser-pitch">A live, draggable 3D piece built on the same three.js engine behind the hero above.</span>
         <span class="teaser-go">Drag it &rarr;</span>
       </a>
-      <a class="teaser-item stagger-item" href="#proj-phishing">
+      <a class="teaser-item hue-rose stagger-item" href="#proj-phishing">
         <span class="teaser-num">03</span>
         <span class="teaser-title">Phishing Email Analyzer</span>
         <span class="teaser-pitch">Shows its work: which header failed, which domain is spoofed, in plain language.</span>
@@ -1236,18 +1348,8 @@ body.boot-lock{overflow:hidden;}
   </div>
 </section>
 
-<section class="manifesto">
-  <div class="manifesto-texture" aria-hidden="true" id="manifestoTexture"></div>
-  <div class="wrap reveal">
-    <p class="manifesto-text">
-      <span class="mf-line">I didn't learn security from a classroom first.</span>
-      <span class="mf-line">I learned it from locked-out accounts, endpoint fleets that had to come back online, and a ticket queue that never really closes.</span>
-      <span class="mf-line accent">Every tool on this site exists because the operations work taught me the problem before cybersecurity gave me the language for it.</span>
-    </p>
-  </div>
-</section>
-
 <section id="about">
+  <div class="about-bg" aria-hidden="true"><canvas id="aboutCanvas"></canvas></div>
   <div class="wrap reveal">
     <div class="section-head">
       <p class="eyebrow">About</p>
@@ -1338,26 +1440,68 @@ body.boot-lock{overflow:hidden;}
   </div>
 </section>
 
-<section id="projects">
+<section id="projects" class="proj-stage">
   <div class="wrap reveal">
     <div class="section-head">
       <p class="eyebrow">Projects</p>
       <h2 class="kinetic-h">Security &amp; infrastructure tooling</h2>
     </div>
-    <p class="proj-lede">Seven projects, real, working, tested, and documented. Built to extend actual AD, sysadmin, and ticketing experience into applied automation and detection, not tutorial clones.</p>
+    <p class="proj-lede">Eight builds, real, working, tested, and documented. Scroll to move through them like slides, one screen each, with a hint of what's next.</p>
 
     <div class="proj-nav-wrap">
       <div class="proj-nav" id="projNav">
-        <a href="#proj-siem" class="proj-nav-item"><span class="proj-nav-num">01</span>Log Correlator SIEM</a>
-        <a href="#proj-helpdesk" class="proj-nav-item"><span class="proj-nav-num">02</span>Helpdesk Analytics</a>
-        <a href="#proj-ad-auditor" class="proj-nav-item"><span class="proj-nav-num">03</span>AD Security Auditor</a>
-        <a href="#proj-phishing" class="proj-nav-item"><span class="proj-nav-num">04</span>Phishing Analyzer</a>
-        <a href="#proj-jotrelay" class="proj-nav-item"><span class="proj-nav-num">05</span>JotRelay</a>
-        <a href="#proj-toolkit" class="proj-nav-item"><span class="proj-nav-num">06</span>Endpoint Toolkit</a>
-        <a href="#proj-winlog" class="proj-nav-item"><span class="proj-nav-num">07</span>WinLog Threat Hunter</a>
+        <a href="#craft" class="proj-nav-item"><span class="proj-nav-num">01</span>Interactive Diploma</a>
+        <a href="#proj-siem" class="proj-nav-item"><span class="proj-nav-num">02</span>Log Correlator SIEM</a>
+        <a href="#proj-helpdesk" class="proj-nav-item"><span class="proj-nav-num">03</span>Helpdesk Analytics</a>
+        <a href="#proj-ad-auditor" class="proj-nav-item"><span class="proj-nav-num">04</span>AD Security Auditor</a>
+        <a href="#proj-phishing" class="proj-nav-item"><span class="proj-nav-num">05</span>Phishing Analyzer</a>
+        <a href="#proj-jotrelay" class="proj-nav-item"><span class="proj-nav-num">06</span>JotRelay</a>
+        <a href="#proj-toolkit" class="proj-nav-item"><span class="proj-nav-num">07</span>Endpoint Toolkit</a>
+        <a href="#proj-winlog" class="proj-nav-item"><span class="proj-nav-num">08</span>WinLog Threat Hunter</a>
       </div>
     </div>
+  </div>
 
+  <div class="proj-pin-wrap" id="projPinWrap">
+    <div class="proj-pin">
+      <div class="proj-track" id="projTrack">
+
+        <div class="proj-slide craft-stage" id="craft" data-slide="0">
+          <div class="slide-bg" aria-hidden="true"><canvas id="craftCanvas"></canvas></div>
+          <div class="slide-inner craft-inner">
+            <p class="eyebrow craft-eyebrow">Off the clock</p>
+            <h2 class="craft-title kinetic-h">Interactive <span class="accent">Diploma</span></h2>
+            <p class="craft-desc">Everything else here solves a problem nobody outside IT ever sees. This one didn't need to exist: a full 3D, physically-lit recreation of my actual Liberty University diploma, procedural paper and card materials, studio lighting, a folder that opens on drag. Built because the three.js engine idling in the hero above deserved a real object to render, not just a wireframe backdrop. It's live below. Drag it.</p>
+            <div class="live-embed diploma craft-embed">
+              <div class="lf-bar" aria-hidden="true">
+                <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+                <span class="lf-title">interactive-diploma &middot; live</span>
+                <span class="lf-hint">drag to rotate · scroll to zoom</span>
+              </div>
+              <iframe src="https://spairkie.github.io/interactive-diploma/" title="Interactive Diploma &middot; live 3D demo, drag to rotate" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live 3D diploma: click to drag and zoom">
+                <span class="lf-overlay-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
+                  Click to drag &amp; zoom
+                </span>
+              </div>
+            </div>
+            <div class="feature-stats craft-stats">
+              <span class="chip">Three.js</span>
+              <span class="chip">Procedural materials</span>
+              <span class="chip">Studio lighting</span>
+              <span class="chip">Fully interactive</span>
+            </div>
+            <div class="feature-links craft-links">
+              <a href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Open full demo</a>
+              <a href="https://github.com/Spairkie/interactive-diploma" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-slide" data-slide="1">
+          <div class="slide-bg" aria-hidden="true"><canvas class="slideCanvas" data-color="#5eead4" data-shape="circle" data-density="12"></canvas></div>
+          <div class="slide-inner">
     <div class="feature-panel stagger-item" id="proj-siem">
       <span class="feature-tag">Featured build</span>
       <div class="feature-title-group">
@@ -1401,9 +1545,12 @@ body.boot-lock{overflow:hidden;}
         <a href="https://github.com/Spairkie/log-correlator-siem" target="_blank" rel="noopener">Source on GitHub</a>
       </div>
     </div>
+          </div>
+        </div>
 
-    <div class="proj-grid">
-
+        <div class="proj-slide" data-slide="2">
+          <div class="slide-bg" aria-hidden="true"><canvas class="slideCanvas" data-color="#5b9dd9" data-shape="diamond" data-density="14"></canvas></div>
+          <div class="slide-inner">
       <div class="proj-card wide hue-blue stagger-item" id="proj-helpdesk">
         <div class="proj-top">
           <div class="proj-title-group">
@@ -1451,7 +1598,12 @@ body.boot-lock{overflow:hidden;}
           <p class="why-body">Twelve to fifteen tickets a day adds up to thousands a year, and I kept asking the same question nobody was answering: which priority tier is actually missing SLA, and by how much? This is that answer, generated in seconds instead of guessed at.</p>
         </details>
       </div>
+          </div>
+        </div>
 
+        <div class="proj-slide" data-slide="3">
+          <div class="slide-bg" aria-hidden="true"><canvas class="slideCanvas" data-color="#9d84e8" data-shape="hex" data-density="12"></canvas></div>
+          <div class="slide-inner">
       <div class="proj-card hue-violet stagger-item" id="proj-ad-auditor">
         <div class="proj-top">
           <div class="proj-title-group">
@@ -1473,10 +1625,15 @@ body.boot-lock{overflow:hidden;}
         <div class="proj-links"><a href="https://github.com/Spairkie/ad-security-auditor" target="_blank" rel="noopener">Source on GitHub</a></div>
         <details class="why">
           <summary>Why I built this</summary>
-          <p class="why-body">I administer a real production AD environment, so I know exactly how easy it is for a stale account or a privileged-group change to go unnoticed. I wanted an audit I could hand to anyone without touching the live domain — export, run, read the findings.</p>
+          <p class="why-body">I administer a real production AD environment, so I know exactly how easy it is for a stale account or a privileged-group change to go unnoticed. I wanted an audit I could hand to anyone without touching the live domain: export, run, read the findings.</p>
         </details>
       </div>
+          </div>
+        </div>
 
+        <div class="proj-slide" data-slide="4">
+          <div class="slide-bg" aria-hidden="true"><canvas class="slideCanvas" data-color="#e8748c" data-shape="triangle" data-density="16"></canvas></div>
+          <div class="slide-inner">
       <div class="proj-card hue-rose stagger-item" id="proj-phishing">
         <div class="proj-top">
           <div class="proj-title-group">
@@ -1500,10 +1657,15 @@ body.boot-lock{overflow:hidden;}
         <div class="proj-links"><a href="https://github.com/Spairkie/phishing-email-analyzer" target="_blank" rel="noopener">Source on GitHub</a></div>
         <details class="why">
           <summary>Why I built this</summary>
-          <p class="why-body">Phishing reports land in every help desk queue, and "just don't click it" isn't an explanation. I wanted something that shows its work — which header failed, which domain is spoofed, in plain language — so the answer teaches the reader something instead of just flagging risk.</p>
+          <p class="why-body">Phishing reports land in every help desk queue, and "just don't click it" isn't an explanation. I wanted something that shows its work: which header failed, which domain is spoofed, in plain language, so the answer teaches the reader something instead of just flagging risk.</p>
         </details>
       </div>
+          </div>
+        </div>
 
+        <div class="proj-slide" data-slide="5">
+          <div class="slide-bg" aria-hidden="true"><canvas class="slideCanvas" data-color="#5ecf94" data-shape="plus" data-density="10"></canvas></div>
+          <div class="slide-inner">
       <div class="proj-card wide hue-green stagger-item" id="proj-jotrelay">
         <div class="proj-top">
           <div class="proj-title-group">
@@ -1524,10 +1686,10 @@ body.boot-lock{overflow:hidden;}
         <div class="live-embed jotrelay">
           <div class="lf-bar" aria-hidden="true">
             <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-            <span class="lf-title">jotrelay.github.io — live</span>
+            <span class="lf-title">jotrelay.github.io &middot; live</span>
             <span class="lf-hint">real app, not a screenshot</span>
           </div>
-          <iframe src="https://spairkie.github.io/JotRelay/" title="JotRelay — live app preview" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <iframe src="https://spairkie.github.io/JotRelay/" title="JotRelay &middot; live app preview" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live JotRelay preview">
             <span class="lf-overlay-badge">Click to interact</span>
           </div>
@@ -1538,10 +1700,15 @@ body.boot-lock{overflow:hidden;}
         </div>
         <details class="why">
           <summary>Why I built this</summary>
-          <p class="why-body">Everything else here is backend tooling nobody outside IT ever sees. I wanted to prove I can also ship something a stranger opens, understands in five seconds, and actually wants to use — encryption included, because "real-time" and "private" shouldn't be a trade-off.</p>
+          <p class="why-body">Everything else here is backend tooling nobody outside IT ever sees. I wanted to prove I can also ship something a stranger opens, understands in five seconds, and actually wants to use, encryption included, because "real-time" and "private" shouldn't be a trade-off.</p>
         </details>
       </div>
+          </div>
+        </div>
 
+        <div class="proj-slide" data-slide="6">
+          <div class="slide-bg" aria-hidden="true"><canvas class="slideCanvas" data-color="#e2a35c" data-shape="rect" data-density="14"></canvas></div>
+          <div class="slide-inner">
       <div class="proj-card hue-copper stagger-item" id="proj-toolkit">
         <div class="proj-top">
           <div class="proj-title-group">
@@ -1569,15 +1736,20 @@ body.boot-lock{overflow:hidden;}
 <span class="term-dim">... 10 more, see report ...</span>
 
 <span class="term-accent">12 accounts</span> flagged inactive &middot; <span class="term-hd">0</span> disabled (-ReportOnly) &middot; report written to <span class="term-dim">reports\inactive-2026-08-31.csv</span></pre>
-          <p class="chart-cap">Representative -WhatIf/-ReportOnly console output, formatted to match the script's real logging module — it targets a live AD domain, so this isn't a hosted demo.</p>
+          <p class="chart-cap">Representative -WhatIf/-ReportOnly console output, formatted to match the script's real logging module. It targets a live AD domain, so this isn't a hosted demo.</p>
         </div>
         <div class="proj-links"><a href="https://github.com/Spairkie/ad-automation-toolkit" target="_blank" rel="noopener">Source on GitHub</a></div>
         <details class="why">
           <summary>Why I built this</summary>
-          <p class="why-body">Provisioning and offboarding by hand is repetitive, which means it's exactly where mistakes happen. Every write action here defaults to -WhatIf first — I wanted automation I'd actually trust against a real domain, not a script that just moves the risk somewhere less visible.</p>
+          <p class="why-body">Provisioning and offboarding by hand is repetitive, which means it's exactly where mistakes happen. Every write action here defaults to -WhatIf first, because I wanted automation I'd actually trust against a real domain, not a script that just moves the risk somewhere less visible.</p>
         </details>
       </div>
+          </div>
+        </div>
 
+        <div class="proj-slide" data-slide="7">
+          <div class="slide-bg" aria-hidden="true"><canvas class="slideCanvas" data-color="#e2703f" data-shape="hex" data-density="18"></canvas></div>
+          <div class="slide-inner">
       <div class="proj-card hue-flame stagger-item" id="proj-winlog">
         <div class="proj-top">
           <div class="proj-title-group">
@@ -1603,75 +1775,56 @@ body.boot-lock{overflow:hidden;}
             <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
             <span class="term-cmdline">$ python -m winlog_threat_hunter.cli sample_logs/brute_force_attack.jsonl</span>
           </div>
-          <pre><span class="term-hd">WinLog Threat Hunter</span> <span class="term-dim">— analyzed 9 events, 3 finding(s)</span>
+          <pre><span class="term-hd">WinLog Threat Hunter</span> <span class="term-dim">: analyzed 9 events, 3 finding(s)</span>
 <span class="sev-crit">CRITICAL: 2</span>   <span class="sev-high">HIGH: 1</span>
 
-<span class="sev-crit">[CRITICAL]</span> Repeated failed logons (brute force / password spray) — followed by success
+<span class="sev-crit">[CRITICAL]</span> Repeated failed logons (brute force / password spray), followed by success
   <span class="term-dim">rule: BRUTE-001 &middot; mitre: T1110 &middot; who: WIN-VPN01 / 45.33.12.7</span>
-  7 failed logons in 6 min, then a success from the same source — likely compromise, not a blocked attempt.
+  7 failed logons in 6 min, then a success from the same source: likely compromise, not a blocked attempt.
 
 <span class="sev-high">[HIGH]</span> Special privileges assigned following a notable interactive logon
   <span class="term-dim">rule: PRIVESC-001 &middot; mitre: T1078 &middot; who: svc_backup / WIN-VPN01</span></pre>
-          <p class="chart-cap">Real output from the tool, run against its own bundled sample_logs/brute_force_attack.jsonl dataset — not staged.</p>
+          <p class="chart-cap">Real output from the tool, run against its own bundled sample_logs/brute_force_attack.jsonl dataset, not staged.</p>
         </div>
         <div class="proj-links"><a href="https://github.com/Spairkie/winlog-threat-hunter" target="_blank" rel="noopener">Source on GitHub</a></div>
         <details class="why">
           <summary>Why I built this</summary>
-          <p class="why-body">Raw Windows Security logs are enormous and mostly noise. I wanted practice turning that noise into named attacker behavior — mapped to ATT&amp;CK, not just "suspicious event #4471" — because that translation is most of what a threat hunter actually does.</p>
+          <p class="why-body">Raw Windows Security logs are enormous and mostly noise. I wanted practice turning that noise into named attacker behavior, mapped to ATT&amp;CK and not just "suspicious event #4471", because that translation is most of what a threat hunter actually does.</p>
         </details>
       </div>
+          </div>
+        </div>
 
+      </div>
     </div>
+  </div>
 
+  <div class="wrap sub-projects-wrap">
     <div class="also-built">
       <div class="also-head">
         <p class="also-label">Also on this site</p>
+        <h3 class="also-title">Sub projects, past the highlights</h3>
       </div>
-      <div class="also-grid" id="alsoGrid" tabindex="0" aria-label="Also built, scrolls horizontally">
+      <div class="also-grid" id="alsoGrid">
         <div class="mini-card stagger-item">
           <h4>This portfolio site</h4>
           <p>Static, single-file, hand-built. The WebGL network in the hero above is the same three.js engine as the diploma project.</p>
+          <button class="also-more" type="button" aria-expanded="false">View more <span aria-hidden="true">+</span></button>
+          <div class="also-detail">
+            <p>No framework, no build step, no bundler: one HTML file carrying its own CSS and JS, deployed straight to GitHub Pages. Every background effect on this page, the hero network, the drifting slide motifs above, the education seals, is hand-rolled canvas or CSS rather than a library.</p>
+          </div>
           <a href="https://github.com/Spairkie/spairkie.github.io" target="_blank" rel="noopener">Source on GitHub</a>
         </div>
         <div class="mini-card stagger-item">
           <h4>Icon system</h4>
           <p>Even the favicon is on-brand: a hand-drawn terminal prompt glyph, vector, generated at every size from one SVG source.</p>
+          <button class="also-more" type="button" aria-expanded="false">View more <span aria-hidden="true">+</span></button>
+          <div class="also-detail">
+            <p>One SVG source exports to every favicon size plus the apple-touch icon, so the terminal-prompt mark stays crisp from a browser tab to a phone home screen, in light or dark theme, with no separate art pass per size.</p>
+          </div>
           <a href="favicon.ico" target="_blank" rel="noopener">View favicon.ico</a>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<section id="craft" class="craft-stage">
-  <div class="craft-bg" aria-hidden="true"><canvas id="craftCanvas"></canvas></div>
-  <div class="wrap reveal craft-inner">
-    <p class="eyebrow craft-eyebrow">Off the clock</p>
-    <h2 class="craft-title kinetic-h">Interactive <span class="accent">Diploma</span></h2>
-    <p class="craft-desc">Everything above solves a problem nobody outside IT ever sees. This one didn't need to exist: a full 3D, physically-lit recreation of my actual Liberty University diploma — procedural paper and card materials, studio lighting, a folder that opens on drag — built because the three.js engine idling in the hero above deserved a real object to render, not just a wireframe backdrop. It's live below. Drag it.</p>
-    <div class="live-embed diploma craft-embed">
-      <div class="lf-bar" aria-hidden="true">
-        <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-        <span class="lf-title">interactive-diploma — live</span>
-        <span class="lf-hint">drag to rotate · scroll to zoom</span>
-      </div>
-      <iframe src="https://spairkie.github.io/interactive-diploma/" title="Interactive Diploma — live 3D demo, drag to rotate" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-      <div class="lf-overlay" role="button" tabindex="0" aria-label="Activate live 3D diploma — click to drag and zoom">
-        <span class="lf-overlay-badge">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
-          Click to drag &amp; zoom
-        </span>
-      </div>
-    </div>
-    <div class="feature-stats craft-stats">
-      <span class="chip">Three.js</span>
-      <span class="chip">Procedural materials</span>
-      <span class="chip">Studio lighting</span>
-      <span class="chip">Fully interactive</span>
-    </div>
-    <div class="feature-links craft-links">
-      <a href="https://spairkie.github.io/interactive-diploma/" target="_blank" rel="noopener">Open full demo</a>
-      <a href="https://github.com/Spairkie/interactive-diploma" target="_blank" rel="noopener">Source on GitHub</a>
     </div>
   </div>
 </section>
@@ -1724,6 +1877,7 @@ body.boot-lock{overflow:hidden;}
 </section>
 
 <section id="education">
+  <div class="edu-bg" aria-hidden="true"><span class="edu-seal"></span><span class="edu-seal ring2"></span></div>
   <div class="wrap reveal">
     <div class="section-head">
       <p class="eyebrow">Education &amp; Certifications</p>
@@ -1770,9 +1924,9 @@ body.boot-lock{overflow:hidden;}
 
     <div class="quick-facts">
       <div class="qf-row"><span class="qf-num">01</span><span class="qf-label">Looking for</span><span class="qf-val">Systems/IT Admin &middot; Help Desk Lead &middot; Cleared IT/Security roles</span></div>
-      <div class="qf-row"><span class="qf-num">02</span><span class="qf-label">Location</span><span class="qf-val">Philadelphia / South Jersey metro &mdash; open to fully remote</span></div>
+      <div class="qf-row"><span class="qf-num">02</span><span class="qf-label">Location</span><span class="qf-val">Philadelphia / South Jersey metro, open to fully remote</span></div>
       <div class="qf-row"><span class="qf-num">03</span><span class="qf-label">Clearance</span><span class="qf-val"><span class="live-dot" aria-hidden="true"></span>Active Secret, U.S. Air Force Reserve</span></div>
-      <div class="qf-row"><span class="qf-num">04</span><span class="qf-label">Available</span><span class="qf-val">Now &mdash; open to new opportunities</span></div>
+      <div class="qf-row"><span class="qf-num">04</span><span class="qf-label">Available</span><span class="qf-val">Open to new opportunities now</span></div>
     </div>
 
     <div class="contact-links">
@@ -1823,24 +1977,17 @@ body.boot-lock{overflow:hidden;}
     });
   });
 
-  var grid = document.getElementById('alsoGrid');
-  if(!grid) return;
-  var wrap = grid.closest('.also-built');
-  function updateFade(){
-    if(!wrap) return;
-    var atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 4;
-    wrap.classList.toggle('at-end', atEnd);
-  }
-  grid.addEventListener('scroll', updateFade, {passive:true});
-  updateFade();
-  grid.addEventListener('wheel', function(e){
-    if(Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-    var atStart = grid.scrollLeft <= 0;
-    var atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1;
-    if((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) return;
-    grid.scrollLeft += e.deltaY;
-    e.preventDefault();
-  }, {passive:false});
+  /* sub-projects "view more" toggle -- each mini-card can expand one extra paragraph in place */
+  document.querySelectorAll('.also-more').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      var label = btn.querySelector('span');
+      if(label) label.textContent = open ? '+' : '−';
+      var detail = btn.nextElementSibling;
+      if(detail && detail.classList.contains('also-detail')) detail.classList.toggle('open', !open);
+    });
+  });
 })();
 
 /* ---------- full-screen menu overlay ---------- */
@@ -1899,6 +2046,11 @@ var hsLenis = null;
       var target = document.getElementById(id);
       if(!target) return;
       e.preventDefault();
+      var slide = target.classList && target.classList.contains('proj-slide') ? target : (target.closest ? target.closest('.proj-slide') : null);
+      if(slide && window.hsScrollToProjSlide && window.hsScrollToProjSlide(slide)){
+        history.pushState(null, '', '#' + id);
+        return;
+      }
       var offset = (a.classList.contains('proj-nav-item') || a.classList.contains('teaser-item')) ? -118 : -10;
       hsLenis.scrollTo(target, {offset: offset});
       history.pushState(null, '', '#' + id);
@@ -2122,6 +2274,262 @@ var hsLenis = null;
   window.addEventListener('resize', function(){
     clearTimeout(resizeTimer2);
     resizeTimer2 = setTimeout(function(){ resize(); if(reduce) frame(); }, 200);
+  });
+})();
+
+/* ---------- shared project-slide background engine: the same drifting-outlined-shape idea as the
+   craft canvas above, generalized with a per-slide color + shape so every carousel slide gets its
+   own distinct, on-brand generative backdrop without duplicating the drawing code eight times. ---------- */
+(function(){
+  var canvases = document.querySelectorAll('.slideCanvas');
+  if(!canvases.length) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function hexToRgb(hex){
+    hex = (hex || '#5eead4').replace('#', '');
+    if(hex.length === 3) hex = hex.split('').map(function(c){ return c + c; }).join('');
+    var num = parseInt(hex, 16);
+    return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+  }
+
+  function drawShape(ctx, shape, s){
+    var h = s / 2;
+    if(shape === 'circle'){
+      ctx.beginPath(); ctx.arc(0, 0, h, 0, Math.PI * 2); ctx.stroke(); return;
+    }
+    if(shape === 'triangle'){
+      ctx.beginPath(); ctx.moveTo(0, -h); ctx.lineTo(h * 0.87, h * 0.6); ctx.lineTo(-h * 0.87, h * 0.6); ctx.closePath(); ctx.stroke(); return;
+    }
+    if(shape === 'hex'){
+      ctx.beginPath();
+      for(var i = 0; i < 6; i++){
+        var a = (Math.PI / 3) * i - Math.PI / 2;
+        var x = Math.cos(a) * h, y = Math.sin(a) * h;
+        if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath(); ctx.stroke(); return;
+    }
+    if(shape === 'diamond'){
+      ctx.beginPath(); ctx.moveTo(0, -h); ctx.lineTo(h, 0); ctx.lineTo(0, h); ctx.lineTo(-h, 0); ctx.closePath(); ctx.stroke(); return;
+    }
+    if(shape === 'plus'){
+      var q = h * 0.34;
+      ctx.beginPath();
+      ctx.moveTo(-q, -h); ctx.lineTo(q, -h); ctx.lineTo(q, -q); ctx.lineTo(h, -q); ctx.lineTo(h, q);
+      ctx.lineTo(q, q); ctx.lineTo(q, h); ctx.lineTo(-q, h); ctx.lineTo(-q, q); ctx.lineTo(-h, q);
+      ctx.lineTo(-h, -q); ctx.lineTo(-q, -q); ctx.closePath(); ctx.stroke(); return;
+    }
+    ctx.strokeRect(-h, -h * 0.67, s, s * 0.67);
+  }
+
+  function initCanvas(canvas){
+    var section = canvas.closest('.proj-slide');
+    var rgb = hexToRgb(canvas.getAttribute('data-color'));
+    var shape = canvas.getAttribute('data-shape') || 'rect';
+    var density = parseInt(canvas.getAttribute('data-density'), 10) || 14;
+    var ctx = canvas.getContext('2d');
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    var W, H, items;
+
+    function make(){
+      var count = window.innerWidth < 760 ? Math.round(density * 0.55) : density;
+      items = [];
+      for(var i = 0; i < count; i++){
+        var s = 22 + Math.random() * 46;
+        items.push({
+          x: Math.random() * W, y: Math.random() * H, s: s,
+          rot: Math.random() * Math.PI,
+          vy: -(0.05 + Math.random() * 0.09),
+          vr: (Math.random() - 0.5) * 0.0015,
+          a: 0.05 + Math.random() * 0.11
+        });
+      }
+    }
+    function resize(){
+      W = canvas.clientWidth; H = canvas.clientHeight;
+      if(!W || !H) return;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      make();
+    }
+    resize();
+
+    function frame(){
+      ctx.clearRect(0, 0, W, H);
+      for(var i = 0; i < items.length; i++){
+        var c = items[i];
+        c.y += c.vy; c.rot += c.vr;
+        if(c.y < -c.s){ c.y = H + c.s; c.x = Math.random() * W; }
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.rot);
+        ctx.strokeStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + c.a.toFixed(3) + ')';
+        ctx.lineWidth = 1;
+        drawShape(ctx, shape, c.s);
+        ctx.restore();
+      }
+    }
+
+    var raf = null, onScreen = false;
+    function loop(){ frame(); if(onScreen && !reduce) raf = requestAnimationFrame(loop); }
+    if(reduce){ frame(); }
+    else if('IntersectionObserver' in window && section){
+      var io = new IntersectionObserver(function(entries){
+        onScreen = entries[0].isIntersecting;
+        if(onScreen && !raf) raf = requestAnimationFrame(loop);
+        if(!onScreen && raf){ cancelAnimationFrame(raf); raf = null; }
+      }, {threshold: 0});
+      io.observe(section);
+    } else { onScreen = true; raf = requestAnimationFrame(loop); }
+
+    var rt;
+    window.addEventListener('resize', function(){
+      clearTimeout(rt);
+      rt = setTimeout(function(){ resize(); if(reduce) frame(); }, 200);
+    });
+  }
+
+  canvases.forEach(initCanvas);
+})();
+
+/* ---------- projects: pinned horizontal carousel, desktop only. Scrolling vertically through the
+   tall .proj-pin-wrap drives a scroll-fraction translateX across .proj-track, so the carousel rides
+   the page's own scroll (and Lenis's easing on it) instead of hijacking the wheel itself. ---------- */
+(function(){
+  var pinWrap = document.getElementById('projPinWrap');
+  var track = document.getElementById('projTrack');
+  if(!pinWrap || !track) return;
+  var slides = Array.prototype.slice.call(track.querySelectorAll('.proj-slide'));
+  var count = slides.length;
+  if(!count) return;
+  pinWrap.style.setProperty('--slide-count', count);
+
+  var mq = window.matchMedia('(min-width:1000px)');
+  var active = false;
+
+  function update(){
+    if(!active) return;
+    var rect = pinWrap.getBoundingClientRect();
+    var total = rect.height - window.innerHeight;
+    var p = total > 0 ? (-rect.top) / total : 0;
+    p = Math.max(0, Math.min(1, p));
+    track.style.transform = 'translate3d(' + (-p * (count - 1) * 100) + '%,0,0)';
+  }
+
+  function onScroll(){ requestAnimationFrame(update); }
+
+  function setActive(on){
+    active = on;
+    if(!on){ track.style.transform = 'none'; }
+    else { update(); }
+  }
+  setActive(mq.matches);
+  if(mq.addEventListener) mq.addEventListener('change', function(e){ setActive(e.matches); });
+  else if(mq.addListener) mq.addListener(function(e){ setActive(e.matches); });
+
+  if(window.hsLenis && typeof window.hsLenis.on === 'function'){
+    window.hsLenis.on('scroll', onScroll);
+  } else {
+    window.addEventListener('scroll', onScroll, {passive: true});
+  }
+  window.addEventListener('resize', function(){ if(active) update(); });
+
+  /* deep-link / nav-pill jumps: land at the scroll position that puts the right slide on
+     screen, not just at the top of the (very tall) pin wrapper. Exposed on window so the
+     existing anchor-click handler (defined earlier, before this element existed) can use it. */
+  window.hsScrollToProjSlide = function(slideEl){
+    if(!mq.matches) return false;
+    var idx = slides.indexOf(slideEl);
+    if(idx < 0) return false;
+    var rect = pinWrap.getBoundingClientRect();
+    var total = rect.height - window.innerHeight;
+    var targetY = window.pageYOffset + rect.top + (count > 1 && total > 0 ? (idx / (count - 1)) * total : 0);
+    if(window.hsLenis){ window.hsLenis.scrollTo(targetY); }
+    else { window.scrollTo({top: targetY, behavior: 'smooth'}); }
+    return true;
+  };
+})();
+
+/* ---------- about: faint HUD scan sweep + telemetry grid behind the section, only animates
+   on-screen -- same restrained "live system" language as the photo's own hover scan ---------- */
+(function(){
+  var canvas = document.getElementById('aboutCanvas');
+  if(!canvas) return;
+  var section = document.getElementById('about');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+  var W, H;
+  var GRID = 44;
+
+  function accent(){
+    var c = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5eead4';
+    var n = parseInt(c.replace('#',''), 16);
+    return [(n>>16)&255, (n>>8)&255, n&255];
+  }
+  var rgb = accent();
+
+  function resize(){
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    if(!W || !H) return;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+
+  function grid(){
+    ctx.strokeStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.05)';
+    ctx.lineWidth = 1;
+    for(var x = 0; x < W; x += GRID){
+      ctx.beginPath(); ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, H); ctx.stroke();
+    }
+    for(var y = 0; y < H; y += GRID){
+      ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(W, y + 0.5); ctx.stroke();
+    }
+  }
+
+  function sweep(t){
+    var cy = ((t % H) + H) % H;
+    var grad = ctx.createLinearGradient(0, cy - 90, 0, cy + 4);
+    grad.addColorStop(0, 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0)');
+    grad.addColorStop(1, 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.09)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, cy - 90, W, 94);
+    ctx.strokeStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.28)';
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+  }
+
+  function frame(t){
+    ctx.clearRect(0, 0, W, H);
+    grid();
+    sweep(t);
+  }
+
+  if(reduce){ frame(H * 0.35); }
+  else{
+    var raf = null, onScreen = false, start = null;
+    function loop(ts){
+      if(!start) start = ts;
+      var elapsed = (ts - start) / 1000;
+      frame(elapsed * (H / 9));
+      if(onScreen) raf = requestAnimationFrame(loop);
+    }
+    if('IntersectionObserver' in window && section){
+      var io = new IntersectionObserver(function(entries){
+        onScreen = entries[0].isIntersecting;
+        if(onScreen && !raf){ start = null; raf = requestAnimationFrame(loop); }
+        if(!onScreen && raf){ cancelAnimationFrame(raf); raf = null; }
+      }, {threshold: 0});
+      io.observe(section);
+    } else {
+      onScreen = true; raf = requestAnimationFrame(loop);
+    }
+  }
+
+  var resizeTimer3;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer3);
+    resizeTimer3 = setTimeout(function(){ resize(); if(reduce) frame(H * 0.35); }, 200);
   });
 })();
 
@@ -2443,7 +2851,7 @@ var hsLenis = null;
   }
 
   function frame(){
-    /* ease the displayed value toward the real target — never the other way around */
+    /* ease the displayed value toward the real target, never the other way around */
     shown += (target - shown) * 0.12;
     if(target >= 1 && target - shown < 0.01) shown = 1;
     var pct = Math.round(shown * 100);
@@ -2504,6 +2912,8 @@ var hsLenis = null;
     }
     var target = document.getElementById(id);
     if(!target) return;
+    var slide = target.classList && target.classList.contains('proj-slide') ? target : (target.closest ? target.closest('.proj-slide') : null);
+    if(slide && window.hsScrollToProjSlide && window.hsScrollToProjSlide(slide)) return;
     if(hsLenis){ hsLenis.scrollTo(target, {offset:-10}); return; }
     target.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'start'});
   }
@@ -2569,7 +2979,7 @@ var hsLenis = null;
         scrollTo(sec);
         return {text:"→ " + (sec === 'top' ? 'top' : sec)};
       case 'whoami':
-        return {text:"hans.sai — IT Support Associate II @ Amazon · USAFR Systems Administrator · Security+ · Secret clearance"};
+        return {text:"hans.sai \u00b7 IT Support Associate II @ Amazon \u00b7 USAFR Systems Administrator \u00b7 Security+ \u00b7 Secret clearance"};
       case 'cat':
         if(/resume/i.test(arg)){
           window.open('resume/Hans_Sai_Resume.pdf', '_blank', 'noopener');
@@ -2612,7 +3022,7 @@ var hsLenis = null;
         return {text:"→ contact"};
       case 'matrix':
         if(reduce){
-          return {text:"wake up, hans...\n(reduced motion is on, so no visual effect — but the offer stands.)"};
+          return {text:"wake up, hans...\n(reduced motion is on, so no visual effect, but the offer stands.)"};
         }
         runMatrixFX();
         return {text:"wake up, hans...\nfollow the white rabbit. [esc or click to exit]"};
@@ -2626,7 +3036,7 @@ var hsLenis = null;
   function enableInteractive(){
     var hint = document.createElement('div');
     hint.className = 'terminal-line terminal-hint';
-    hint.textContent = "type 'help' — this prompt is live";
+    hint.textContent = "type 'help' for commands";
     el.appendChild(hint);
 
     var row = document.createElement('div');
@@ -2640,7 +3050,7 @@ var hsLenis = null;
     input.autocomplete = 'off';
     input.autocapitalize = 'off';
     input.spellcheck = false;
-    input.setAttribute('aria-label', 'Interactive terminal — type help for commands');
+    input.setAttribute('aria-label', 'Interactive terminal, type help for commands');
     row.appendChild(pr);
     row.appendChild(input);
     el.appendChild(row);

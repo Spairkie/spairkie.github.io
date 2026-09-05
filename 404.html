@@ -52,9 +52,35 @@
 
   canvas{ position:fixed; inset:0; z-index:-1; }
 
-  .container{ text-align:center; padding:1.5rem; max-width:640px; box-sizing:border-box; }
+  .container{
+    position:relative; text-align:center; padding:1.5rem; max-width:640px; box-sizing:border-box;
+    will-change:transform;
+  }
+
+  /* a faint pulsing radar ring behind everything -- "signal lost, still listening" */
+  .signal-ring{
+    position:absolute; left:50%; top:50%; width:1px; height:1px; pointer-events:none; z-index:-1;
+  }
+  .signal-ring::before, .signal-ring::after{
+    content:''; position:absolute; left:0; top:0; border-radius:50%;
+    border:1px solid var(--accent); transform:translate(-50%,-50%);
+    animation:signalPing 3.6s ease-out infinite;
+  }
+  .signal-ring::after{ animation-delay:1.8s; }
+  @keyframes signalPing{
+    0%{ width:40px; height:40px; opacity:0.5; }
+    100%{ width:900px; height:900px; opacity:0; }
+  }
+
+  /* CRT scanline overlay -- subtle, sits above the canvas, below the content */
+  .scanlines{
+    position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:0.35; mix-blend-mode:overlay;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px);
+  }
+  :root[data-theme="light"] .scanlines{ opacity:0.18; }
 
   .error-code{
+    position:relative;
     font-family:var(--font-display);
     font-weight:700;
     font-size:clamp(4rem, 18vw, 11rem);
@@ -83,15 +109,35 @@
     100%{ transform:translate(0,0); }
   }
 
+  /* brief chromatic-aberration glitch burst, fired once on load and again every so often */
+  .error-code.glitch::before, .error-code.glitch::after{
+    content:attr(data-text); position:absolute; left:0; top:0; width:100%;
+    clip-path:inset(0 0 0 0);
+  }
+  .error-code.glitch::before{ color:#ff5f7e; transform:translate(0,0); animation:glitchSplit 0.32s steps(2,end) 1; z-index:-1; }
+  .error-code.glitch::after{ color:#5eead4; transform:translate(0,0); animation:glitchSplit2 0.32s steps(2,end) 1; z-index:-1; }
+  @keyframes glitchSplit{
+    0%{ transform:translate(0,0); opacity:0.8; }
+    30%{ transform:translate(-4px,2px); opacity:0.6; }
+    60%{ transform:translate(3px,-1px); opacity:0.5; }
+    100%{ transform:translate(0,0); opacity:0; }
+  }
+  @keyframes glitchSplit2{
+    0%{ transform:translate(0,0); opacity:0.8; }
+    30%{ transform:translate(4px,-2px); opacity:0.6; }
+    60%{ transform:translate(-3px,1px); opacity:0.5; }
+    100%{ transform:translate(0,0); opacity:0; }
+  }
+
   .terminal-message{
     font-size:clamp(0.85rem, 2.2vw, 1.02rem);
     line-height:1.85;
     color:var(--text-dim);
   }
   .terminal-message .prompt{ color:var(--amber); }
-  .terminal-message .msg-line{ color:var(--text); }
+  .terminal-message .msg-line{ color:var(--text); word-break:break-word; }
 
-  .redirect-note{ margin-top:1.4rem; font-size:0.88rem; opacity:0.75; }
+  .redirect-note{ margin-top:1.2rem; font-size:0.88rem; opacity:0.75; }
 
   a{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
   a:hover{ color:var(--text); }
@@ -102,10 +148,20 @@
     border:1px solid var(--accent); border-radius:999px;
     color:var(--accent); text-decoration:none;
     font-family:var(--font-display); font-size:0.92rem; font-weight:500;
-    transition:background 0.2s ease, color 0.2s ease;
+    transition:background 0.2s ease, color 0.2s ease, transform 0.2s ease;
   }
-  .home-link:hover{ background:var(--accent); color:var(--bg); }
+  .home-link:hover{ background:var(--accent); color:var(--bg); transform:translateY(-1px); }
   .home-link:focus-visible, a:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+
+  .quick-links{
+    display:flex; flex-wrap:wrap; gap:0.6rem; justify-content:center; margin-top:1.1rem;
+  }
+  .quick-links a{
+    font-family:var(--font-mono); font-size:0.78rem; color:var(--text-dim);
+    border:1px solid rgba(148,163,184,0.3); border-radius:999px; padding:0.4em 0.9em;
+    text-decoration:none; transition:border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .quick-links a:hover{ color:var(--accent); border-color:var(--accent); transform:translateY(-1px); }
 
   .cursor{ display:inline-block; width:1ch; animation:blink 1s step-end infinite; }
   @keyframes blink{ 0%,100%{opacity:0;} 50%{opacity:1;} }
@@ -122,6 +178,8 @@
   @media (prefers-reduced-motion: reduce){
     .digit{ animation:none; opacity:1; transform:none; }
     .error-code:hover{ animation:none; }
+    .error-code.glitch::before, .error-code.glitch::after{ animation:none; display:none; }
+    .signal-ring::before, .signal-ring::after{ animation:none; opacity:0; }
     .cursor, #countdown, #dots::after{ animation:none; }
     #dots::after{ content:'...'; }
   }
@@ -130,9 +188,11 @@
 <body>
 
   <canvas id="binaryCanvas" aria-hidden="true"></canvas>
+  <div class="scanlines" aria-hidden="true"></div>
 
-  <div class="container">
-    <div class="error-code" aria-label="404">
+  <div class="container" id="container404">
+    <div class="signal-ring" aria-hidden="true"></div>
+    <div class="error-code" id="errorCode" data-text="404" aria-label="404">
       <span class="digit left">4</span>
       <span class="digit top">0</span>
       <span class="digit right">4</span>
@@ -146,7 +206,11 @@
     </div>
 
     <a class="home-link" href="/">&larr; Return home</a>
-    <div class="redirect-note">Looking for a specific project? <a href="/#projects">Jump to projects</a></div>
+    <div class="quick-links">
+      <a href="/#projects">Projects</a>
+      <a href="/#contact">Contact</a>
+      <a href="https://github.com/Spairkie" target="_blank" rel="noopener">GitHub</a>
+    </div>
   </div>
 
   <script>
@@ -215,9 +279,15 @@
     if(reduceMotion){ drawStatic(); }
     else{ animate(); }
 
-    // === Scramble typing animation ===
+    // === Scramble typing animation -- names the actual path that didn't resolve, when there is one ===
     var scrambleEl = document.getElementById('scrambleText');
-    var targetText = "You've reached an undefined node in the matrix.";
+    var attemptedPath = '';
+    try{
+      attemptedPath = decodeURIComponent(window.location.pathname || '').replace(/\/$/, '');
+    }catch(e){ attemptedPath = window.location.pathname || ''; }
+    var targetText = (attemptedPath && attemptedPath !== '' && attemptedPath !== '/404' && attemptedPath !== '/404.html')
+      ? ('no route matches ' + attemptedPath.slice(0, 48))
+      : "You've reached an undefined node in the matrix.";
     var scrambleChars = '01<>/#$%&*ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     var frame = 0;
     var delay = 40;
@@ -255,6 +325,40 @@
     document.addEventListener('keydown', function(e){
       if(e.key === 'Escape') window.location.href = '/';
     });
+
+    // === chromatic-aberration glitch burst: once on load, then occasionally at random ===
+    var errorCode = document.getElementById('errorCode');
+    function fireGlitch(){
+      if(!errorCode || reduceMotion) return;
+      errorCode.classList.remove('glitch');
+      void errorCode.offsetWidth; /* restart the animation */
+      errorCode.classList.add('glitch');
+    }
+    if(!reduceMotion){
+      setTimeout(fireGlitch, 500);
+      (function scheduleGlitch(){
+        setTimeout(function(){ fireGlitch(); scheduleGlitch(); }, 4000 + Math.random() * 4000);
+      })();
+    }
+
+    // === subtle mouse-parallax tilt on the whole card -- a light, not a hijack ===
+    if(!reduceMotion && window.matchMedia && !window.matchMedia('(pointer: coarse)').matches){
+      var card = document.getElementById('container404');
+      var tx = 0, ty = 0, cx = 0, cy = 0, ticking = false;
+      function tiltLoop(){
+        cx += (tx - cx) * 0.08;
+        cy += (ty - cy) * 0.08;
+        card.style.transform = 'perspective(900px) rotateX(' + cy.toFixed(2) + 'deg) rotateY(' + cx.toFixed(2) + 'deg)';
+        if(Math.abs(tx - cx) > 0.01 || Math.abs(ty - cy) > 0.01){ requestAnimationFrame(tiltLoop); }
+        else{ ticking = false; }
+      }
+      window.addEventListener('mousemove', function(e){
+        var px = (e.clientX / window.innerWidth) - 0.5;
+        var py = (e.clientY / window.innerHeight) - 0.5;
+        tx = px * 6; ty = py * -6;
+        if(!ticking){ ticking = true; requestAnimationFrame(tiltLoop); }
+      });
+    }
   </script>
 
 </body>
