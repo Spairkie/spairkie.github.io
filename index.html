@@ -724,7 +724,7 @@ section:not(:last-of-type)::after{
 .term-panel .term-accent{color:var(--accent);}
 
 /* ---------- live embeds (same-origin project demos, framed like a window) ---------- */
-.live-embed{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.live-embed{position:relative;z-index:1;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
 .live-embed .lf-bar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--bg-panel);}
 .live-embed .lf-bar .terminal-dot{width:8px;height:8px;}
 .live-embed .lf-title{font-family:var(--font-mono);font-size:11px;color:var(--text-dimmer);margin-left:6px;}
@@ -949,11 +949,23 @@ body.boot-lock{overflow:hidden;}
 .feature-panel{
   border:1px solid var(--accent-dim);border-radius:14px;background:var(--bg-card);
   padding:32px;margin-bottom:22px;position:relative;overflow:hidden;
+  transition:border-color .3s ease, box-shadow .35s var(--ease);
 }
 .feature-panel::before{
   content:"";position:absolute;top:-40%;right:-10%;width:60%;height:180%;
   background:radial-gradient(circle,var(--accent-glow),transparent 70%);pointer-events:none;
 }
+/* a cursor-follow spotlight, same language as .proj-card's, scaled up for these larger panels --
+   these two projects (the flagship SIEM + the "off the clock" 3D piece) previously had no
+   interactive hover at all despite being the most detailed items on the page */
+.feature-panel::after{
+  content:"";position:absolute;inset:0;opacity:0;pointer-events:none;z-index:0;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%), var(--accent-glow), transparent 65%);
+  transition:opacity .4s ease;
+}
+.feature-panel:hover{border-color:var(--accent);box-shadow:0 28px 64px -30px rgba(0,0,0,0.55);}
+.feature-panel:hover::after{opacity:1;}
+.feature-panel > *{position:relative;z-index:1;}
 .feature-tag{
   display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11.5px;
   color:var(--accent);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:14px;
@@ -2108,10 +2120,18 @@ var hsLenis = null;
 })();
 
 /* ---------- boot sequence: driven by REAL asset/readiness progress, not a fixed timer ----------
-   Five milestones, each worth 20%: fonts decoded, three.js loaded, Lenis loaded, hero headshot
-   decoded, window 'load' fired. A displayed value eases toward that real target every frame, so it
-   never jumps 0->100 on a fast connection but also never finishes before the page actually can. A
-   hard ceiling (4200ms) forces completion so a blocked CDN script can never soft-lock the page. */
+   Five weighted milestones (20% each) feed the percentage bar: fonts decoded, three.js loaded,
+   Lenis loaded, hero headshot decoded, window 'load' fired. A displayed value eases toward that
+   real target every frame, so it never jumps 0->100 on a fast connection but also never finishes
+   before the page actually can.
+
+   The printed terminal LINES are gated on those same milestones, one line per real event, printed
+   strictly in narrative order even if the underlying events resolve out of order (a queue is
+   advanced, not a fixed schedule) -- so "clearance: ACTIVE" only ever appears once the identity
+   photo has actually decoded, not on a timer that merely usually finishes after it.
+
+   A hard ceiling (4200ms) forces completion so a blocked CDN script can never soft-lock the page;
+   on that path the remaining gated lines print immediately rather than staying missing. */
 (function(){
   var screen = document.getElementById('boot-screen');
   var inner = document.getElementById('bootInner');
@@ -2132,21 +2152,40 @@ var hsLenis = null;
 
   var MILESTONES = 5, done = 0;
   var target = 0, shown = 0, finished = false, raf = null;
+  /* each gated line waits on one or more named events; 'fonts'/'engine'/'visual'/'load' are set
+     true as the matching real milestone below resolves. The intro line has no gate (prints at
+     t=0); the closing line waits on everything. */
+  var ev = {fonts:false, engine3d:false, engineScroll:false, visual:false, load:false};
   var lines = [
-    '> booting hans@sysadmin ...',
-    '> loading modules: identity, endpoint-mgmt, detection-engineering ...',
-    '> mounting portfolio.site ...',
-    '> clearance: ACTIVE (DoD SECRET)',
-    '> status: READY_'
+    {text:'> booting hans@sysadmin ...', gate:null},
+    {text:'> loading modules: identity, endpoint-mgmt, detection-engineering ... [ok]', gate:function(){ return ev.fonts; }},
+    {text:'> mounting portfolio.site ... [ok]', gate:function(){ return ev.engine3d && ev.engineScroll; }},
+    {text:'> clearance: ACTIVE (DoD SECRET)', gate:function(){ return ev.visual; }},
+    {text:'> status: READY_', gate:function(){ return ev.fonts && ev.engine3d && ev.engineScroll && ev.visual && ev.load; }}
   ];
   var printed = 0;
 
   function mark(){
     done = Math.min(MILESTONES, done + 1);
     target = done / MILESTONES;
+    advanceLines();
+  }
+  function advanceLines(){
+    while(printed < lines.length && (lines[printed].gate === null || lines[printed].gate())){
+      printLine(printed);
+      printed++;
+    }
+  }
+  function printLine(i){
+    var d = document.createElement('div');
+    d.className = 'boot-line' + (i === lines.length - 1 ? ' ok' : '');
+    d.textContent = lines[i].text;
+    inner.appendChild(d);
+    requestAnimationFrame(function(){ d.style.opacity = '1'; });
   }
   /* 1: web fonts decoded */
-  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(mark); } else { mark(); }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ ev.fonts = true; mark(); }); }
+  else { ev.fonts = true; mark(); }
   /* 2 & 3: the two CDN engines this site depends on (three.js hero, Lenis smooth scroll) */
   (function waitFor(prop, cb){
     if(window[prop]){ cb(); return; }
@@ -2155,7 +2194,7 @@ var hsLenis = null;
       tries++;
       if(window[prop] || tries > 80){ clearInterval(t); cb(); }
     }, 50);
-  })('THREE', mark);
+  })('THREE', function(){ ev.engine3d = true; mark(); });
   (function waitFor(prop, cb){
     if(window[prop]){ cb(); return; }
     var tries = 0;
@@ -2163,29 +2202,21 @@ var hsLenis = null;
       tries++;
       if(window[prop] || tries > 80){ clearInterval(t); cb(); }
     }, 50);
-  })('Lenis', mark);
+  })('Lenis', function(){ ev.engineScroll = true; mark(); });
   /* 4: the above-the-fold headshot actually decoded (not just requested) */
   (function(){
     var img = document.querySelector('.about-photo img, img[src*="headshot"]');
-    if(img && img.decode){ img.decode().then(mark).catch(mark); }
-    else if(img && img.complete){ mark(); }
-    else if(img){ img.addEventListener('load', mark, {once:true}); img.addEventListener('error', mark, {once:true}); }
-    else { mark(); }
+    function done(){ ev.visual = true; mark(); }
+    if(img && img.decode){ img.decode().then(done).catch(done); }
+    else if(img && img.complete){ done(); }
+    else if(img){ img.addEventListener('load', done, {once:true}); img.addEventListener('error', done, {once:true}); }
+    else { done(); }
   })();
   /* 5: the page itself has fully loaded */
-  if(document.readyState === 'complete'){ mark(); }
-  else { window.addEventListener('load', mark, {once:true}); }
+  if(document.readyState === 'complete'){ ev.load = true; mark(); }
+  else { window.addEventListener('load', function(){ ev.load = true; mark(); }, {once:true}); }
 
-  function printNext(){
-    if(printed >= lines.length) return;
-    var d = document.createElement('div');
-    d.className = 'boot-line' + (printed === lines.length - 1 ? ' ok' : '');
-    d.textContent = lines[printed];
-    inner.appendChild(d);
-    requestAnimationFrame(function(){ d.style.opacity = '1'; });
-    printed++;
-  }
-  printNext();
+  advanceLines();
   if(barRow) requestAnimationFrame(function(){ barRow.classList.add('show'); });
 
   function finish(){
@@ -2208,8 +2239,6 @@ var hsLenis = null;
     var pct = Math.round(shown * 100);
     if(barFill) barFill.style.width = pct + '%';
     if(pctEl) pctEl.textContent = pct + '%';
-    var shouldHavePrinted = Math.min(lines.length, Math.ceil(shown * lines.length) + 1);
-    while(printed < shouldHavePrinted) printNext();
     if(shown >= 1){
       setTimeout(finish, 420);
       return;
@@ -2225,6 +2254,10 @@ var hsLenis = null;
     target = 1; shown = 1;
     if(barFill) barFill.style.width = '100%';
     if(pctEl) pctEl.textContent = '100%';
+    /* force every remaining gate true so no line is left permanently missing just because a
+       CDN script never loaded */
+    ev.fonts = ev.engine3d = ev.engineScroll = ev.visual = ev.load = true;
+    advanceLines();
     finish();
   }, 4200);
 })();
@@ -2624,6 +2657,26 @@ var hsLenis = null;
       el.style.removeProperty('--mx');
       el.style.removeProperty('--my');
       wake();
+    });
+  });
+})();
+
+/* ---------- feature-panel cursor glow (no tilt -- these are large panels with live iframes
+   embedded inside them, and tilting an iframe's content along with its container reads as
+   glitchy rather than premium, so this reuses just the --mx/--my spotlight half of the effect
+   above) ---------- */
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return;
+  document.querySelectorAll('.feature-panel').forEach(function(el){
+    el.addEventListener('mousemove', function(e){
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+    el.addEventListener('mouseleave', function(){
+      el.style.removeProperty('--mx');
+      el.style.removeProperty('--my');
     });
   });
 })();
