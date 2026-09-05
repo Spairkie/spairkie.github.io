@@ -1,0 +1,58 @@
+name: Projects visual QA
+
+on:
+  push:
+    branches:
+      - redesign/projects-aristide-inspired
+    paths:
+      - .github/workflows/visual-projects-qa.yml
+
+permissions:
+  contents: write
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build QA page
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          text=Path('index.html').read_text(encoding='utf-8')
+          css='<style>#boot-screen,#matrixFX{display:none!important}body{overflow:auto!important}</style>'
+          hook='''<script>try{sessionStorage.setItem("hs_booted","1")}catch(e){};addEventListener("load",function(){setTimeout(function(){var p=document.getElementById("projects");if(!p)return;var q=new URLSearchParams(location.search);var y=p.offsetTop;if(q.has("mid"))y+=Math.max(0,(p.offsetHeight-innerHeight)*.5);if(window.hsLenis){try{window.hsLenis.scrollTo(y,{immediate:true})}catch(e){scrollTo(0,y)}}else scrollTo(0,y);if(q.has("detail")){setTimeout(function(){var c=document.querySelector(".folio-project");if(c)c.click()},500)}},900)});</script>'''
+          text=text.replace('</head>',css+'</head>',1).replace('<body id="top">','<body id="top">'+hook,1)
+          Path('visual-projects.html').write_text(text,encoding='utf-8')
+          PY
+      - name: Capture screenshots
+        run: |
+          python3 -m http.server 4173 >/tmp/folio-server.log 2>&1 &
+          SERVER_PID=$!
+          sleep 1
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          COMMON="--headless=new --no-sandbox --disable-dev-shm-usage --hide-scrollbars --disable-gpu --disable-background-networking --virtual-time-budget=5000"
+          "$CHROME" $COMMON --window-size=1440,900 --screenshot=projects-desktop.png 'http://127.0.0.1:4173/visual-projects.html'
+          "$CHROME" $COMMON --window-size=1440,900 --screenshot=projects-desktop-mid.png 'http://127.0.0.1:4173/visual-projects.html?mid=1'
+          "$CHROME" $COMMON --window-size=390,844 --screenshot=projects-mobile.png 'http://127.0.0.1:4173/visual-projects.html'
+          "$CHROME" $COMMON --window-size=390,844 --screenshot=projects-mobile-detail.png 'http://127.0.0.1:4173/visual-projects.html?detail=1'
+          "$CHROME" $COMMON --window-size=1440,900 --screenshot=projects-detail.png 'http://127.0.0.1:4173/visual-projects.html?detail=1'
+          kill "$SERVER_PID"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: projects-visual-qa-v2
+          path: |
+            projects-desktop.png
+            projects-desktop-mid.png
+            projects-mobile.png
+            projects-mobile-detail.png
+            projects-detail.png
+      - name: Remove QA workflow
+        run: rm -f visual-projects.html .github/workflows/visual-projects-qa.yml
+      - name: Commit cleanup
+        run: |
+          git config user.name "Hans Sai"
+          git config user.email "37721651+Spairkie@users.noreply.github.com"
+          git add -A
+          git commit -m "Remove temporary visual QA workflow"
+          git push
