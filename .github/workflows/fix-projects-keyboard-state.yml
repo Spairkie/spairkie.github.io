@@ -68,15 +68,26 @@ jobs:
             await sleep(440);
             const left=await page.evaluate(()=>{const e=document.querySelector('.folio-project[aria-current="true"]');return {id:e.id,index:+e.dataset.index}});
             if(left.index!==before.index)throw new Error('Left did not return: '+JSON.stringify({before,left}));
+            await page.keyboard.press('ArrowRight');
+            await sleep(440);
+            const selected=await page.evaluate(()=>{const e=document.querySelector('.folio-project[aria-current="true"]');return {id:e.id,index:+e.dataset.index}});
+            if(selected.index!==before.index+1)throw new Error('Second Right skipped: '+JSON.stringify({before,selected}));
             await page.keyboard.press('ArrowDown');await sleep(120);
             if(!(await page.evaluate(()=>!document.getElementById('folioDetail').hidden)))throw new Error('Down did not open');
             await page.keyboard.press('ArrowDown');await sleep(500);
             if((await page.evaluate(()=>document.getElementById('folioDetailScroll').scrollTop))<=0)throw new Error('Down did not scroll detail');
             await page.evaluate(()=>document.getElementById('folioDetailScroll').scrollTo(0,0));await sleep(50);
-            await page.mouse.move(720,600);await page.mouse.wheel({deltaY:500});await sleep(120);
+            const pt=await page.$eval('#folioDetailScroll',el=>{const r=el.getBoundingClientRect();return{x:r.left+r.width*.9,y:r.top+r.height*.72}});
+            await page.mouse.move(pt.x,pt.y);await page.mouse.wheel({deltaY:500});await sleep(120);
             const nested=await page.evaluate(()=>document.getElementById('folioDetailScroll').scrollTop);
             if(nested<=0)throw new Error('Nested wheel blocked');
-            console.log(JSON.stringify({before,right,left,nested},null,2));
+            const title1=await page.evaluate(()=>document.getElementById('folioDetailTitle').textContent);
+            await page.keyboard.press('ArrowRight');await sleep(100);
+            const title2=await page.evaluate(()=>document.getElementById('folioDetailTitle').textContent);
+            if(title1===title2)throw new Error('Right did not switch project in detail');
+            await page.keyboard.press('Escape');await sleep(900);
+            if(!(await page.evaluate(()=>document.getElementById('folioDetail').hidden)))throw new Error('Escape did not close detail');
+            console.log(JSON.stringify({before,right,left,selected,nested,detailSwitch:[title1,title2]},null,2));
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
