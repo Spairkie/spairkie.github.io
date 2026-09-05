@@ -795,6 +795,17 @@ section:not(:last-of-type)::after{
 .skill-group h4{font-family:var(--font-mono);font-size:12.5px;color:var(--accent);margin:0;text-transform:uppercase;letter-spacing:0.08em;}
 .skill-tags{display:flex;flex-wrap:wrap;gap:7px;position:relative;z-index:1;}
 .skill-group:hover .skill-tags .chip{border-color:rgba(94,234,212,0.22);}
+.skill-group::after{
+  content:"";position:absolute;top:0;left:-40%;width:35%;height:100%;z-index:2;
+  background:linear-gradient(100deg,transparent,rgba(94,234,212,0.16),transparent);
+  transform:skewX(-15deg);pointer-events:none;opacity:0;
+}
+.skill-group.scan::after{animation:skillScan 1.15s ease-out;}
+@keyframes skillScan{
+  0%{left:-40%;opacity:1;}
+  100%{left:120%;opacity:0;}
+}
+@media (prefers-reduced-motion: reduce){.skill-group.scan::after{animation:none;display:none;}}
 
 /* ---------- education / certs ---------- */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
@@ -809,6 +820,16 @@ section:not(:last-of-type)::after{
 .cert-list li:last-child{border-bottom:none;}
 .cert-proof{font-family:var(--font-mono);font-size:11.5px;color:var(--accent-dim);white-space:nowrap;}
 .cert-proof:hover{color:var(--accent);}
+.cert-name{display:inline-flex;align-items:center;}
+.live-dot{
+  position:relative;display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--accent);margin-right:8px;flex:none;
+}
+.live-dot::after{
+  content:"";position:absolute;inset:-2px;border-radius:50%;
+  background:var(--accent);opacity:.55;animation:tlBreathe 2.8s var(--ease) infinite;
+}
+@media (prefers-reduced-motion: reduce){.live-dot::after{animation:none;display:none;}}
 
 /* ---------- contact ---------- */
 footer{padding:96px 0 40px;}
@@ -1546,8 +1567,8 @@ body.boot-lock{overflow:hidden;}
         </div>
       </div>
       <ul class="cert-list">
-        <li>CompTIA Security+ (Active) <a class="cert-proof" href="certs/CompTIA%20Security%2B%20ce%20certificate.pdf" target="_blank" rel="noopener">view certificate →</a></li>
-        <li>Secret Security Clearance (Active), U.S. Air Force Reserve</li>
+        <li><span class="cert-name"><span class="live-dot" aria-hidden="true"></span>CompTIA Security+ <span class="accent">Active</span></span> <a class="cert-proof" href="certs/CompTIA%20Security%2B%20ce%20certificate.pdf" target="_blank" rel="noopener">view certificate →</a></li>
+        <li><span class="cert-name"><span class="live-dot" aria-hidden="true"></span>Secret Security Clearance <span class="accent">Active</span>, U.S. Air Force Reserve</span></li>
         <li>CompTIA IT Fundamentals+ <a class="cert-proof" href="certs/CompTIA%20IT%20Fundamentals%2B%20(FC0-U61).pdf" target="_blank" rel="noopener">view certificate →</a></li>
         <li>Microsoft Technology Associate (MTA) <a class="cert-proof" href="certs/Microsoft%20Technology%20Associate.pdf" target="_blank" rel="noopener">view certificate →</a></li>
         <li>Basic Life Support (BLS) &amp; CPR Certified</li>
@@ -1571,7 +1592,7 @@ body.boot-lock{overflow:hidden;}
     <div class="quick-facts">
       <div class="qf-row"><span class="qf-num">01</span><span class="qf-label">Looking for</span><span class="qf-val">Systems/IT Admin &middot; Help Desk Lead &middot; Cleared IT/Security roles</span></div>
       <div class="qf-row"><span class="qf-num">02</span><span class="qf-label">Location</span><span class="qf-val">Philadelphia / South Jersey metro &mdash; open to fully remote</span></div>
-      <div class="qf-row"><span class="qf-num">03</span><span class="qf-label">Clearance</span><span class="qf-val">Active Secret, U.S. Air Force Reserve</span></div>
+      <div class="qf-row"><span class="qf-num">03</span><span class="qf-label">Clearance</span><span class="qf-val"><span class="live-dot" aria-hidden="true"></span>Active Secret, U.S. Air Force Reserve</span></div>
       <div class="qf-row"><span class="qf-num">04</span><span class="qf-label">Available</span><span class="qf-val">Now &mdash; open to new opportunities</span></div>
     </div>
 
@@ -2347,12 +2368,38 @@ var hsLenis = null;
   nums.forEach(function(n){ io.observe(n); });
 })();
 
-/* ---------- mousemove spotlight / 3D tilt ---------- */
+/* ---------- mousemove spotlight / 3D tilt (spring-eased, not a 1:1 snap) ---------- */
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(reduce) return;
   var targets = document.querySelectorAll('.proj-card, .stat, .mini-card, .skill-group, .teaser-item');
   var TILT = 5; /* max degrees */
+  var SPRING = 0.16; /* per-frame lerp factor -- lower = softer/springier settle */
+  var state = new Map();
+  var raf = null;
+
+  function stateFor(el){
+    var s = state.get(el);
+    if(!s){ s = {trX:0, trY:0, crX:0, crY:0, active:false}; state.set(el, s); }
+    return s;
+  }
+  function loop(){
+    var stillMoving = false;
+    state.forEach(function(s, el){
+      s.crX += (s.trX - s.crX) * SPRING;
+      s.crY += (s.trY - s.crY) * SPRING;
+      var settled = Math.abs(s.trX - s.crX) < 0.02 && Math.abs(s.trY - s.crY) < 0.02;
+      if(!settled || s.active){
+        stillMoving = true;
+        el.style.transform = 'perspective(700px) rotateX(' + s.crX.toFixed(2) + 'deg) rotateY(' + s.crY.toFixed(2) + 'deg) translateY(' + (s.active ? -2 : 0) + 'px)';
+      }else if(el.style.transform){
+        el.style.transform = '';
+      }
+    });
+    raf = stillMoving ? requestAnimationFrame(loop) : null;
+  }
+  function wake(){ if(!raf) raf = requestAnimationFrame(loop); }
+
   targets.forEach(function(el){
     el.addEventListener('mousemove', function(e){
       var r = el.getBoundingClientRect();
@@ -2360,16 +2407,40 @@ var hsLenis = null;
       var px = (x / r.width) * 100, py = (y / r.height) * 100;
       el.style.setProperty('--mx', px + '%');
       el.style.setProperty('--my', py + '%');
-      var rx = ((y / r.height) - 0.5) * -2 * TILT;
-      var ry = ((x / r.width) - 0.5) * 2 * TILT;
-      el.style.transform = 'perspective(700px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateY(-2px)';
+      var s = stateFor(el);
+      s.active = true;
+      s.trX = ((y / r.height) - 0.5) * -2 * TILT;
+      s.trY = ((x / r.width) - 0.5) * 2 * TILT;
+      wake();
     });
     el.addEventListener('mouseleave', function(){
-      el.style.transform = '';
+      var s = stateFor(el);
+      s.active = false;
+      s.trX = 0; s.trY = 0;
       el.style.removeProperty('--mx');
       el.style.removeProperty('--my');
+      wake();
     });
   });
+})();
+
+/* ---------- skills: one-time HUD-style scan sweep per card as it enters view ---------- */
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var groups = document.querySelectorAll('.skill-group');
+  if(!groups.length || reduce || !('IntersectionObserver' in window)) return;
+  var list = Array.prototype.slice.call(groups);
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        var el = en.target;
+        var delay = list.indexOf(el) * 90;
+        setTimeout(function(){ el.classList.add('scan'); }, delay);
+        io.unobserve(el);
+      }
+    });
+  }, {threshold:0.3});
+  list.forEach(function(g){ io.observe(g); });
 })();
 
 /* ---------- HUD photo tilt (headshot "3D" scan card) ---------- */
