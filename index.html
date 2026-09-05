@@ -947,6 +947,13 @@ section:not(:last-of-type)::after{
 .pc-detail-thumb.is-active{opacity:1;border-color:var(--pc-accent,#5eead4);}
 .pc-detail-thumb:hover{opacity:0.8;}
 .pc-detail-footer{padding:22px 40px 34px;}
+/* .scene-detail-copy is display:none where it normally lives (inert markup inside the hidden
+   cinematic scene -- see the note above .scene-detail-copy's rule), but openProjectDetail()
+   relocates that exact node into #pcDetailFooter as the detail overlay's real description
+   content, and it needs to actually render there. Scoping the override to this container (kept
+   in sync with .pc-detail-desc-wrap's own display:flex below) means the same node goes back to
+   being invisible automatically once closeProjectDetail() returns it to the scene. */
+#pcDetailFooter .scene-detail-copy{display:block;}
 .pc-detail-desc-wrap{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;}
 .pc-detail-desc-wrap .feature-stats{margin:0 0 10px;}
 .pc-detail-desc-wrap .feature-links{margin:6px 0 0;}
