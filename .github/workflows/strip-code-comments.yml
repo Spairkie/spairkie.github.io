@@ -25,9 +25,6 @@ jobs:
 
           root = pathlib.Path('.')
 
-          def blank_comment(text):
-              return ''.join('\n' if ch == '\n' else '' for ch in text)
-
           def strip_css(text):
               out = []
               i = 0
@@ -254,7 +251,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- '*.html' '*.htm' '*.css' '*.js' '*.mjs' '*.cjs'
+          git add -A
           if git diff --cached --quiet; then
             exit 0
           fi
