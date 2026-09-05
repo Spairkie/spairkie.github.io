@@ -1,0 +1,61 @@
+name: Fix preloader reload
+
+on:
+  push:
+    branches:
+      - fix/preloader-reload
+    paths:
+      - .github/workflows/fix-preloader-reload.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Patch preloader reload behavior
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old_css = '#boot-screen.boot-done{opacity:0;visibility:hidden;pointer-events:none;}'
+          new_css = old_css + '\n#boot-screen[hidden]{display:none!important;}'
+          assert old_css in s
+          s = s.replace(old_css, new_css, 1)
+          old_js = "if(reduce || seen){ screen.hidden = true; return; }"
+          new_js = "if(reduce || seen){ screen.classList.add('boot-done'); screen.hidden = true; return; }"
+          assert old_js in s
+          s = s.replace(old_js, new_js, 1)
+          p.write_text(s, encoding='utf-8')
+
+      - name: Validate fix
+        shell: bash
+        run: |
+          grep -Fq '#boot-screen[hidden]{display:none!important;}' index.html
+          grep -Fq "if(reduce || seen){ screen.classList.add('boot-done'); screen.hidden = true; return; }" index.html
+          python - <<'PY'
+          from pathlib import Path
+          import re, subprocess, tempfile
+          text = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script(?![^>]*type="application/ld\+json")[^>]*>(.*?)</script>', text, flags=re.S|re.I)
+          for i, src in enumerate(scripts):
+              with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as f:
+                  f.write(src)
+                  name = f.name
+              subprocess.run(['node','--check',name], check=True)
+          PY
+
+      - name: Remove temporary workflow
+        run: rm .github/workflows/fix-preloader-reload.yml
+
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix preloader getting stuck after reload"
+          git push
