@@ -1,0 +1,57 @@
+name: Dynamic class audit
+
+on:
+  push:
+    branches:
+      - cleanup/dead-code-audit
+    paths:
+      - .github/workflows/dynamic-class-audit.yml
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Report CSS classes used only from JavaScript
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          out = []
+          for path in [Path('index.html'), Path('404.html')]:
+              text = path.read_text(encoding='utf-8')
+              styles = '\n'.join(re.findall(r'(?is)<style\b[^>]*>(.*?)</style\s*>', text))
+              scripts = '\n'.join(re.findall(r'(?is)<script\b(?![^>]*\bsrc=)[^>]*>(.*?)</script\s*>', text))
+              markup = re.sub(r'(?is)<style\b[^>]*>.*?</style\s*>|<script\b[^>]*>.*?</script\s*>', '', text)
+
+              static_classes = set()
+              for m in re.finditer(r'\bclass\s*=\s*(["\'])(.*?)\1', markup, re.I | re.S):
+                  static_classes.update(m.group(2).split())
+              css_classes = set(re.findall(r'\.([A-Za-z_][\w-]*)', styles))
+
+              out += [f'## {path}', '']
+              for c in sorted(css_classes - static_classes):
+                  pat = r'(?<![\w-])' + re.escape(c) + r'(?![\w-])'
+                  if not re.search(pat, scripts):
+                      continue
+                  lines = []
+                  for n, line in enumerate(scripts.splitlines(), 1):
+                      if re.search(pat, line):
+                          lines.append(f'  - JS line {n}: `{line.strip()}`')
+                  out.append(f'- .{c}')
+                  out.extend(lines[:6])
+              out.append('')
+
+          Path('dynamic-class-report.md').write_text('\n'.join(out) + '\n', encoding='utf-8')
+      - name: Commit report
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dynamic-class-report.md
+          git commit -m "Add dynamic-class audit report"
+          git push
