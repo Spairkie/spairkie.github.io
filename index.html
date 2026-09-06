@@ -348,11 +348,11 @@ body.folio-detail-lock{overflow:hidden;}
 
 @media (min-width:1100px){
   .hero-inner{
-    max-width:1300px;
+    max-width:1360px;
     display:grid;
-    grid-template-columns:minmax(0,1fr) minmax(360px,420px);
+    grid-template-columns:minmax(0,1fr) minmax(420px,500px);
     align-items:start;
-    column-gap:56px;
+    column-gap:48px;
   }
   .hero-inner .terminal{max-width:none;width:100%;margin-top:6px;}
 }
@@ -547,29 +547,100 @@ body.folio-detail-lock{overflow:hidden;}
 
  
 .terminal{
-  max-width:560px;
-  background:var(--bg-card);
-  border:1px solid var(--line);
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 20px 60px -20px rgba(0,0,0,0.6);
+  --term-bg:#07100f;--term-panel:#0b1514;--term-panel-2:#0d1917;--term-line:rgba(94,234,212,.16);
+  --term-line-strong:rgba(94,234,212,.34);--term-text:#dff8f2;--term-dim:#82a39c;--term-dimmer:#5f7d77;
+  max-width:580px;position:relative;isolation:isolate;overflow:hidden;
+  background:linear-gradient(180deg,#0a1312 0%,var(--term-bg) 100%);
+  border:1px solid var(--term-line-strong);border-radius:14px;
+  box-shadow:0 28px 80px -34px rgba(0,0,0,.9),0 0 0 1px rgba(94,234,212,.035),0 0 70px -45px rgba(94,234,212,.55);
+  color:var(--term-text);transform:translateZ(0);
+  transition:border-color .25s ease,box-shadow .35s ease,transform .35s var(--ease);
 }
+.terminal::before{
+  content:"";position:absolute;inset:-1px;z-index:0;pointer-events:none;opacity:.55;
+  background:radial-gradient(380px circle at 88% -5%,rgba(94,234,212,.13),transparent 64%),radial-gradient(260px circle at 8% 112%,rgba(240,180,41,.06),transparent 68%);
+}
+.terminal::after{
+  content:"";position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.12;mix-blend-mode:screen;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 4px);
+}
+.terminal > *{position:relative;z-index:2;}
+:root[data-theme="light"] .terminal{box-shadow:0 24px 64px -32px rgba(31,42,38,.42),0 0 0 1px rgba(20,140,124,.08);}
+.terminal:hover{border-color:rgba(94,234,212,.46);}
 .terminal-bar{
-  display:flex;align-items:center;gap:8px;padding:10px 14px;
-  border-bottom:1px solid var(--line);background:var(--bg-panel);
+  min-height:44px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:0 14px;
+  border-bottom:1px solid var(--term-line);background:rgba(9,18,17,.92);backdrop-filter:blur(10px);
 }
-.terminal-dot{width:10px;height:10px;border-radius:50%;}
-.terminal-dot.red{background:#ff5f56;}
-.terminal-dot.yellow{background:#ffbd2e;}
-.terminal-dot.green{background:#27c93f;}
-.terminal-title{font-family:var(--font-mono);font-size:12px;color:var(--text-dimmer);margin-left:6px;}
+.terminal-window-controls{display:flex;align-items:center;gap:6px;}
+.terminal-dot{width:9px;height:9px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);}
+.terminal-dot.red{background:#ff5f56;}.terminal-dot.yellow{background:#ffbd2e;}.terminal-dot.green{background:#27c93f;}
+.terminal-bar-title{min-width:0;display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:11.5px;overflow:hidden;}
+.terminal-title{color:var(--term-text);font-weight:600;white-space:nowrap;}
+.terminal-path{color:var(--term-dimmer);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.terminal-bar-actions{display:flex;align-items:center;gap:10px;}
+.terminal-live{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--term-dim);white-space:nowrap;}
+.terminal-live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(94,234,212,.09),0 0 10px rgba(94,234,212,.45);}
+.terminal-copy{border:0;background:transparent;color:var(--term-dimmer);font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;padding:5px 0;cursor:pointer;transition:color .2s ease;}
+.terminal-copy:hover,.terminal-copy:focus-visible{color:var(--accent);}
+.terminal-snapshot{padding:15px 16px 13px;border-bottom:1px solid var(--term-line);background:linear-gradient(135deg,rgba(94,234,212,.055),transparent 48%);}
+.terminal-snapshot-main{display:flex;align-items:center;gap:11px;margin-bottom:12px;}
+.terminal-avatar{width:34px;height:34px;display:grid;place-items:center;flex:0 0 auto;border:1px solid var(--term-line-strong);background:rgba(94,234,212,.055);color:var(--accent);font-family:var(--font-mono);font-size:13px;font-weight:600;}
+.terminal-identity{min-width:0;line-height:1.2;}
+.terminal-identity strong{display:block;font-family:var(--font-display);font-size:14px;letter-spacing:-.01em;color:var(--term-text);}
+.terminal-identity small{display:block;margin-top:4px;font-family:var(--font-mono);font-size:9.8px;line-height:1.45;color:var(--term-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.terminal-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--term-line);background:rgba(3,9,8,.26);}
+.terminal-fact{min-width:0;padding:7px 9px;border-right:1px solid var(--term-line);font-family:var(--font-mono);line-height:1.25;}
+.terminal-fact:last-child{border-right:0;}
+.terminal-fact b{display:block;margin-bottom:3px;font-size:8px;font-weight:500;letter-spacing:.11em;color:var(--term-dimmer);}
+.terminal-fact span{display:block;font-size:10.5px;color:var(--term-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.terminal-screen{position:relative;background:rgba(3,8,8,.62);}
 .terminal-body{
-  padding:16px 18px 20px;font-family:var(--font-mono);font-size:13.5px;line-height:1.85;
-  min-height:150px;
+  min-height:190px;max-height:248px;overflow-y:auto;overscroll-behavior:contain;padding:14px 16px 12px;
+  font-family:var(--font-mono);font-size:11.5px;line-height:1.62;scrollbar-width:thin;scrollbar-color:rgba(94,234,212,.22) transparent;
 }
-.terminal-body .prompt{color:var(--accent);}
-.terminal-line{color:var(--text-dim);white-space:pre-wrap;}
-.terminal-out{color:var(--text);}
+.terminal-body::-webkit-scrollbar{width:5px}.terminal-body::-webkit-scrollbar-track{background:transparent}.terminal-body::-webkit-scrollbar-thumb{background:rgba(94,234,212,.22);border-radius:4px;}
+.term-entry{margin:0 0 9px;white-space:pre-wrap;word-break:break-word;}
+.term-entry:last-child{margin-bottom:0;}
+.term-entry.term-boot{opacity:0;transform:translateY(4px);animation:termLineIn .38s var(--ease) forwards;animation-delay:var(--term-delay,0ms);}
+@keyframes termLineIn{to{opacity:1;transform:translateY(0)}}
+.term-command-line{display:flex;align-items:flex-start;gap:7px;color:var(--term-text);}
+.term-shell-prompt{color:var(--accent);white-space:nowrap;user-select:none;}
+.term-command-text{color:#b7d6cf;}
+.term-output{padding-left:0;color:var(--term-dim);}
+.term-output.ok{color:#8ee8cf}.term-output.bright{color:var(--term-text)}.term-output.warn{color:#f4ca70}.term-output.err{color:#ff9b9b;}
+.term-output .term-label{color:var(--term-dimmer);}
+.terminal-quickbar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--term-line);border-bottom:1px solid var(--term-line);background:rgba(11,21,20,.76);overflow-x:auto;scrollbar-width:none;}
+.terminal-quickbar::-webkit-scrollbar{display:none;}
+.term-quick{flex:0 0 auto;border:1px solid var(--term-line);background:rgba(94,234,212,.025);color:var(--term-dim);font-family:var(--font-mono);font-size:9.5px;padding:5px 8px;border-radius:4px;cursor:pointer;transition:color .2s ease,border-color .2s ease,background .2s ease,transform .15s ease;}
+.term-quick:hover,.term-quick:focus-visible{color:var(--accent);border-color:var(--term-line-strong);background:rgba(94,234,212,.06);text-decoration:none;}
+.term-quick:active{transform:scale(.96);}
+.terminal-input-shell{min-height:42px;display:flex;align-items:center;padding:0 12px;background:#081110;font-family:var(--font-mono);font-size:11.5px;}
+.term-input-prompt{display:flex;align-items:center;flex:0 0 auto;white-space:nowrap;color:var(--term-dim);}
+.term-input-user{color:var(--accent)}.term-input-colon{color:var(--term-dimmer)}.term-input-path{color:#f0c36b}.term-input-dollar{color:var(--term-dim);margin-right:7px;}
+#termInput{min-width:0;flex:1;background:transparent;border:0;outline:0;color:var(--term-text);font-family:var(--font-mono);font-size:11.5px;caret-color:var(--accent);padding:9px 0;}
+#termInput::placeholder{color:#47615c;opacity:1;}
+.term-tab-hint{flex:0 0 auto;margin-left:8px;border:1px solid var(--term-line);padding:2px 5px;border-radius:3px;color:var(--term-dimmer);font-family:var(--font-mono);font-size:8.5px;text-transform:uppercase;letter-spacing:.04em;}
+.terminal-statusbar{display:flex;align-items:center;gap:12px;padding:6px 12px;background:#060d0c;border-top:1px solid rgba(94,234,212,.08);font-family:var(--font-mono);font-size:8.5px;letter-spacing:.02em;color:var(--term-dimmer);}
+.terminal-statusbar span:last-child{margin-left:auto;color:#52726b;}
+.terminal-ready-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-right:5px;vertical-align:1px;}
+.terminal.is-copied .terminal-copy{color:var(--accent);}
+@media (max-width:1099px){.terminal{margin-top:4px;}}
+@media (max-width:600px){
+  .terminal{max-width:none;width:100%;border-radius:10px;}
+  .terminal-bar{grid-template-columns:auto minmax(0,1fr) auto;padding:0 11px;gap:9px;}
+  .terminal-live{font-size:0;gap:0}.terminal-live::before{margin:0;}
+  .terminal-copy{font-size:9px;}
+  .terminal-snapshot{padding:13px 12px 11px;}
+  .terminal-snapshot-main{margin-bottom:10px;}
+  .terminal-fact{padding:6px 7px}.terminal-fact b{font-size:7.5px}.terminal-fact span{font-size:9.5px;}
+  .terminal-body{min-height:174px;max-height:224px;padding:12px;font-size:10.8px;}
+  .terminal-input-shell{padding:0 10px;font-size:10.5px;}
+  #termInput{font-size:10.8px;}
+  .term-input-user{display:none}.term-input-colon{display:none;}
+  .terminal-statusbar{gap:9px;padding:6px 10px;font-size:8px;}
+  .terminal-statusbar span:nth-child(2){display:none;}
+}
+@media (prefers-reduced-motion: reduce){.term-entry.term-boot{opacity:1;transform:none;animation:none;}}
 
  
 section{padding:76px 0;border-bottom:none;position:relative;}
@@ -1033,20 +1104,6 @@ body.boot-lock{overflow:hidden;}
 }
 @media (max-width:900px){.hero-mark{display:none;}}
 
- 
-.terminal-body{max-height:260px;overflow-y:auto;scrollbar-width:thin;}
-.terminal-body::-webkit-scrollbar{width:6px;}
-.terminal-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
-.term-input-row{display:flex;align-items:center;gap:0;}
-.term-input-row .prompt{flex-shrink:0;}
-#termInput{
-  flex:1;background:transparent;border:none;outline:none;color:var(--text);
-  font-family:var(--font-mono);font-size:13.5px;caret-color:var(--accent);padding:0 0 0 6px;
-}
-.terminal-line a{color:var(--accent);text-decoration:underline;}
-.terminal-hint{color:var(--text-dimmer);font-size:12px;}
-.terminal-echo{color:var(--text-dim);}
-.terminal-err{color:#ff8f8f;}
 
  
 .feature-desc{color:var(--text-dim);font-size:15px;max-width:680px;margin:0 0 16px;line-height:1.75;}
@@ -1194,12 +1251,28 @@ body.boot-lock{overflow:hidden;}
         <a class="btn btn-ghost" href="mailto:saihanswissle@gmail.com">Email Me</a>
       </div>
     </div>
-    <div class="terminal">
+    <div class="terminal" id="heroTerminal" aria-label="Interactive portfolio operations console">
       <div class="terminal-bar">
-        <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
-        <span class="terminal-title">whoami.sh</span>
+        <div class="terminal-window-controls" aria-hidden="true"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+        <div class="terminal-bar-title"><span class="terminal-title">hans@portfolio</span><span class="terminal-path">~/ops-console</span></div>
+        <div class="terminal-bar-actions"><span class="terminal-live">shell ready</span><button class="terminal-copy" id="termCopy" type="button" aria-label="Copy terminal transcript">copy</button></div>
       </div>
-      <div class="terminal-body" id="termBody"></div>
+      <div class="terminal-snapshot">
+        <div class="terminal-snapshot-main"><span class="terminal-avatar" aria-hidden="true">&gt;_</span><div class="terminal-identity"><strong>Hans Sai</strong><small>systems administration → security engineering</small></div></div>
+        <div class="terminal-facts" aria-label="Profile snapshot">
+          <div class="terminal-fact"><b>ROLE</b><span>SysAdmin</span></div><div class="terminal-fact"><b>CLEARANCE</b><span>Secret</span></div><div class="terminal-fact"><b>FOCUS</b><span>Security</span></div>
+        </div>
+      </div>
+      <div class="terminal-screen"><div class="terminal-body" id="termBody" role="log" aria-live="off" aria-relevant="additions text"></div></div>
+      <div class="terminal-quickbar" aria-label="Quick terminal commands">
+        <button class="term-quick" type="button" data-term-command="help">help</button><button class="term-quick" type="button" data-term-command="projects">projects</button><button class="term-quick" type="button" data-term-command="skills">skills</button><button class="term-quick" type="button" data-term-command="resume">resume</button><button class="term-quick" type="button" data-term-command="contact">contact</button>
+      </div>
+      <div class="terminal-input-shell">
+        <span class="term-input-prompt" aria-hidden="true"><span class="term-input-user">hans@portfolio</span><span class="term-input-colon">:</span><span class="term-input-path">~</span><span class="term-input-dollar">$</span></span>
+        <input id="termInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Portfolio terminal command" placeholder="type help or choose a command">
+        <span class="term-tab-hint" aria-hidden="true">tab</span>
+      </div>
+      <div class="terminal-statusbar" aria-hidden="true"><span>↑↓ history</span><span>Tab autocomplete</span><span>Ctrl+L clear</span><span><i class="terminal-ready-dot"></i>interactive</span></div>
     </div>
   </div>
   <div class="scroll-cue" aria-hidden="true"><span></span></div>
@@ -2956,255 +3029,187 @@ var hsLenis = null;
 
  
 (function(){
-  var lines = [
-    {p:true, t:"whoami"},
-    {p:false, t:"hans.sai  ·  systems administrator  ·  87 MDG / 514 AMDS"},
-    {p:true, t:"clearance --status"},
-    {p:false, t:"[active]  DoD SECRET"},
-    {p:true, t:"cert --list | grep active"},
-    {p:false, t:"CompTIA Security+ .......... active"},
-    {p:true, t:"echo $NEXT_ROLE"},
-    {p:false, t:"security engineering, applied"}
-  ];
-  var el = document.getElementById('termBody');
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var terminal = document.getElementById('heroTerminal');
+  var log = document.getElementById('termBody');
+  var input = document.getElementById('termInput');
+  var copyBtn = document.getElementById('termCopy');
+  if(!terminal || !log || !input) return;
 
-  var SECTIONS = ['about','experience','projects','craft','skills','education','contact'];
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var SECTIONS = ['about','experience','projects','skills','education','contact'];
+  var COMMANDS = ['help','ls','pwd','whoami','about','status','projects','skills','experience','education','contact','resume','cat','cd','open','sysinfo','neofetch','uname','date','history','theme','github','linkedin','email','matrix','clear'];
+  var OPEN_TARGETS = ['projects','skills','experience','education','about','contact','resume','github','linkedin','email'];
+  var commandHistory = [];
+  var historyIndex = 0;
+
   function matchSection(arg){
     if(!arg) return null;
     arg = arg.toLowerCase().replace(/^#/, '').replace(/\/$/, '');
     if(arg === 'home' || arg === '~' || arg === '/') return 'top';
-    for(var i=0;i<SECTIONS.length;i++){
-      if(SECTIONS[i] === arg || SECTIONS[i].indexOf(arg) === 0) return SECTIONS[i];
-    }
+    for(var i=0;i<SECTIONS.length;i++) if(SECTIONS[i] === arg || SECTIONS[i].indexOf(arg) === 0) return SECTIONS[i];
     return null;
   }
-  function scrollTo(id){
+
+  function scrollToSection(id){
     if(id === 'top'){
-      if(hsLenis){ hsLenis.scrollTo(0); return; }
-      window.scrollTo({top:0, behavior: reduce ? 'auto' : 'smooth'}); return;
+      if(window.hsLenis){ try{ window.hsLenis.scrollTo(0,{duration:.52}); return; }catch(e){} }
+      window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+      return;
     }
     var target = document.getElementById(id);
     if(!target) return;
     if(window.hsScrollToProjSlide && window.hsScrollToProjSlide(target)) return;
-    if(hsLenis){ hsLenis.scrollTo(target, {offset:-10}); return; }
-    target.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'start'});
+    if(window.hsLenis){ try{ window.hsLenis.scrollTo(target,{offset:-10,duration:.52}); return; }catch(e){} }
+    target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
   }
 
   function runMatrixFX(){
     if(document.getElementById('matrixFX')) return;
     var canvas = document.createElement('canvas');
     canvas.id = 'matrixFX';
-    canvas.setAttribute('aria-hidden', 'true');
+    canvas.setAttribute('aria-hidden','true');
     document.body.appendChild(canvas);
     var ctx = canvas.getContext('2d');
-    function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
     resize();
-    var glyphs = 'アイウエオカキクケコサシスセソタチツテト01HANSSAI'.split('');
-    var fontSize = 15;
-    var columns = Math.max(1, Math.floor(canvas.width / fontSize));
-    var drops = new Array(columns).fill(1);
+    var glyphs='アイウエオカキクケコサシスセソタチツテト01HANSSAI'.split('');
+    var fontSize=15, columns=Math.max(1,Math.floor(canvas.width/fontSize)), drops=new Array(columns).fill(1);
     function draw(){
-      ctx.fillStyle = 'rgba(10,14,20,0.15)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#5eead4';
-      ctx.font = fontSize + 'px "JetBrains Mono", monospace';
-      for(var i = 0; i < drops.length; i++){
-        var ch = glyphs[Math.floor(Math.random() * glyphs.length)];
-        ctx.fillText(ch, i * fontSize, drops[i] * fontSize);
-        if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-      }
+      ctx.fillStyle='rgba(10,14,20,0.15)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#5eead4';ctx.font=fontSize+'px "JetBrains Mono", monospace';
+      for(var i=0;i<drops.length;i++){var ch=glyphs[Math.floor(Math.random()*glyphs.length)];ctx.fillText(ch,i*fontSize,drops[i]*fontSize);if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;drops[i]++;}
     }
-    var interval = setInterval(draw, 45);
-    var done = false;
-    function cleanup(){
-      if(done) return;
-      done = true;
-      clearInterval(interval);
-      canvas.classList.add('fade-out');
-      window.removeEventListener('resize', resize);
-      document.removeEventListener('keydown', onKey);
-      setTimeout(function(){ canvas.remove(); }, 500);
-    }
-    function onKey(e){ if(e.key === 'Escape') cleanup(); }
-    window.addEventListener('resize', resize);
-    document.addEventListener('keydown', onKey);
-    canvas.addEventListener('click', cleanup);
-    setTimeout(cleanup, 4200);
+    var interval=setInterval(draw,45),done=false;
+    function cleanup(){if(done)return;done=true;clearInterval(interval);canvas.classList.add('fade-out');window.removeEventListener('resize',resize);document.removeEventListener('keydown',onKey);setTimeout(function(){canvas.remove();},500);}
+    function onKey(e){if(e.key==='Escape')cleanup();}
+    window.addEventListener('resize',resize);document.addEventListener('keydown',onKey);canvas.addEventListener('click',cleanup);setTimeout(cleanup,4200);
+  }
+
+  function appendCommand(text, bootDelay){
+    var entry=document.createElement('div');entry.className='term-entry'+(bootDelay!=null?' term-boot':'');
+    if(bootDelay!=null) entry.style.setProperty('--term-delay',bootDelay+'ms');
+    var line=document.createElement('div');line.className='term-command-line';
+    var prompt=document.createElement('span');prompt.className='term-shell-prompt';prompt.textContent='hans@portfolio:~$';
+    var cmd=document.createElement('span');cmd.className='term-command-text';cmd.textContent=text;
+    line.appendChild(prompt);line.appendChild(cmd);entry.appendChild(line);log.appendChild(entry);return entry;
+  }
+
+  function appendOutput(text,tone,bootDelay){
+    if(!text) return null;
+    var entry=document.createElement('div');entry.className='term-entry'+(bootDelay!=null?' term-boot':'');
+    if(bootDelay!=null) entry.style.setProperty('--term-delay',bootDelay+'ms');
+    var out=document.createElement('div');out.className='term-output'+(tone?' '+tone:'');out.textContent=text;entry.appendChild(out);log.appendChild(entry);return entry;
+  }
+
+  function scrollLog(){ log.scrollTop=log.scrollHeight; }
+  function clearLog(){ while(log.firstChild) log.removeChild(log.firstChild); }
+
+  function openTarget(arg){
+    arg=(arg||'').toLowerCase().trim();
+    var sec=matchSection(arg);
+    if(sec){scrollToSection(sec);return {text:'navigating → #'+(sec==='top'?'top':sec),tone:'ok'};}
+    if(arg==='resume'){window.open('resume/Hans_Sai_Resume.pdf','_blank','noopener');return {text:'opening resume/Hans_Sai_Resume.pdf',tone:'ok'};}
+    if(arg==='github'){window.open('https://github.com/Spairkie','_blank','noopener');return {text:'opening github.com/Spairkie',tone:'ok'};}
+    if(arg==='linkedin'){window.open('https://www.linkedin.com/in/8pairkie/','_blank','noopener');return {text:'opening linkedin.com/in/8pairkie',tone:'ok'};}
+    if(arg==='email'){window.location.href='mailto:saihanswissle@gmail.com';return {text:'opening mail client',tone:'ok'};}
+    return {text:'open: unknown target "'+(arg||'')+'"\ntry: '+OPEN_TARGETS.join('  '),tone:'err'};
   }
 
   function runCommand(raw){
-    var parts = raw.trim().split(/\s+/);
-    var cmd = (parts[0] || '').toLowerCase();
-    var arg = parts.slice(1).join(' ');
-    if(!cmd) return {text:''};
+    var trimmed=raw.trim();
+    if(!trimmed) return {text:''};
+    var parts=trimmed.split(/\s+/),cmd=(parts.shift()||'').toLowerCase(),arg=parts.join(' ');
     switch(cmd){
-      case 'help':
-        return {text:"available: help, ls, cd <section>, whoami, cat resume, sudo hire-me, sysinfo, theme, matrix, clear, github, linkedin, email"};
-      case 'ls':
-        return {text: SECTIONS.join('  ')};
-      case 'pwd':
-        return {text:"/home/hans/portfolio"};
-      case 'cd':
-        var sec = matchSection(arg);
-        if(!sec) return {text: arg ? ("cd: no such section: " + arg) : "usage: cd <section>", isErr:true};
-        scrollTo(sec);
-        return {text:"→ " + (sec === 'top' ? 'top' : sec)};
+      case 'help': return {text:'NAVIGATION   projects  skills  experience  education  about  contact\nPROFILE      whoami  status  sysinfo  pwd  ls\nACTIONS      resume  open <target>  github  linkedin  email\nSHELL        cd <section>  cat resume  history  date  theme  clear\nEXTRA        matrix\n\n↑/↓ history · Tab autocomplete · Ctrl+L clear · Esc blur',tone:'bright'};
+      case 'ls': return {text:'about/  experience/  projects/  skills/  education/  contact/  resume.pdf',tone:'ok'};
+      case 'pwd': return {text:'/home/hans/portfolio',tone:'bright'};
       case 'whoami':
-        return {text:"hans.sai \u00b7 IT Support Associate II @ Amazon \u00b7 USAFR Systems Administrator \u00b7 Security+ \u00b7 Secret clearance"};
+      case 'about': return {text:'Hans Sai\nSystems Administrator · USAFR · IT Support Associate II @ Amazon\nCompTIA Security+ · Active DoD Secret clearance\nBuilding toward security engineering through applied tooling.',tone:'bright'};
+      case 'status': return {text:'availability   OPEN_TO_OPPORTUNITIES\nclearance      ACTIVE_SECRET\ncertification  SECURITY+\nfocus          SECURITY_ENGINEERING\nsite           ONLINE',tone:'ok'};
+      case 'projects': scrollToSection('projects'); return {text:'navigating → #projects',tone:'ok'};
+      case 'skills': scrollToSection('skills'); return {text:'navigating → #skills',tone:'ok'};
+      case 'experience': scrollToSection('experience'); return {text:'navigating → #experience',tone:'ok'};
+      case 'education': scrollToSection('education'); return {text:'navigating → #education',tone:'ok'};
+      case 'contact': scrollToSection('contact'); return {text:'navigating → #contact',tone:'ok'};
+      case 'resume': window.open('resume/Hans_Sai_Resume.pdf','_blank','noopener'); return {text:'opening resume/Hans_Sai_Resume.pdf',tone:'ok'};
+      case 'cd':
+        var sec=matchSection(arg);if(!sec)return {text:arg?'cd: no such section: '+arg:'usage: cd <section>',tone:'err'};scrollToSection(sec);return {text:'cwd → #'+(sec==='top'?'top':sec),tone:'ok'};
+      case 'open': return openTarget(arg);
       case 'cat':
-        if(/resume/i.test(arg)){
-          window.open('resume/Hans_Sai_Resume.pdf', '_blank', 'noopener');
-          return {text:"opening resume/Hans_Sai_Resume.pdf ..."};
-        }
-        return {text:"cat: " + (arg || '(no file)') + ": no such file", isErr:true};
-      case 'sudo':
-        if(/hire.?me/i.test(arg)){
-          scrollTo('contact');
-          return {text:"[sudo] password for hans: ********\naccess granted. redirecting to #contact ..."};
-        }
-        return {text:"sudo: " + arg + ": command not found", isErr:true};
+        if(/resume/i.test(arg)){window.open('resume/Hans_Sai_Resume.pdf','_blank','noopener');return {text:'opening resume/Hans_Sai_Resume.pdf',tone:'ok'};}
+        if(/about|profile|whoami/i.test(arg)) return {text:'Hans Sai — systems administrator focused on endpoint operations, automation, and applied security.',tone:'bright'};
+        return {text:'cat: '+(arg||'(no file)')+': no such file',tone:'err'};
       case 'sysinfo':
       case 'neofetch':
-        return {text:
-          "OS: HansOS 26.09 LTS (Lindenwold, NJ)\n" +
-          "Host: spairkie.github.io\n" +
-          "Uptime: 5+ yrs IT operations\n" +
-          "Shell: security-engineering.sh\n" +
-          "Clearance: ACTIVE (DoD SECRET)\n" +
-          "Packages: AD, GPO, SCCM, PowerShell, Python, Sysmon (2,847)\n" +
-          "Endpoints: 150+ imaged & deployed\n" +
-          "Tickets/yr: 1,000+ resolved"};
+      case 'uname': return {text:'HansOS 26.09 LTS\nHost       spairkie.github.io\nRole       Systems Administrator\nOps        5+ years\nEndpoints  150+ imaged / deployed\nTickets    1,000+ resolved yearly\nTooling    PowerShell · Python · AD · GPO · SCCM · Sysmon',tone:'bright'};
+      case 'date': return {text:new Date().toLocaleString(),tone:'bright'};
+      case 'history': return {text:commandHistory.length?commandHistory.map(function(v,i){return String(i+1).padStart(2,' ')+'  '+v;}).join('\n'):'history: empty',tone:'bright'};
       case 'theme':
-        var themeBtn = document.getElementById('themeToggle');
-        if(themeBtn) themeBtn.click();
-        var nowLight = document.documentElement.getAttribute('data-theme') === 'light';
-        return {text:"theme set to " + (nowLight ? "light" : "dark")};
-      case 'github':
-        window.open('https://github.com/Spairkie', '_blank', 'noopener');
-        return {text:"opening github.com/Spairkie ..."};
-      case 'linkedin':
-        window.open('https://www.linkedin.com/in/8pairkie/', '_blank', 'noopener');
-        return {text:"opening linkedin.com/in/8pairkie ..."};
-      case 'email':
-        window.location.href = 'mailto:saihanswissle@gmail.com';
-        return {text:"mailto:saihanswissle@gmail.com"};
-      case 'contact':
-        scrollTo('contact');
-        return {text:"→ contact"};
+        var desired=(arg||'').toLowerCase(),isLight=document.documentElement.getAttribute('data-theme')==='light',btn=document.getElementById('themeToggle');
+        if(desired==='light'&&!isLight&&btn)btn.click();else if(desired==='dark'&&isLight&&btn)btn.click();else if(!desired&&btn)btn.click();else if(desired&&desired!=='light'&&desired!=='dark')return {text:'usage: theme [light|dark]',tone:'err'};
+        return {text:'theme → '+(document.documentElement.getAttribute('data-theme')==='light'?'light':'dark'),tone:'ok'};
+      case 'github': return openTarget('github');
+      case 'linkedin': return openTarget('linkedin');
+      case 'email': return openTarget('email');
       case 'matrix':
-        if(reduce){
-          return {text:"wake up, hans...\n(reduced motion is on, so no visual effect, but the offer stands.)"};
-        }
-        runMatrixFX();
-        return {text:"wake up, hans...\nfollow the white rabbit. [esc or click to exit]"};
-      case 'clear':
-        return {clear:true};
+        if(reduce)return {text:'matrix visual skipped: reduced motion is enabled',tone:'warn'};runMatrixFX();return {text:'matrix overlay started · Esc or click to exit',tone:'ok'};
+      case 'clear': return {clear:true};
       default:
-        return {text: cmd + ": command not found. try 'help'", isErr:true};
+        var suggestion='';for(var i=0;i<COMMANDS.length;i++){if(COMMANDS[i].indexOf(cmd)===0||cmd.indexOf(COMMANDS[i])===0){suggestion='\ndid you mean: '+COMMANDS[i]+' ?';break;}}
+        return {text:cmd+': command not found'+suggestion+'\ntype help for commands',tone:'err'};
     }
   }
 
-  function enableInteractive(){
-    var hint = document.createElement('div');
-    hint.className = 'terminal-line terminal-hint';
-    hint.textContent = "type 'help' for commands";
-    el.appendChild(hint);
-
-    var row = document.createElement('div');
-    row.className = 'terminal-line term-input-row';
-    var pr = document.createElement('span');
-    pr.className = 'prompt';
-    pr.textContent = '$';
-    var input = document.createElement('input');
-    input.type = 'text';
-    input.id = 'termInput';
-    input.autocomplete = 'off';
-    input.autocapitalize = 'off';
-    input.spellcheck = false;
-    input.setAttribute('aria-label', 'Interactive terminal, type help for commands');
-    row.appendChild(pr);
-    row.appendChild(input);
-    el.appendChild(row);
-    el.scrollTop = el.scrollHeight;
-
-    function printLine(text, cls){
-      var d = document.createElement('div');
-      d.className = 'terminal-line' + (cls ? ' ' + cls : '');
-      text.split('\n').forEach(function(t, i){
-        if(i > 0) d.appendChild(document.createElement('br'));
-        d.appendChild(document.createTextNode(t));
-      });
-      el.insertBefore(d, row);
-    }
-
-    input.addEventListener('keydown', function(e){
-      if(e.key !== 'Enter') return;
-      var raw = input.value;
-      input.value = '';
-      printLine('$ ' + raw, 'terminal-echo');
-      var result = runCommand(raw);
-      if(result.clear){
-        el.querySelectorAll('.terminal-line').forEach(function(n){
-          if(n !== row) n.remove();
-        });
-      } else if(result.text){
-        printLine(result.text, result.isErr ? 'terminal-err' : 'terminal-out');
-      }
-      el.scrollTop = el.scrollHeight;
-    });
-
-    var termWrap = document.querySelector('.terminal');
-    if(termWrap){
-      termWrap.addEventListener('click', function(){ input.focus(); });
-    }
+  function execute(raw,opts){
+    opts=opts||{};var trimmed=raw.trim();if(!trimmed)return;
+    if(!opts.noHistory){commandHistory.push(trimmed);if(commandHistory.length>30)commandHistory.shift();historyIndex=commandHistory.length;}
+    appendCommand(trimmed);
+    var result=runCommand(trimmed);
+    if(result.clear){clearLog();}
+    else if(result.text) appendOutput(result.text,result.tone||'');
+    scrollLog();
   }
 
-  if(reduce){
-    lines.forEach(function(l){
-      var d = document.createElement('div');
-      d.className = 'terminal-line';
-      d.innerHTML = (l.p ? '<span class="prompt">$</span> ' : '') + (l.p ? l.t : '<span class="terminal-out">'+l.t+'</span>');
-      el.appendChild(d);
-    });
-    enableInteractive();
-    return;
+  function completionsFor(value){
+    var trimmed=value.replace(/^\s+/,''),parts=trimmed.split(/\s+/),last=parts[parts.length-1].toLowerCase(),pool=COMMANDS;
+    if(parts.length>1&&(parts[0]==='cd'||parts[0]==='open')) pool=parts[0]==='cd'?SECTIONS.concat(['top']):OPEN_TARGETS;
+    return pool.filter(function(v){return v.indexOf(last)===0;});
   }
-  var li = 0, ci = 0, cur = null;
-  function step(){
-    if(li >= lines.length){
-      enableInteractive();
-      return;
-    }
-    var line = lines[li];
-    if(ci === 0){
-      cur = document.createElement('div');
-      cur.className = 'terminal-line';
-      if(line.p){
-        var pr = document.createElement('span');
-        pr.className = 'prompt';
-        pr.textContent = '$ ';
-        cur.appendChild(pr);
-      }
-      var span = document.createElement('span');
-      if(!line.p) span.className = 'terminal-out';
-      cur.appendChild(span);
-      el.appendChild(cur);
-    }
-    var span = cur.lastChild;
-    if(ci < line.t.length){
-      span.textContent += line.t[ci];
-      ci++;
-      setTimeout(step, line.p ? 34 : 14);
-    } else {
-      li++; ci = 0;
-      setTimeout(step, line.p ? 260 : 420);
-    }
+
+  function completeInput(){
+    var value=input.value,parts=value.replace(/^\s+/,'').split(/\s+/),matches=completionsFor(value);
+    if(matches.length===1){parts[parts.length-1]=matches[0];input.value=parts.join(' ')+(parts[0]==='cd'||parts[0]==='open'?' ':'');input.setSelectionRange(input.value.length,input.value.length);}
+    else if(matches.length>1){appendOutput(matches.join('   '),'bright');scrollLog();}
   }
-  step();
+
+  var intro=[
+    ['session --status','[ready] interactive portfolio shell mounted','ok'],
+    ['whoami --brief','Hans Sai · Systems Administrator · Security+ · Active Secret','bright'],
+    ['echo $NEXT_ROLE','security engineering, applied','ok']
+  ];
+  intro.forEach(function(row,i){appendCommand(row[0],i*115);appendOutput(row[1],row[2],i*115+55);});
+  scrollLog();
+  setTimeout(function(){log.setAttribute('aria-live','polite');},reduce?0:520);
+
+  input.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='l'){e.preventDefault();clearLog();return;}
+    if(e.key==='Enter'){e.preventDefault();var raw=input.value;input.value='';execute(raw);return;}
+    if(e.key==='ArrowUp'){e.preventDefault();if(!commandHistory.length)return;historyIndex=Math.max(0,historyIndex-1);input.value=commandHistory[historyIndex]||'';input.setSelectionRange(input.value.length,input.value.length);return;}
+    if(e.key==='ArrowDown'){e.preventDefault();if(!commandHistory.length)return;historyIndex=Math.min(commandHistory.length,historyIndex+1);input.value=historyIndex===commandHistory.length?'':commandHistory[historyIndex]||'';input.setSelectionRange(input.value.length,input.value.length);return;}
+    if(e.key==='Tab'){e.preventDefault();completeInput();return;}
+    if(e.key==='Escape'){input.blur();}
+  });
+
+  terminal.querySelectorAll('[data-term-command]').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();execute(btn.getAttribute('data-term-command')||'');input.focus({preventScroll:true});});});
+  terminal.addEventListener('click',function(e){if(e.target.closest('button'))return;input.focus({preventScroll:true});});
+
+  if(copyBtn){copyBtn.addEventListener('click',function(e){
+    e.stopPropagation();var text=log.innerText||log.textContent||'';
+    function mark(){terminal.classList.add('is-copied');copyBtn.textContent='copied';setTimeout(function(){terminal.classList.remove('is-copied');copyBtn.textContent='copy';},1200);}
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(mark).catch(function(){});
+  });}
+
+  window.hsTerminal={run:function(command){execute(String(command||''));},focus:function(){input.focus({preventScroll:true});},clear:clearLog};
 })();
-
  
 (function(){
   var els = document.querySelectorAll('.reveal');
